@@ -1,11 +1,13 @@
 angular.module('kanban', ['ngDragDrop'])
-  .controller("KanbanCtrl", function($scope, $socketio) {
+  .controller("KanbanCtrl", function($scope, $http) {
 
     $scope.columns = [];
-
     $scope.init = function(board_id){
         $scope.board_id = board_id;
-        $socketio.emit("board_id", board_id);
+        $http.get(board_id + '/get_tickets.json')
+             .success(function(data) {
+                $scope.columns = data;
+        });
     }
 
     $scope.addColumn = function() {
@@ -23,17 +25,16 @@ angular.module('kanban', ['ngDragDrop'])
     };
 
     $scope.boardChanged = function() {
-        $socketio.emit("board_changed",
-            $scope.columns.slice(1, $scope.columns.length));
+        $http.post($scope.board_id + '/post_tickets.json',
+                   $scope.columns.slice(1, $scope.columns.length))
+             .success(function(data){
+                 console.log('updated');
+             });
     };
 
     $scope.handleDrop = function(event, ui) {
         $scope.boardChanged();
     }
-
-    $socketio.on('columns', function(data) {
-      $scope.columns = data.value;
-    });
 
   })
 
@@ -53,10 +54,9 @@ angular.module('kanban', ['ngDragDrop'])
                         ngModel.$setViewValue(value);
                         scope.$apply();
                     },
-//                    success: function(response, newValue) {
-//                        console.log(scope.columns.slice(1,3));
-//                        scope.boardChanged();
-//                    }
+                    success: function(response, newValue) {
+                        scope.boardChanged();
+                    }
                 });
             }
             $timeout(function() {
@@ -66,28 +66,3 @@ angular.module('kanban', ['ngDragDrop'])
         }
     }
 })
-
-.factory("$socketio", function($rootScope) {
-  var socket = io.connect('/kanban');
-  return {
-    on: function (eventName, callback) {
-      socket.on(eventName, function () {
-        var args = arguments;
-        $rootScope.$apply(function () {
-          callback.apply(socket, args);
-        });
-      });
-    },
-    emit: function (eventName, data, callback) {
-      socket.emit(eventName, data, function () {
-        var args = arguments;
-        $rootScope.$apply(function () {
-          if (callback) {
-            callback.apply(socket, args);
-          }
-        });
-      })
-    }
-  };
-})
-
