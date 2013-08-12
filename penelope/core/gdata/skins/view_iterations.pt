@@ -1,0 +1,24 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en"
+      xmlns:tal="http://xml.zope.org/namespaces/tal"
+      metal:use-macro="skin: /main_template">
+<body>
+  <div metal:fill-slot="body">
+    <h1>Current iteration</h1>
+
+    <tal:doc condition="doc_url">
+        <p>Bellow you can see current iteration spreadsheet.</p>
+        <div class="alert alert-block">
+          <p>You can access it directly by going to this link: <a href="${doc_url.replace('&rm=minimal','')}" target="_blank">${doc_url.replace('&rm=minimal','')}</a></p>
+        </div>
+        <iframe src="${doc_url}" width="1024" frameborder="0" height="800"></iframe>
+    </tal:doc>
+    <div tal:condition="not doc_url">
+      <p>It seems there is no active iteration.
+      <span tal:condition="request.has_permission('manage_iterations', context)">Please <a href="${request.application_url}/manage_iterations">add new one</a></span>
+      </p>
+    </div>
+
+  </div>
+</body>
+</html>
+

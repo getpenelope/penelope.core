@@ -19,6 +19,7 @@ requires = [
     'distribute',
     'fa.bootstrap',
     'feedparser',
+    'gdata==2.0.14',
     'gspread',
     'js.jqgrid ',
     'js.jquery_datatables==1.8.2',
@@ -43,6 +44,7 @@ requires = [
     'pyramid_skins',
     'pyramid_zcml',
     'python-cjson',
+    'python-dateutil==1.5'
     'python-openid>=2.0',
     'raven',
     'repoze.tm2>=1.0b1', # default_commit_veto

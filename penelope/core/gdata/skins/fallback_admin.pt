@@ -1,0 +1,21 @@
+<html metal:use-macro="main.macros['master']">
+  <body>
+    <div metal:fill-slot="main">
+      <ul class="nav nav-pills" tal:on-error="''">
+          <li tal:replace="structure request.actions.tabs(request)" />
+      </ul>
+      <h1>Google Application Graceful Fallback</h1>
+      <p>This is a standard fallback mechanizme. Don't worry!</p>
+
+      <div class="alert-message block-message error">
+          <p><strong>Fail! You don't have a proper Google Application Token!</strong></p>
+          <p>You have been trying to access a restricted area that requires Google Application Token. We
+             can try to help you:</p>
+          <div class="alert-actions">
+            <a class="btn small success" href="${force_url}">Acquire new token</a>
+            <a class="btn small" href="${uri}" target="_blank" tal:condition="uri">Go to Google Document directly</a> 
+          </div>
+      </div>
+  </div>
+</body>
+</html>

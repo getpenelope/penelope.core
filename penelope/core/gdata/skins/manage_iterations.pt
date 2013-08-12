@@ -1,0 +1,57 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en"
+      xmlns:tal="http://xml.zope.org/namespaces/tal"
+      metal:use-macro="skin: /main_template">
+<body>
+  <div metal:fill-slot="body">
+      <h1>Manage iterations</h1>
+      <p>Bellow you can see list of all iteration spreadsheets from this folder: <a href="${iteration_folder}" target="_blank">${iteration_folder}</a></p>
+      <table class="table-bordered table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Spreadsheet name</th>
+              <th>Creation date</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody tal:repeat="doc docs">
+            <tr>
+              <td>${repeat['doc'].number}</td>
+              <td>
+                <a href="${doc.get_html_link().href}" target="_blank">${doc.title.text}</a>
+              </td>
+              <td>${doc.published.text}</td>
+              <td><a href="${request.application_url}/activate_iteration?docid=${doc.resource_id.text}" class="btn">Activate iteration</a></td>
+            </tr>
+          </tbody>
+        </table>
+
+     <div tal:condition="validation_error|nothing" class="alert-error alert">
+       ${validation_error}
+     </div>
+
+   <form method="POST" action="${request.application_url}/generate_iteration" class="form-inline">
+      <fieldset>
+          <legend>Adds new iteration spreadsheet</legend>
+                  <input type="text" name="start" id="start" class="small" placeholder="From" />
+                  <input type="text" name="end" id="end" class="small" placeholder="To" />
+                  <input type="submit" value="Add iteration" class="btn primary" />
+     </fieldset>
+   </form>
+
+
+     <script>
+          $(document).ready(function() {
+              var options = {
+                  dateFormat: 'yy-mm-dd',
+                  autoSize: true,
+                  showOn: 'both',
+              };
+              $('#start').datepicker(options);
+              $('#end').datepicker(options);
+          });
+     </script>
+  </div>
+</body>
+</html>
+
