@@ -66,7 +66,7 @@ requires = [
     ]
 
 setup(name='penelope.core',
-      version='1.0.dev0',
+      version='1.0',
       description='Penelope main package',
       long_description=README + '\n\n' +  CHANGES,
       classifiers=[
