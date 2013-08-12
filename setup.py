@@ -19,15 +19,19 @@ requires = [
     'distribute',
     'fa.bootstrap',
     'feedparser',
+    'gspread',
     'js.jqgrid ',
     'js.jquery_datatables==1.8.2',
     'js.jquery_timepicker_addon',
     'js.lesscss',
     'jsonrpc',
     'lingua',
+    'lorem-ipsum-generator',
     'lxml'
+    'plone.i18n',
     'por.trac',
     'profilehooks',
+    'psycopg2',
     'pyramid',
     'pyramid_beaker',
     'pyramid_debugtoolbar',
@@ -47,13 +51,16 @@ requires = [
     'repoze.who<1.9',
     'repoze.workflow',
     'sunburnt',
+    'SQLAlchemy',
     'transaction',
+    'Trac',
     'unittest2',
     'velruse',
     'WebError',
     'WebTest',
     'xlwt',
     'zope.interface',
+    'zope.sqlalchemy',
     ]
 
 setup(name='penelope.core',
@@ -85,5 +92,12 @@ setup(name='penelope.core',
       por = penelope.core.fanstatic_resources:por_library
       deform_library = penelope.core.fanstatic_resources:deform_library
       deform_bootstrap_library = penelope.core.fanstatic_resources:deform_bootstrap_library
+
+      [console_scripts]
+      populate_penelope = penelope.core.scripts.populate:main
+      populate_with_dummies = penelope.core.scripts.dummies:main
+      import_svn = penelope.core.scripts.importsvn:main
+      quality_export = penelope.core.scripts.quality_export:main
+      contracts_import = penelope.core.scripts.contracts_import:main
       """,
       )
