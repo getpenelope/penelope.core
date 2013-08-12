@@ -1,0 +1,17 @@
+<metal:main define-macro="main">
+    <p tal:content="structure application.description"></p>
+        <table class="table table-bordered">
+            <thead>
+              <tr>
+                <th>Tickets</th>
+              </tr>
+            </thead>
+            <tbody tal:repeat="ticket feed.entries">
+              <tr>
+                <td><h4><a href="${ticket.link}">${ticket.title}</a></h4>
+                    <blockquote tal:condition="exists: ticket.summary" tal:content="structure ticket.summary" />
+                </td>
+              </tr>
+            </tbody>
+          </table>
+</metal:main>

@@ -1,0 +1,30 @@
+<metal:main define-macro="main">
+    <p tal:content="structure application.description"></p>
+<div class="alert alert-block" tal:condition="status">
+    <a class="close" href="#">x</a>
+    <p>${status}</p>
+</div>
+<p tal:condition="not folder">This folder is empty.</p>
+<table class="table table table-bordered" tal:condition="folder">
+  <thead>
+    <tr>
+      <th>#</th>
+      <th>Document name</th>
+      <th>Creation date</th>
+      <th>Modification date</th>
+    </tr>
+  </thead>
+  <tbody tal:repeat="doc folder">
+    <tr>
+      <td>${repeat['doc'].number}</td>
+      <td>
+        <img tal:condition="not 'application' in doc.get_document_type()"
+             src="https://ssl.gstatic.com/docs/doclist/images/icon_10_${doc.get_document_type()}_list.png">
+        <a href="${doc.get_html_link().href}" target="_blank">${doc.title.text}</a>
+      </td>
+      <td>${convert_date(doc.published)}</td>
+      <td>${convert_date(doc.last_viewed)}</td>
+    </tr>
+  </tbody>
+</table>
+</metal:main>

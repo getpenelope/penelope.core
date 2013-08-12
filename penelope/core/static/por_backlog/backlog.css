@@ -1,0 +1,107 @@
+
+.bgb-project-header {
+  font-weight: bold;
+  color: #0088CC;
+}
+
+.bgb-project-trigger {
+  cursor: pointer;
+}
+
+.bgb-project-trigger:hover {
+  color: #005580;
+}
+
+.bgb-container {
+  width: 700px;
+}
+
+#backlog-filter ul {
+  padding-top: 5px;
+}
+
+#backlog-filter .subnav  ul {
+  padding-left: 35px;
+}
+
+#backlog-filter .subnav.subnav-fixed  ul {
+  padding-left: 50px;
+}
+
+#backlog-filter li {
+  float: left;
+  padding-left: 8px;
+}
+
+#backlog-filter li > input {
+  float: left;
+  margin-right: 3px;
+}
+
+#backlog-filter li > label {
+  float: left;
+}
+
+tr[data-cr-editable] .backlog-placement-trigger {
+  cursor: pointer;
+}
+
+.bgb-container .col-placement {
+  width: 6em;
+}
+
+.bgb-container .col-customer-request {
+  width: auto;
+}
+
+.bgb-container .col-workflow-state {
+  width: 7em;
+}
+
+.bgb-container .col-estimated {
+  width: 7em;
+}
+
+.bgb-container .col-done {
+  width: 4em;
+}
+
+.bgb-container td.backlog-duration,
+.bgb-container th.backlog-duration {
+  text-align: right;
+}
+
+.bgb-container td.backlog-workflow,
+.bgb-container th.backlog-workflow {
+  text-align: right;
+}
+
+.bgb-project tr:hover {
+  background-color: #f8f8f8;
+}
+
+.bgb-project tr:hover:last-child {
+  background-color: transparent;
+}
+
+#tekken-filter ul {
+  padding-top: 5px;
+}
+
+#tekken-filter .subnav.subnav-fixed  ul {
+  padding-left: 50px;
+}
+
+#tekken-filter li {
+  float: left;
+  padding-left: 8px;
+}
+
+#tekken-filter li > input {
+  float: left;
+  margin-right: 3px;
+}
+
+#tekken-filter li > label {
+  float: left;
+}

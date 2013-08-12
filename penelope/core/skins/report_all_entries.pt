@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en"
+      xmlns:tal="http://xml.zope.org/namespaces/tal"
+      metal:use-macro="skin: /main_template">
+<body>
+
+    <div metal:fill-slot="body" tal-omit-tag="">
+
+      <div class="page-header">
+          <h3>Report all entries</h3>
+      </div>
+
+      <metal:body define-macro="report-main">
+
+      <div class="row-fluid">
+        <div class="span12">
+          <div tal:replace="structure form" />
+        </div>
+      </div>
+      <div class="row-fluid">
+        <div class="span12 well">
+	  <a href="#" class="btn btn-primary disabled">All entries</a>
+	  <a href="./report_state_change?${qs}" class="btn btn-primary">Time state change</a>
+	  <a href="./report_custom?${qs}&detail_level=timeentry" class="btn btn-primary">Customer report</a>
+        </div>
+      </div>
+      <div class="row-fluid">
+        <div class="span12">
+          <tal:result condition="has_results">
+            <div id="report_pivoted"></div>
+            <div tal:replace="structure saved_query_form" />
+
+            <script>
+              $(document).ready(function() {
+                $.fn.tpReport(${tpReport_oConf});
+              });
+            </script>
+
+          </tal:result>
+          <h3 tal:condition="not:has_results">
+            No data found.
+          </h3>
+        </div>
+      </div>
+      </metal:body>
+
+    </div>
+
+</body>
+</html>

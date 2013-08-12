@@ -1,0 +1,172 @@
+# Polish translations for penelope.core.
+# Copyright (C) 2011 ORGANIZATION
+# This file is distributed under the same license as the penelope.core
+# project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2011.
+# 
+msgid ""
+msgstr ""
+"Project-Id-Version: penelope.core 0.1\n"
+"POT-Creation-Date: 2012-06-19 14:05+0000\n"
+"PO-Revision-Date: 2011-11-29 15:59+0100\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: pl <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2)\n"
+"Language-Code: en\n"
+"Language-Name: English\n"
+"Preferred-Encodings: utf-8 latin1\n"
+"Domain: DOMAIN\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"Generated-By: Babel 0.9.6\n"
+
+#: ./events.py:134
+msgid "${fs_name_value} already exists! Please choose another project name or provide unique ID!"
+msgstr ""
+
+#: ./skins/main_template.pt:28
+msgid "${request.registry.settings['project_name']}"
+msgstr ""
+
+#: ./forms/__init__.py:254
+msgid "${value} already exists! Field '${field_column_name}' should be unique!"
+msgstr ""
+
+#: ./forms/templates/user_tokens.pt:13
+msgid "Actions"
+msgstr ""
+
+#: ./forms/templates/customer_listing.pt:6
+msgid "All customers"
+msgstr ""
+
+#: ./forms/templates/configurate_apps.pt:11
+msgid "Application"
+msgstr ""
+
+#: ./forms/__init__.py:243
+msgid "Broken ${value}"
+msgstr ""
+
+#: ./forms/__init__.py:41
+msgid "Cancel"
+msgstr ""
+
+#: ./forms/templates/customer_requests.pt:55
+msgid "Costs"
+msgstr ""
+
+#: ./forms/templates/customer_requests.pt:20
+msgid "Customer requests"
+msgstr ""
+
+#: ./forms/templates/time_entries.pt:17
+msgid "Date"
+msgstr ""
+
+#: ./forms/templates/configurate_apps.pt:12
+#: ./forms/templates/customer_requests.pt:22
+#: ./forms/templates/tickets.pt:15
+msgid "Details"
+msgstr ""
+
+#: ./forms/templates/customer_requests.pt:54
+msgid "Estimations"
+msgstr ""
+
+#: ./forms/templates/configuration.pt:11
+msgid "Group"
+msgstr ""
+
+#: ./forms/templates/customer_requests.pt:21
+msgid "Label"
+msgstr ""
+
+#: ./security/views.py:135
+msgid "Missing password."
+msgstr ""
+
+#: ./skins/view_home.pt:8
+msgid "My projects"
+msgstr ""
+
+#: ./skins/view_home.pt:29
+msgid "Other projects"
+msgstr "Pozostałe projekty"
+
+#: ./security/views.py:141
+msgid "Password changed."
+msgstr ""
+
+#: ./security/views.py:137
+msgid "Password too short. It needs to be at least 6 characters long."
+msgstr ""
+
+#: ./security/views.py:133
+msgid "Passwords missmatch."
+msgstr ""
+
+#: ./events.py:241
+msgid "Please provide application uri. If you choose trac or svn - leave this field empty."
+msgstr ""
+
+#: ./forms/__init__.py:57
+msgid "Save"
+msgstr ""
+
+#: ./forms/templates/customer_requests.pt:23
+#: ./forms/templates/user_tokens.pt:12
+msgid "State"
+msgstr ""
+
+#: ./forms/templates/tickets.pt:14
+msgid "Tickets"
+msgstr ""
+
+#: ./forms/templates/time_entries.pt:16
+msgid "Time entries"
+msgstr ""
+
+#: ./security/views.py:131
+msgid "Token doesn't exist."
+msgstr ""
+
+#: ./forms/templates/user_tokens.pt:11
+msgid "Token type"
+msgstr ""
+
+#: ./forms/templates/customer_requests.pt:66
+msgid "Total:"
+msgstr ""
+
+#: ./forms/templates/configuration.pt:12
+msgid "Users"
+msgstr ""
+
+#: ./security/views.py:68
+msgid "You have been loggout."
+msgstr "Zostałeś wylogowany"
+
+#: ./events.py:215
+msgid "You have choosen ${app_type} as your application type. Please provide api uri."
+msgstr ""
+
+#: ./skins/main_template.pt:46
+msgid "add entries"
+msgstr ""
+
+#: ./skins/view_home.pt:30
+msgid "all other available projects"
+msgstr ""
+
+#: ./skins/view_home.pt:9
+msgid "all projects marked as favorite"
+msgstr ""
+
+#. Default: "time<b class=\"caret\"></b>"
+#: ./skins/main_template.pt:43
+msgid "label_time_entires"
+msgstr ""
+

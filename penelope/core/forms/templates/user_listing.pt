@@ -1,0 +1,94 @@
+<html metal:use-macro="main.macros['master']">
+  <body>
+    <metal:main fill-slot="page-header"></metal:main>
+    <metal:main fill-slot="main">
+      <h3>All users</h3>
+
+      <div class="controls">
+        <label class="checkbox inline">
+          <input type="checkbox" id="cb_filter_active" />
+          Active Only
+        </label>
+      </div>
+
+      <div id="users-datatable-container">
+        <span tal:replace="structure fs.render(request=request, tablesorter=False)"/>
+      </div>
+
+      <p class="fa_field" tal:content="structure actions.buttons(request)"></p>
+
+      <script tal:define="index columns.index">
+        $(document).ready(function() {
+          var oTable = $('#users-datatable-container > table').dataTable({
+            'sDom': "<'row-fluid'<'span4'i><'span4'f><p>><'row-fluid't><p>",
+            'sPaginationType': 'bootstrap',
+            'oLanguage': {
+              'sLengthMenu': '_MENU_ rows per page',
+              'sZeroRecords': 'No user found',
+              'sInfo': 'Users _START_-_END_ of _TOTAL_',
+              'sInfoEmpty': 'No user found',
+              'sSearch': 'Search',
+              'oPaginate': {
+                  'sPrevious': '',
+                  'sNext': '',
+              },
+            },
+            'bPaginate': true,
+            'iDisplayLength': 20,
+            'aaSorting': [[${index('fullname')}, 'asc']],
+
+            'aoColumnDefs': [
+                {
+                  'aTargets': [${index('email')}]
+                },
+                {
+                  'aTargets': [${index('fullname')}]
+                },
+                {
+                  'aTargets': [${index('roles')}]
+                },
+                {
+                  'aTargets': [${index('project_manager')}],
+                  'bSortable': false,
+                  'sWidth': '25%'
+                },
+                {
+                  'aTargets': [${index('active')}],
+                  'bVisible': false
+                }
+            ],
+
+            'bAutoWidth': false
+            //'fnDrawCallback': function(oSettings) {
+            //  this.css('display', '');
+            //}
+          });
+
+          $('#users-datatable-container .dataTables_filter input')
+                .addClass('search-query')
+                .focus();
+
+          $.fn.dataTableExt.afnFiltering.push(
+              function( oSettings, aData, iDataIndex ) {
+                  var active = $(aData[aData.length-1]).text();
+
+                  if ($('#cb_filter_active').attr('checked')) {
+                      if (active!=='True') {
+                        return false;
+                      }
+                  }
+                  return true
+              }
+          );
+
+          $('#cb_filter_active').click(function() {
+                                            oTable.fnDraw();
+                                        });
+        });
+      </script>
+
+
+    </metal:main>
+
+  </body>
+</html>

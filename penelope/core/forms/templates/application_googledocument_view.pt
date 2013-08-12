@@ -1,0 +1,13 @@
+<metal:main define-macro="main">
+    <div class="alert alert-block">
+      <p>You can access it directly by going to this link: <a href="${doc_url.replace('preview','edit')}" target="_blank">${doc_url.replace('preview','edit')}</a></p>
+    </div>
+    <p tal:content="structure application.description"></p>
+    <div class="alert alert-block" tal:condition="status">
+        <a class="close" href="#">x</a>
+        <p>${status}</p>
+    </div>
+    <div tal:condition="doc_url">
+        <iframe src="${doc_url}" frameborder="0" height="800" style="width:100%"></iframe>
+      </div>
+</metal:main>

@@ -1,0 +1,64 @@
+<div xmlns="http://www.w3.org/1999/xhtml" xml:lang="en"
+     xmlns:tal="http://xml.zope.org/namespaces/tal"
+     tal:omit-tag="">
+
+  <h3 tal:condition="not:entries_by_date">
+    No time entries found
+  </h3>
+
+  <table tal:condition="entries_by_date"
+         class="table table-bordered time-entries">
+    <thead>
+      <tr>
+        <th>Data<span class="pull-right">ore</span></th>
+        <th>ticket</th>
+        <th>details</th>
+        <th>progetto</th>
+        <th>sede</th>
+        <th>ore</th>
+        <th>gg</th>
+      </tr>
+    </thead>
+
+    <p>${entries_count} time entries displayed</p>
+
+    <tbody>
+      <tal:block repeat="daily_entries entries_by_date">
+        <tr tal:repeat="te daily_entries[1]">
+          <th rowspan="${len(daily_entries[1])}" tal:condition="repeat.te.start">
+            ${daily_entries[0].strftime('%d %b %Y')}
+            <span class="pull-right">
+              ${timedelta_as_human_str(sum((te_sum.hours for te_sum in daily_entries[1]), datetime.timedelta(0)))}
+            </span>
+          </th>
+          <td>
+            <a href="${ticket_url(request, te.project, te.ticket)}">#${te.ticket}</a> -
+            ${te.get_ticket_summary(request)}
+          </td>
+          <td>
+            <a href="${request.application_url}/admin/TimeEntry/${te.id}">
+                <span tal:replace="structure highlight(te.description)"/>
+            </a>
+          </td>
+          <td>${te.project.customer.name} <br/> ${te.project.name}</td>
+          <td>${te.location}</td>
+          <td>${te.hours_str}</td>
+          <td>${format(te.hours_as_work_days, '.3f')}</td>
+        </tr>
+      </tal:block>
+      <tr tal:condition="entries_by_date">
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+        <th>Tot.</th>
+        <td>${human_tot}</td>
+        <td>${format(days_tot, '.3f')}</td>
+      </tr>
+    </tbody>
+
+    <tfoot>
+    </tfoot>
+  </table>
+
+</div>

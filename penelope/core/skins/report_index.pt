@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en"
+      xmlns:tal="http://xml.zope.org/namespaces/tal"
+      metal:use-macro="skin: /main_template">
+<body>
+
+  <div metal:fill-slot="body">
+
+    <h2>
+        Report TP
+    </h2>
+
+    <br />
+    <br />
+
+    <div style="float:left">
+      <h5>Per persona</h5>
+      <ul>
+        <li tal:repeat="user users">
+          <a href="${request.application_url}/reports/report_all_entries?users=${user.id}">${user.fullname}</a>
+        </li>
+      </ul>
+    </div>
+
+    <div style="float:left">
+      <h5>Per cliente</h5>
+      <ul>
+        <li tal:repeat="customer customers">
+          <a href="${request.application_url}/reports/report_all_entries?customer_id=${customer.id}">${customer.name}</a>
+        </li>
+      </ul>
+    </div>
+
+    <div style="float:left">
+      <h5>Per progetto</h5>
+      <ul>
+        <li tal:repeat="project projects">
+          <a href="${request.application_url}/reports/report_all_entries?customer_id=${project.customer.id}&project_id=${project.id}">${project}</a>
+        </li>
+      </ul>
+    </div>
+
+    <div style="clear:both">
+      <h5>Custom/saved</h5>
+      <ul tal:condition="saved_queries">
+        <li tal:repeat="sq saved_queries">
+          <a href="${sq.full_url(request)}">${sq.report_name} - ${sq.query_name}</a>
+        </li>
+      </ul>
+      <p tal:condition="not:saved_queries">
+        No saved queries yet.
+      </p>
+    </div>
+
+  </div>
+
+</body>
+</html>
+

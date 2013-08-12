@@ -1,0 +1,9 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en"
+      xmlns:tal="http://xml.zope.org/namespaces/tal"
+      i18n:domain="penelope"
+      metal:use-macro="skin: /main_template">
+<body>
+  <div metal:fill-slot="container">
+  </div>
+</body>
+</html>

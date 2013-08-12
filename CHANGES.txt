@@ -1,0 +1,5 @@
+1.0 (unreleased)
+-------------------
+
+- merge por.dashboard, por.models and por.gdata [amleczko]
+

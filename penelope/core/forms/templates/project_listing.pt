@@ -1,0 +1,119 @@
+<html metal:use-macro="main.macros['master']"
+  xmlns:i18n="http://xml.zope.org/namespaces/i18n"
+  i18n:domain='penelope'>
+  <body>
+    <metal:main fill-slot="page-header"></metal:main>
+    <metal:main fill-slot="main">
+      <h3 i18n:translate="project_listing_all_projects">All projects</h3>
+
+      <div class="controls">
+        <label class="checkbox inline">
+          <input type="checkbox" id="cb_filter_active" />
+          <span i18n:translate="label_active_only"> Active Only </span>
+        </label>
+        <label class="checkbox inline">
+          <input type="checkbox" id="cb_filter_favorite" />
+          <span i18n:translate="label_favorite_only">Favorite Only</span>
+        </label>
+      </div>
+
+      <div id="projects-datatable-container">
+        <span tal:replace="structure fs.render(request=request, tablesorter=False)"/>
+      </div>
+
+      <p class="fa_field" tal:content="structure actions.buttons(request)"></p>
+
+      <script tal:define="index columns.index">
+        $(document).ready(function() {
+          var oTable = $('#projects-datatable-container > table').dataTable({
+            'sDom': "<'row-fluid'<'span4'i><'span4'f><p>><'row-fluid't><p>",
+            'sPaginationType': 'bootstrap',
+            'oLanguage': {
+              'sLengthMenu': '_MENU_ rows per page',
+              'sZeroRecords': 'No project found',
+              'sInfo': 'Projects _START_-_END_ of _TOTAL_',
+              'sInfoEmpty': 'No project found',
+              'sSearch': 'Search',
+              'oPaginate': {
+                  'sPrevious': '',
+                  'sNext': '',
+              },
+            },
+            'bPaginate': true,
+            'iDisplayLength': 20,
+            'aaSorting': [[${index('name')}, 'asc']],
+
+            'aoColumnDefs': [
+                {
+                  'aTargets': [${index('name')}]
+                },
+                {
+                  'aTargets': [${index('customer')}]
+                },
+                {
+                  'aTargets': [${index('manager')}]
+                },
+                {
+                  'aTargets': [${index('customer_requests')}],
+                  'bSortable': false
+                },
+                {
+                  'aTargets': [${index('groups')}],
+                  'bSortable': false
+                },
+                {
+                  'aTargets': [${index('activated')}],
+                  'bVisible': false
+                },
+                {
+                  'aTargets': [${index('id')}],
+                  'bVisible': false
+                }
+            ],
+
+            'bAutoWidth': true
+            //'fnDrawCallback': function(oSettings) {
+            //  this.css('display', '');
+            //}
+          });
+
+          $('#projects-datatable-container .dataTables_filter input')
+                .addClass('search-query')
+                .focus();
+
+          var js_favorite_projects = ${js_favorite_projects};
+
+          $.fn.dataTableExt.afnFiltering.push(
+              function( oSettings, aData, iDataIndex ) {
+                  var project_id = $(aData[aData.length-1]).text();
+                  var active = $(aData[aData.length-2]).text();
+
+                  if ($('#cb_filter_active').attr('checked')) {
+                      if (active!=='True') {
+                        return false;
+                      }
+                  }
+                  if ($('#cb_filter_favorite').attr('checked')) {
+                      if (js_favorite_projects.indexOf(project_id)===-1) {
+                        return false;
+                      }
+                  }
+                  return true
+              }
+          );
+
+          $('#cb_filter_favorite').click(function() {
+                                            oTable.fnDraw();
+                                        });
+
+          $('#cb_filter_active').click(function() {
+                                            oTable.fnDraw();
+                                        });
+        });
+      </script>
+
+
+    </metal:main>
+
+  </body>
+</html>

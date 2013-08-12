@@ -1,0 +1,59 @@
+
+/* ----- Quick add form for time entries. ----- */
+
+#smartadd_box input[type=text] {
+  color: black;
+}
+
+#smartadd_box .help-inline {
+  color: #8f8f8f;
+}
+
+#smartadd_text {
+  max-width: 740px;
+  width: 100%;
+}
+
+#smartadd_status {
+  display: none;
+  font-weight: bold;
+  margin-top: .3em;
+  max-width: 576px;
+}
+
+
+/* ----- $.fn.autocomplete plugin, currently used only in the 'smartadd' form ----- */
+
+.autocomplete_menu {
+  display: none;
+  background-color: #FFF;
+  border: 1px solid #CACACA;
+  font-family: verdana;
+  font-size: 1em;
+  left: 0;
+  margin: 2px 0 0 2px;
+  position: absolute;
+  text-align: left;
+  top: 0;
+  z-index: 100;
+}
+
+.autocomplete_menu ul {
+  margin: 0;
+  padding: 2px;
+}
+
+.autocomplete_menu ul li {
+  list-style-image: none;
+  list-style-position: outside;
+  list-style-type: none;
+  padding: 3px;
+  cursor: default;
+}
+
+.autocomplete_menu ul li.selected {
+  color: #fff;
+  background: #0060BF;
+}
+
+

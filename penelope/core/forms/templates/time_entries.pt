@@ -1,0 +1,33 @@
+<html metal:use-macro="main.macros['master']" >
+  <body>
+    <div metal:fill-slot="main">
+        <ul class="nav nav-pills">
+            <li tal:replace="structure actions.tabs(request)" />
+        </ul>
+          <div class="pagination">
+              <ul>
+                  <span tal:replace="structure pager" />
+              </ul>
+          </div>
+        <table class="table table-bordered">
+            <thead>
+              <tr>
+                <th i18n:translate="">Time entries</th>
+                <th i18n:translate="">Date</th>
+              </tr>
+            </thead>
+            <tbody tal:repeat="item items">
+              <tr>
+                <td><a href="${request.fa_url('TimeEntry', item.id)}">${item.description}</a></td>
+                <td style="width: 150px">${item.date}</td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="pagination">
+              <ul>
+                  <span tal:replace="structure pager" />
+              </ul>
+          </div>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,26 @@
+<span tal:omit-tag="">
+    <input type="text"
+           name="${field.name}"
+           value="${cstruct}" 
+           autocomplete="off"
+           tal:attributes="size field.widget.size;
+                           placeholder getattr(field.widget, 'placeholder', nothing);
+                           class field.widget.css_class"
+           id="${field.oid}"/>
+    <script type="text/javascript">
+      deform.addCallback(
+        '${field.oid}',
+        function(oid) {
+            $('#' + oid).datepicker({
+                        dateFormat: 'yy-mm-dd',
+                        autoSize: false,
+                        showOn: 'both',
+                        buttonText: '',
+                        buttonImage: '/static/images/date.png',   // XXX get absolute application url here
+                        buttonImageOnly: true
+                    });
+            $('.ui-datepicker').draggable();
+        }
+      );
+    </script>
+</span>

@@ -1,0 +1,58 @@
+
+.projects-board .thumbnail {
+  padding: 10px;
+  width: 280px;
+  margin: .5em;
+}
+
+.projects-board .thumbnail .boarded-project {
+  padding: 5px 0;
+  min-height: 24px;
+  clear: none;
+}
+
+.projects-board .thumbnail .btn-group {
+  float: left;
+}
+
+.outstanding-tickets {
+  float: left;
+  padding-top: 6px;
+  padding-left: 5px;
+}
+
+.outstanding-tickets .badge {
+  margin-left: 1px;
+  margin-right: 1px;
+}
+
+.outstanding-tickets-table {
+  width: 100%;
+}
+
+.outstanding-priority-1 {
+  background-color: #ffd0d0;
+  font-weight: bold;
+}
+
+.outstanding-priority-2 {
+  background-color: #ffe0e0;
+  font-weight: bold;
+}
+
+.outstanding-priority-3,
+.outstanding-priority-4,
+.outstanding-priority-5,
+.outstanding-priority-6 {
+  background-color: white;
+}
+
+
+/** other projects **/
+.projects-listing {
+  margin-top: 20px;
+}
+.projects-listing div.projects-list {
+  margin-left: 1.5%;
+}
+

@@ -1,0 +1,161 @@
+<configure xmlns="http://namespaces.repoze.org/bfg">
+<include package="repoze.workflow" file="meta.zcml"/>
+
+<!-- CustomerRequest workflow -->
+
+<workflow
+   type="CustomerRequest"
+   name="Customer Request workflow"
+   state_attr="workflow_state"
+   content_types="penelope.core.models.interfaces.ICustomerRequest"
+   initial_state="created">
+
+   <state name="created"></state>
+   <state name="estimated"></state>
+   <state name="achieved"></state>
+   <state name="invoiced"></state>
+
+   <transition
+      name="estimating"
+      from_state="created"
+      to_state="estimated" />
+
+   <transition
+      name="unestimating"
+      from_state="estimated"
+      to_state="created" />
+
+   <transition
+      name="achieving"
+      from_state="estimated"
+      to_state="achieved" />
+
+   <transition
+      name="unachieving"
+      from_state="achieved"
+      to_state="estimated" />
+
+   <transition
+      name="invoicing"
+      from_state="achieved"
+      to_state="invoiced" />
+
+   <transition
+      name="uninvoicing"
+      from_state="invoiced"
+      to_state="achieved" />
+
+</workflow>
+
+<!-- Project workflow -->
+
+<workflow
+   type="Project"
+   name="Project workflow"
+   state_attr="workflow_state"
+   content_types="penelope.core.models.interfaces.IProject"
+   initial_state="active">
+
+   <state name="active"></state>
+   <state name="inactive"></state>
+
+   <transition
+      name="deactivate"
+      from_state="active"
+      to_state="inactive" />
+
+   <transition
+      name="activate"
+      from_state="inactive"
+      to_state="active" />
+
+</workflow>
+
+<!-- TimeEntry workflow -->
+
+<workflow
+   type="TimeEntry"
+   name="Time entry workflow"
+   state_attr="workflow_state"
+   content_types="penelope.core.models.interfaces.ITimeEntry"
+   initial_state="new">
+
+   <state name="new" title="New"></state>
+   <state name="billable" title="Billable"></state>
+   <state name="not billable" title="Not billable"></state>
+   <state name="invoiced" title="Invoiced"></state>
+
+   <transition
+      name="billable"
+      from_state="new"
+      to_state="billable" />
+
+   <transition
+      name="retract billable"
+      from_state="billable"
+      to_state="new" />
+
+   <transition
+      name="not billable"
+      from_state="new"
+      to_state="not billable" />
+
+   <transition
+      name="retract not billable"
+      from_state="not billable"
+      to_state="new" />
+
+   <transition
+      name="invoicing"
+      from_state="billable"
+      to_state="invoiced" />
+
+   <transition
+      name="uninvoicing"
+      from_state="invoiced"
+      to_state="billable" />
+
+</workflow>
+<!-- Contract workflow -->
+
+<workflow
+   type="Contract"
+   name="Contract workflow"
+   state_attr="workflow_state"
+   content_types="penelope.core.models.interfaces.IContract"
+   permission_checker="pyramid.security.has_permission"
+   initial_state="draft">
+
+   <state name="draft"></state>
+   <state name="active"></state>
+   <state name="done"
+          callback="penelope.core.forms.workflow.validate_contract_done">
+    </state>
+
+   <transition
+      name="activate"
+      from_state="draft"
+      permission="workflow_activate"
+      to_state="active" />
+
+   <transition
+      name="deactivate"
+      from_state="active"
+      permission="workflow_deactivate"
+      to_state="draft" />
+
+   <transition
+      name="achieve"
+      from_state="active"
+      permission="workflow_achieve"
+      to_state="done" />
+
+   <transition
+      name="unachieve"
+      from_state="done"
+      permission="workflow_unachieve"
+      to_state="active" />
+
+</workflow>
+
+</configure>

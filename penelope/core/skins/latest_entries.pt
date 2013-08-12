@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<div xmlns:tal="http://xml.zope.org/namespaces/tal">
+
+    <h3 tal:condition="time_entries_today">
+        Oggi (${today.strftime('%d/%m/%Y')})
+    </h3>
+    <table class="table table-bordered time-entries" tal:condition="time_entries_today">
+        <tr>
+            <th>time entry</th>
+            <th>progetto</th>
+            <th>ore</th>
+        </tr>
+        <tr tal:repeat="te time_entries_today">
+            <td>
+                <span tal:condition="te.ticket">#${te.ticket} - </span>
+                <a href="${request.application_url}/admin/TimeEntry/${te.id}">
+                    <span tal:replace="structure te.description"/>
+                </a>
+            </td>
+            <td>${te.project.name|nothing} - ${te.project.customer.name|nothing}</td>
+            <td>${te.hours_str}</td>
+        </tr>
+        <tr>
+            <th style="text-align:right" colspan="2">Total:</th>
+            <th>${today_total}</th>
+        </tr>
+    </table>
+
+    <h3>
+        <span>
+            Ultime ${time_entries_latest_limit}
+        </span>
+        -
+        <a href="${request.application_url}/reports/report_my_entries?date_from=${report_my_from_date.strftime('%Y-%m-%d')}">See all</a>
+    </h3>
+    <table class="table table-bordered time-entries">
+        <tr>
+            <th>time entry</th>
+            <th>progetto</th>
+            <th>data</th>
+            <th>ore</th>
+        </tr>
+        <tr tal:repeat="te time_entries_latest">
+            <td>
+                <span tal:condition="te.ticket">#${te.ticket} - </span>
+                <a href="${request.application_url}/admin/TimeEntry/${te.id}">
+                    <span tal:replace="structure te.description"/>
+                </a>
+            </td>
+            <td>${te.project.name|nothing} - ${te.project.customer.name|nothing}</td>
+            <td tal:condition="te.date">
+              ${te.date.strftime('%d/%m/%Y')}
+            </td>
+            <td>${te.hours_str}</td>
+        </tr>
+    </table>
+</div>
+

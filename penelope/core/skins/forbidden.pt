@@ -1,0 +1,19 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en"
+  xmlns:tal="http://xml.zope.org/namespaces/tal"
+  i18n:domain="penelope" metal:use-macro="skin: /main_template">
+<body>
+  <div metal:fill-slot="body">
+
+    <div class="alert alert-error alert-block">
+        <h2>Insufficient permissions!</h2>
+            <p><strong>Oh snap!</strong> You dont have enough permissions to access this <a tal:condition="request.params.get('came_from')" href="${request.params.get('came_from')}">${request.params.get('came_from')}</a>
+            resource!</p>
+        <div class="alert-actions">
+          <a class="btn btn-small btn-danger" href="${request.application_url}/logout">Try to logout</a> <a class="btn btn-small" href="${request.environ.get('HTTP_REFERER')}">or go back</a>
+        </div>
+    </div>
+
+  </div>
+</body>
+</html>
+

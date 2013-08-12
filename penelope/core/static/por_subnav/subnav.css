@@ -1,0 +1,41 @@
+/* :folding=explicit: */
+
+/* sticky sunav bar */
+
+.subnav {
+    margin-top: 10px;
+    height: 30px;
+}
+
+.subnav-fixed {
+    background: url('subtlenet2.png');
+    /*
+    background-color: #EEEEEE;
+    background-image: -moz-linear-gradient(center top , #F5F5F5 0%, #EEEEEE 100%);
+    background-repeat: repeat-x;
+    */
+    border: 1px solid #D5D5D5;
+    height: 30px;
+    width: 100%;
+    margin-top: 0;
+    padding-top: 4px;
+    padding-left: 5px;
+    /*important part*/
+    left: 0;
+    position: fixed;
+    right: 0;
+    top: 38px;
+    z-index: 1020;
+    /*design stuff*/
+    box-shadow: 0 1px 0 #FFFFFF inset, 0 1px 5px rgba(0, 0, 0, 0.1);
+}
+
+.subnav .nav {
+    margin-bottom: 0;
+}
+
+.subnav .nav li {
+    padding-left: 2px;
+    padding-right: 2px;
+}
+

@@ -1,0 +1,22 @@
+.group-project fieldset > label,
+.group-google_docs > label,
+.group-users > label,
+.group-new_users > label,
+.group-milestones > label,
+.group-customer_requests > label
+{
+	display: block;
+	margin-top: 25px;
+	font-size: 15px;
+    font-weight: bold;
+}
+
+.group-project,
+.group-google_docs,
+.group-users,
+.group-new_users,
+.group-milestones,
+.group-customer_requests
+{
+	margin-top: 25px;
+}

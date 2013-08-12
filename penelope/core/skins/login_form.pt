@@ -1,0 +1,57 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en"
+      xmlns:tal="http://xml.zope.org/namespaces/tal"
+      metal:use-macro="skin: /main_template">
+<body>
+
+    <div metal:fill-slot="container">
+
+      <div class="row-fluid">
+        <div class="span3">&nbsp;</div>
+        <div class="span9">
+             <span tal:replace="structure request.show_messages()"/>
+             <h3 i18n:translate="">Login form</h3>
+              <div class="row-fluid">
+                <div class="span3" style="margin-top: 50px">
+                  <form action="${request.application_url}/redturtle/login" method="POST">
+                        <input type="hidden" name="openid.came_from" value="${came_from}">
+                        <input type="hidden" name="popup_mode" value="popup">
+                        <input type="hidden" name="openid.mode" value="checkid_immediate">
+                        <input type="hidden" name="openid.ns" value="http://specs.openid.net/auth/2.0">
+                        <input type="hidden" name="openid.claimed_id" value="http://specs.openid.net/auth/2.0/identifier_select">
+                        <input type="hidden" name="openid.identity" value="http://specs.openid.net/auth/2.0/identifier_select">
+                        <input type="hidden" name="openid.return_to" value="${request.application_url}/login">
+                        <button type="submit" class="btn btn-large btn-primary">
+                          <i class="icon-off icon-white"></i>
+                          Login with redturtle.it
+                        </button>
+                      </form>
+                  </div>
+                  <div class="span4">
+                      <form action="${request.application_url}/do_login" method="POST" class="form-stacked well" id="login-form">
+                        <input type="hidden" name="came_from" value="${came_from}">
+                        <fieldset>
+                          <div class="clearfix">
+                              <label i18n:translate="">Username:</label>
+                              <div class="input">
+                                  <input id="login" class="xlarge" type="text" name="login" title="username"/>
+                              </div>
+                          </div>
+                          <div class="clearfix">
+                              <label i18n:translate="">Password:</label>
+                              <div class="input">
+                                  <input class="xlarge" type="password" name="password" title="Password" />
+                              </div>
+                          </div>
+                          <button type="submit" class="btn btn-success btn-large" name="form.submitted">Login</button>
+                          <a href="${request.application_url}/password_reset_form" class="btn btn-small">Reset password</a>
+                        </fieldset>
+                      </form>
+                </div>
+              </div>
+           </div>
+      </div>
+
+  </div>
+
+</body>
+</html>

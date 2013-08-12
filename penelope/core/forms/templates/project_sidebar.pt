@@ -1,0 +1,3 @@
+<div class="well menu" style="padding: 8px 0;"
+    tal:content="structure actions">
+</div>

@@ -1,0 +1,80 @@
+
+form#te_state_change div[data-deform-name="users"]:before {
+  /* form fields that should begin a new line */
+  content: " ";
+  display: block;
+}
+
+#report-state-change th {
+  color: #888;
+  font-weight: normal;
+  text-align: left;
+}
+
+#report-state-change h4 {
+  margin: .5em 2em;
+}
+
+#report-state-change table {
+  table-layout: fixed;
+}
+
+#report-state-change tr.selectable:hover {
+  cursor:pointer;
+}
+
+#report-state-change .col_checkbox {
+  width: 2em;
+}
+
+#report-state-change .col_state {
+  width: 8em;
+  white-space: nowrap;
+}
+
+#report-state-change .col_tickettype {
+  width: 7em;
+}
+
+#report-state-change .col_invoice {
+  width: 4em;
+}
+
+#report-state-change .col_location {
+  width: 12em;
+}
+
+#report-state-change .col_date {
+  width: 7em;
+}
+
+#report-state-change .col_hours {
+  width: 4em;
+}
+
+#report-state-change input.check_all {
+  vertical-align: text-top;
+}
+
+#report-state-change .well label[for=check_all] {
+  font-weight: bold;
+}
+
+#report-state-change .statechange-error-message {
+  font-weight: bold;
+  color: #DF0000;
+  margin: 2px 3px;
+}
+
+
+#report-state-change .statechange-done {
+  padding-left: 1.5em;
+  background: url(/static/images/green_check_16x13.png) center left no-repeat;     /* XXX application url? */
+}
+
+#report-state-change .statechange-error {
+  padding-left: 1.5em;
+  background: url(/static/images/red_denied_16x16.png) center left no-repeat;     /* XXX application url? */
+}
+
+

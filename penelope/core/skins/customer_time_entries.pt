@@ -1,0 +1,11 @@
+<html metal:use-macro="main.macros['master']" tal:define="report skin: /report_all_entries">
+  <body>
+    <div metal:fill-slot="main">
+        <ul class="nav nav-pills">
+            <li tal:replace="structure actions.tabs(request)" />
+          </ul>
+        <div metal:use-macro="report.macros['report-main']"/>
+        <div class="fa_controls" tal:content="structure actions.buttons(request)" />
+    </div>
+  </body>
+</html>

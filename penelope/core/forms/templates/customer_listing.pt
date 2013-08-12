@@ -1,0 +1,94 @@
+<html metal:use-macro="main.macros['master']"
+  xmlns:i18n="http://xml.zope.org/namespaces/i18n"
+    i18n:domain='penelope'>
+  <body>
+    <metal:main fill-slot="page-header"></metal:main>
+    <metal:main fill-slot="main">
+      <h3 i18n:translate="customer_listing_all_customer">All customers</h3>
+
+      <div class="controls">
+        <label class="checkbox inline">
+          <input type="checkbox" id="cb_filter_active" />
+          <tal:translate i18n:translate="label_active_only">Active Only</tal:translate>
+        </label>
+        <label class="checkbox inline">
+          <input type="checkbox" id="cb_filter_favorite" />
+      <tal:translate i18n:translate="label_favorite_only">Favorite Only</tal:translate>
+        </label>
+      </div>
+
+      <div id="customers-datatable-container">
+        <span tal:replace="structure fs.render(request=request, tablesorter=False)"/>
+      </div>
+
+      <p class="fa_field" tal:content="structure actions.buttons(request)"></p>
+
+      <script tal:define="index columns.index">
+        $(document).ready(function() {
+          var oTable = $('#customers-datatable-container > table').dataTable({
+            'sDom': "<'row-fluid'<'span4'i><'span4'f><p>><'row-fluid't><p>",
+            'sPaginationType': 'bootstrap',
+            'bPaginate': true,
+            'iDisplayLength': 20,
+            'aaSorting': [[${index('name')}, 'asc']],
+
+            'aoColumnDefs': [
+                {
+                  'aTargets': [${index('name')}]
+                },
+                {
+                  'aTargets': [${index('projects')}],
+                  'bSortable': false
+                },
+                {
+                  'aTargets': [${index('id')}],
+                  'bVisible': false
+                }
+            ],
+
+            'bAutoWidth': true
+            //'fnDrawCallback': function(oSettings) {
+            //  this.css('display', '');
+            //}
+          });
+
+          $('#customers-datatable-container .dataTables_filter input')
+                .addClass('search-query')
+                .focus();
+
+          var js_active_customers = ${js_active_customers};
+          var js_favorite_customers = ${js_favorite_customers};
+
+          $.fn.dataTableExt.afnFiltering.push(
+              function( oSettings, aData, iDataIndex ) {
+                  var customer_id = $(aData[aData.length-1]).text();
+
+                  if ($('#cb_filter_active').attr('checked')) {
+                      if (js_active_customers.indexOf(customer_id)===-1) {
+                        return false;
+                      }
+                  }
+                  if ($('#cb_filter_favorite').attr('checked')) {
+                      if (js_favorite_customers.indexOf(customer_id)===-1) {
+                        return false;
+                      }
+                  }
+                  return true
+              }
+          );
+
+          $('#cb_filter_favorite').click(function() {
+                                            oTable.fnDraw();
+                                        });
+
+          $('#cb_filter_active').click(function() {
+                                            oTable.fnDraw();
+                                        });
+        });
+      </script>
+
+
+    </metal:main>
+
+  </body>
+</html>

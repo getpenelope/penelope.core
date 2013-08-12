@@ -1,0 +1,10 @@
+<div xmlns:tal="http://xml.zope.org/namespaces/tal"
+     tal:omit-tag="True">
+  <p tal:repeat="te time_entries">
+    <a tal:condition="te.ticket is not None"
+       href="${ticket_url(request, te.project, te.ticket)}">
+      (#${te.ticket})
+    </a>
+    <a href="/admin/TimeEntry/${te.id}" tal:content="structure te.description" />
+  </p>
+</div>

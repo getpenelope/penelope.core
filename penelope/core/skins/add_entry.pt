@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en"
+      xmlns:tal="http://xml.zope.org/namespaces/tal"
+      metal:use-macro="skin: /main_template">
+<body>
+
+    <div metal:fill-slot="body">
+      <h3 i18n:translate="">Smart add time entries</h3>
+      <div id="smartadd_box" class="row-fluid">
+          <div class="span9 well">
+              <div id="smartadd_status" class="alert" ></div>
+              <input type="text" id="smartadd_text" value="" class="span8" autofocus="autofocus" />
+              <span class="help-inline">
+                  Inserisci un <strong>@progetto</strong>, un <strong>#ticket</strong>, una <strong>^durata</strong> e una <strong>descrizione</strong>.
+                  Esempio: "@por #43 ^1:30 fatto questo e quello"
+              </span>
+          </div>
+          <div class="span3">
+              <a class="btn"
+                 href="${request.application_url}/admin/TimeEntry/new">
+                <i class="icon-time"></i>
+                Add time entry in normal way
+              </a>
+          </div>
+     </div>
+     <div id="latest_entries"></div>
+    </div>
+
+</body>
+</html>

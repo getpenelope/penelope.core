@@ -1,0 +1,62 @@
+
+table.pivot {
+  border-collapse: collapse;
+}
+
+table.pivot th, table.pivot td {
+  padding: 4px 6px;
+}
+
+table.pivot tr.head {
+  font-size: larger;
+}
+
+table.pivot .total,
+table.pivot tr.head th.groupby,
+table.pivot tr.head th.pivotcol {
+  background-color: #f4f4f4;
+}
+
+table.pivot th.groupby {
+  font-weight: normal;
+}
+
+table.pivot .foldunfold {
+  background-image: url("down.gif");
+  background-position: right center;
+  background-repeat: no-repeat;
+}
+
+table.pivot .foldunfold.collapsed {
+  background-image: url("right.gif");
+}
+
+table.pivot tr + tr td {
+  border-top: 0px;
+  border-bottom: 1px solid #ddd;
+}
+
+.popover .title {
+  padding: 9px 30px 9px 15px;
+}
+
+.popover .title img {
+  cursor: pointer;
+  width: 16px;
+  height: 16px;
+  position: absolute;
+  top: .8em;
+  right: .8em;
+  opacity: 0.5;
+}
+
+.popover .title img:hover {
+  opacity: 1;
+}
+
+.popover .inner {
+  width: auto;
+  padding: 2px;  /* 3 is too heavy, seems like a tombstone */
+}
+
+

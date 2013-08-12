@@ -1,0 +1,24 @@
+<html metal:use-macro="main.macros['master']">
+  <body>
+    <div metal:fill-slot="main">
+        <ul class="nav nav-pills">
+            <li tal:replace="structure actions.tabs(request)" />
+        </ul>
+        <tal:active condition="fs_active.rows.item_count">
+          <h3>Active customer's projects</h3>
+          <div class="row-fluid">
+            <div class="span12" tal:content="structure fs_active.render(request=request)"/>
+          </div>
+        </tal:active>
+        <tal:inactive condition="fs.rows.item_count">
+          <h3>Inactive customer's projects</h3>
+          <div class="row-fluid">
+            <div class="span12" tal:content="structure fs.render(request=request)"/>
+          </div>
+        </tal:inactive>
+        <div class="row-fluid">
+          <div class="span12 fa_controls" tal:content="structure actions.buttons(request)" />
+        </div>
+    </div>
+  </body>
+</html>

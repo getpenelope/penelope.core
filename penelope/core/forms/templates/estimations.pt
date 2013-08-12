@@ -1,0 +1,73 @@
+<html metal:use-macro="main.macros['master']">
+  <body>
+    <div metal:fill-slot="main">
+      <li tal:replace="structure actions.tabs(request)" />
+
+      <table id="estimations_grid" class="table"></table>
+      <div id="pagernav"></div>
+
+      <script>
+        var lastsel;
+        jQuery("#estimations_grid").jqGrid({
+            url: "estimations.json",
+            editurl:"estimations.json",
+            datatype: "json",
+            colNames:['Person type', 'Days', ],
+            colModel:[
+            { name:'person_type',
+              index:'person_type',
+              width:150,
+              editable: true,
+              edittype: 'select',
+              editrules: {required:true},
+              editoptions: {
+                value: 'Junior:Junior;Senior:Senior;Graphic:Graphic;Project manager:Project manager;Architect:Architect;Tester:Tester'
+              }
+            },
+            { name:'days',
+              index:'days', 
+              editrules: {number:true, required:true},
+              width:90,
+              formatter: 'integer',
+              align:"right",
+              editable: true,},
+            ],
+            ondblClickRow: function(id){
+              if(id && id!==lastsel){
+                 jQuery('#estimations_grid').restoreRow(lastsel);
+                 jQuery('#estimations_grid').editRow(id,true,'','','','',reload);
+                 lastsel2=id;
+               }
+             },
+
+            pginput: false,
+            pager: '#pagernav',
+            sortname: 'days',
+            sortorder: "desc",
+            caption:"Estimations",
+            footerrow : true,
+            userDataOnFooter : true,
+            height:210
+          }).navGrid('#pagernav',
+            {search:false, edit:false}, 
+            {}, // edit options
+            { height:250,
+              width:330,
+              //reloadAfterSubmit:false,
+              afterSubmit : function(response, postdata) {
+                var json = eval('(' + response.responseText + ')'); //Ugly hack from http://www.trirand.com/jqgridwiki
+                return [json.success, json.message]
+              },
+              closeAfterAdd:true}, // add options
+            {reloadAfterSubmit:true}, // del options
+            {}
+        );
+
+        function reload(rowid, result) {
+            $("#estimations_grid").trigger("reloadGrid"); 
+          }
+        </script>
+
+    </div>
+  </body>
+</html>

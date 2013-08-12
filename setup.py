@@ -1,5 +1,4 @@
 import os
-import sys
 
 from setuptools import setup, find_packages
 
@@ -12,49 +11,49 @@ for more details visit: http://getpenelope.github.com/"""
 CHANGES = open(os.path.join(here, 'CHANGES.txt')).read()
 
 requires = [
+    'Babel',
+    'Beaker',
+    'bleach',
+    'deform',
+    'deform_bootstrap',
     'distribute',
+    'fa.bootstrap',
+    'feedparser',
+    'js.jqgrid ',
+    'js.jquery_datatables==1.8.2',
+    'js.jquery_timepicker_addon',
+    'js.lesscss',
+    'jsonrpc',
+    'lingua',
+    'lxml'
+    'por.trac',
+    'profilehooks',
     'pyramid',
-    'transaction',
-    'repoze.tm2>=1.0b1', # default_commit_veto
-    'WebError',
-    'WebTest',
-    'pyramid_formalchemy',
     'pyramid_beaker',
+    'pyramid_debugtoolbar',
+    'pyramid_exclog',
+    'pyramid_fanstatic',
+    'pyramid_formalchemy',
+    'pyramid_mailer',
     'pyramid_rpc',
     'pyramid_skins',
-    'pyramid_debugtoolbar',
     'pyramid_zcml',
-    'pyramid_exclog',
-    'repoze.workflow',
     'python-cjson',
-    'repoze.who.plugins.sa',
-    'repoze.who-friendlyform',
-    'repoze.who<1.9',
     'python-openid>=2.0',
-    'zope.interface',
-    'por.trac',
-    'jsonrpc',
-    'js.jquery_timepicker_addon',
-    'js.jqgrid ',
-    'fa.bootstrap',
-    'xlwt',
-    'deform',
-    'feedparser',
-    'Babel',
-    'lingua',
-    'profilehooks',
-    'velruse',
-    'pyramid_mailer',
-    'pyramid_fanstatic',
-    'js.lesscss',
-    'deform_bootstrap',
-    'Beaker',
-    'js.jquery_datatables==1.8.2',
-    'unittest2',
-    'bleach',
     'raven',
+    'repoze.tm2>=1.0b1', # default_commit_veto
+    'repoze.who-friendlyform',
+    'repoze.who.plugins.sa',
+    'repoze.who<1.9',
+    'repoze.workflow',
     'sunburnt',
-    'lxml'
+    'transaction',
+    'unittest2',
+    'velruse',
+    'WebError',
+    'WebTest',
+    'xlwt',
+    'zope.interface',
     ]
 
 setup(name='penelope.core',
@@ -69,7 +68,7 @@ setup(name='penelope.core',
       author_email='penelopedev@redturtle.it',
       url='http://getpenelope.github.com',
       keywords='web wsgi bfg pylons pyramid',
-      namespace_packages=['por'],
+      namespace_packages=['penelope'],
       packages=find_packages(),
       include_package_data=True,
       zip_safe=False,
@@ -78,8 +77,10 @@ setup(name='penelope.core',
       entry_points = """\
       [paste.app_factory]
       main = penelope.core:main
+
       [paste.filter_app_factory]
       raven = penelope.core.ravenlog:sentry_filter_factory
+
       [fanstatic.libraries]
       por = penelope.core.fanstatic_resources:por_library
       deform_library = penelope.core.fanstatic_resources:deform_library

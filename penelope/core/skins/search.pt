@@ -1,0 +1,35 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en"
+  xmlns:tal="http://xml.zope.org/namespaces/tal"
+  i18n:domain="penelope"
+      metal:use-macro="skin: /main_template">
+<body>
+  <div metal:fill-slot="body">
+    <tal:form replace="structure form"/>
+    <p tal:condition="not: results">No results found</p>
+    <tal:results condition="results">
+      <p>We have found ${results.result.numFound} elemets matching your criteria.</p>
+        <ul class="pager">
+          <li tal:condition="previous"><a href="${previous}">Previous</a></li>
+          <li tal:condition="next"><a href="${next}">Next</a></li>
+        </ul>
+        <div id="results">
+          <div tal:repeat="doc docs" tal:omit-tag="">
+            <dt tal:attributes="class doc.closed and 'ticketclosed'"><a href="${request.application_url}/${doc.href()}"
+              tal:content="structure doc.title"></a></dt>
+            <dd tal:content="structure doc.oneline"></dd>
+            <dd>By <a href="${request.current_route_url(_query=add_param(request,'authors',doc.author))}">${doc.author}</a>
+              in <a href="${request.current_route_url(_query=add_param(request,'tracs',doc.project))}">${doc.project}</a>
+            </dd>
+          </div>
+          </div>
+          <ul class="pager">
+            <li tal:condition="previous"><a href="${previous}">Previous</a></li>
+            <li tal:condition="next"><a href="${next}">Next</a></li>
+          </ul>
+      </tal:results>
+          <script>
+          $(document).ready(function () {$('#searchbox').focus(); });
+        </script>
+</div>
+</body>
+</html>

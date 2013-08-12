@@ -1,0 +1,8 @@
+<html metal:use-macro="main.macros['master']">
+  <body>
+    <div metal:fill-slot="main">
+      <li tal:replace="structure actions.tabs(request)" />
+      <iframe src="${report_url}" frameborder="0" style="width: 100%; height: 500px" />
+    </div>
+  </body>
+</html>

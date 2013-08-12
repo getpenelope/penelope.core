@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en"
+  xmlns:tal="http://xml.zope.org/namespaces/tal"
+  metal:use-macro="main.macros['master']">
+  <body>
+    <div class="page-header" metal:fill-slot="page-header">
+      <h3>
+        Wizard project create form for ${context.get_instance()}.
+      </h3>
+    </div>
+
+    <div metal:fill-slot="main">
+      <div class="alert alert-block">
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+        <h4>Warning!</h4>
+        <p>Wizard will also create "Project Management" CR with tickets:</p>
+        <ul>
+          <li>Project management</li>
+          <li>Meeting with the customer</li>
+          <li>Dev meeting</li>
+          <li>Project documentation verification</li>
+          <li>Project management in Penelope</li>
+        </ul>
+      </div>
+      <div tal:replace="structure form" />
+    </div>
+    </body>
+  </html>

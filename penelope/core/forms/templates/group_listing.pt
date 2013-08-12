@@ -1,0 +1,66 @@
+<html metal:use-macro="main.macros['master']">
+  <body>
+    <metal:main fill-slot="page-header"></metal:main>
+    <metal:main fill-slot="main">
+      <h3>All groups</h3>
+
+      <div id="groups-datatable-container">
+        <span tal:replace="structure fs.render(request=request, tablesorter=False)"/>
+      </div>
+
+      <p class="fa_field" tal:content="structure actions.buttons(request)"></p>
+
+      <script tal:define="index columns.index">
+        $(document).ready(function() {
+          var oTable = $('#groups-datatable-container > table').dataTable({
+            'sDom': "<'row-fluid'<'span4'i><'span4'f><p>><'row-fluid't><p>",
+            'sPaginationType': 'bootstrap',
+            'oLanguage': {
+              'sLengthMenu': '_MENU_ rows per page',
+              'sZeroRecords': 'No group found',
+              'sInfo': 'Groups _START_-_END_ of _TOTAL_',
+              'sInfoEmpty': 'No group found',
+              'sSearch': 'Search',
+              'oPaginate': {
+                  'sPrevious': '',
+                  'sNext': '',
+              },
+            },
+            'bPaginate': true,
+            'iDisplayLength': 20,
+            'aaSorting': [[${index('project')}, 'asc'], [${index('roles')}, 'asc']],
+
+            'aoColumnDefs': [
+                {
+                  'aTargets': [${index('id')}]
+                },
+                {
+                  'aTargets': [${index('project')}]
+                },
+                {
+                  'aTargets': [${index('roles')}]
+                },
+                {
+                  'aTargets': [${index('users')}],
+                  'bSortable': false
+                }
+            ],
+
+            'bAutoWidth': true
+            //'fnDrawCallback': function(oSettings) {
+            //  this.css('display', '');
+            //}
+          });
+
+          $('#groups-datatable-container .dataTables_filter input')
+                .addClass('search-query')
+                .focus();
+
+        });
+      </script>
+
+
+    </metal:main>
+
+  </body>
+</html>

@@ -1,0 +1,13 @@
+
+#add-entry-daily-subtotal-label {
+  padding-left: 10px;
+}
+
+#add-entry-daily-subtotal-value {
+  font-weight: bold;
+}
+
+#add-entry-from-ticket-error .alert {
+  margin: 0;
+}
+

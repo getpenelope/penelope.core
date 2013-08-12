@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en"
+  xmlns:tal="http://xml.zope.org/namespaces/tal"
+  metal:use-macro="skin: /main_template">
+
+  <head metal:fill-slot="javascript">
+    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+    <script type="text/javascript">
+      google.load('visualization', '1', {packages: ['corechart']});
+    </script>
+    <script type="text/javascript" src="${request.application_url}/static/por_backlog/tekken.js"></script>
+  </head>
+  <body>
+
+    <div metal:fill-slot="body" tal-omit-tag="">
+
+      <div id="visualization" style="width: 600px; height: 100px;"></div>
+
+      <form id="tekken-filter">
+        <div class="subnav">
+          <select id="contract" name="contract">
+            <option tal:repeat="contract all_contracts" value="${contract.id}">${contract.name} [${contract.workflow_state}]</option>
+          </select>
+        </div>
+        <div class="subnav">
+          <ul class="nav">
+            <li class="pull-left">
+            </li>
+            <li tal:condition="can_view_placement"
+            tal:repeat="placement cr_placements" class="pull-left">
+            <input type="checkbox"
+            id="placement_${placement[0]}"
+            name="placement_${placement[0]}"
+            value="${placement[0]}"
+            checked="${'checked' if placement[0] in cr_placements_active else nothing}" />
+            <label for="placement_${placement[0]}" class="label label-${placement[2]}">
+              ${placement[1]}
+            </label>
+            </li>
+            <li tal:repeat="wf_state cr_workflow_states" class="pull-left">
+            <input type="checkbox"
+            id="workflow_${wf_state[0]}"
+            name="workflow_${wf_state[0]}"
+            value="${wf_state[0]}"
+            checked="${'checked' if wf_state[0] in cr_workflow_active else nothing}" />
+            <label for="workflow_${wf_state[0]}">
+              ${wf_state[1]}
+            </label>
+            </li>
+          </ul>
+        </div>
+      </form>
+
+      <metal:body define-macro="report-main">
+      <table class="bgb-container table-condensed">
+        <colgroup>
+          <col tal:condition="can_view_placement" class="col-placement" />
+          <col class="col-customer-request" />
+          <col class="col-workflow-state" />
+          <col tal:condition="can_view_estimate_column" class="col-estimated" />
+          <col tal:condition="can_view_done_column" class="col-done" />
+          <col tal:condition="can_view_percentage_column" class="col-done" />
+        </colgroup>
+        <thead>
+          <tr class="backlog-table-headers">
+            <th tal:condition="can_view_placement">&nbsp;</th>
+            <th>&nbsp;</th>
+            <th class="backlog-workflow">state</th>
+            <th tal:condition="can_view_estimate_column" class="backlog-duration">estimated</th>
+            <th tal:condition="can_view_done_column" class="backlog-duration">done</th>
+            <th tal:condition="can_view_percentage_column" class="backlog-duration">percentage</th>
+          </tr>
+        </thead>
+        <tal:bgb repeat="bgb bgbs">
+        <tbody class="bgb-project-header">
+          <tr>
+            <td colspan="${3 if can_view_placement else 2}">
+              ${bgb.project.customer.name} / ${bgb.project.name}
+            </td>
+            <td tal:condition="can_view_estimate_column" class="backlog-duration"><span class="total-estimate"></span></td>
+            <td tal:condition="can_view_done_column" class="backlog-duration"><span class="total-done"></span></td>
+            <td tal:condition="can_view_percentage_column" class="backlog-duration"><span class="total-percentage"></span></td>
+          </tr>
+        </tbody>
+        <tbody class="bgb-project table">
+          <tal:cr repeat="cr sorted(bgb.project.customer_requests, key=unicodelower)">
+          <tr data-cr-id="${cr.id}"
+            data-placement="${cr.placement if can_view_placement else nothing}"
+            data-cr-editable="${1 if can_edit_cr[cr] else nothing}"
+            data-workflow-state="${cr.workflow_state}"
+            data-filler="${cr.filler}"
+            data-contract="${cr.contract and cr.contract.id or ''}"
+            data-contract-days="${cr.contract and cr.contract.days or ''}"
+            data-duration-estimate="${bgb.get_estimate(cr) if can_view_estimate[bgb.project] else nothing}"
+            data-duration-percentage="${bgb.get_percentage(cr) if can_view_percentage[bgb.project] else nothing}"
+            data-duration-done="${bgb.get_done(cr) if can_view_done[bgb.project] else nothing}">
+            <td tal:condition="can_view_placement">&nbsp;</td>
+            <td>
+              <a href="/admin/CustomerRequest/${cr.id}">
+                ${cr.name}
+              </a>
+              <span tal:condition="cr.filler" class="label label-inverse pull-right">Filler</span>
+            </td>
+            <td class="backlog-workflow">${cr.workflow_state}</td>
+            <td tal:condition="can_view_estimate_column" class="backlog-duration">&nbsp;</td>
+            <td tal:condition="can_view_done_column" class="backlog-duration">&nbsp;</td>
+            <td tal:condition="can_view_percentage_column" class="backlog-duration">&nbsp;</td>
+          </tr>
+          </tal:cr>
+          <tr>
+            <td tal:condition="can_view_placement">&nbsp;</td>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+            <td tal:condition="can_view_estimate_column">&nbsp;</td>
+            <td tal:condition="can_view_done_column">&nbsp;</td>
+            <td tal:condition="can_view_percentage_column">&nbsp;</td>
+          </tr>
+        </tbody>
+        </tal:bgb>
+        <tfoot class="backlog-no-rows hide">
+          <td tal:condition="can_view_placement">&nbsp;</td>
+          <td colspan="2">No customer request matches the selection.</td>
+          <td tal:condition="can_view_estimate_column">&nbsp;</td>
+          <td tal:condition="can_view_done_column">&nbsp;</td>
+          <td tal:condition="can_view_percentage_column">&nbsp;</td>
+        </tfoot>
+      </table>
+
+      </metal:body>
+
+    </div>
+
+  </body>
+</html>

@@ -1,0 +1,14 @@
+<html metal:use-macro="main.macros['master']">
+  <head>
+  </head>
+  <body>
+    <div metal:fill-slot="main">
+
+        <div id='to_be_developed'>
+            <label>To Be developed!</label>
+            <p> We need to understand the way to include here the form to add applications to the current project!</p>
+        </div>
+
+    </div>
+  </body>
+</html>

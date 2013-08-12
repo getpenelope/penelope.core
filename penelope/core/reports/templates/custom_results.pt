@@ -1,0 +1,44 @@
+<div xmlns="http://www.w3.org/1999/xhtml" xml:lang="en"
+     xmlns:tal="http://xml.zope.org/namespaces/tal"
+     tal:omit-tag="">
+
+  <h3 tal:condition="not:rows">
+    No time entries found
+  </h3>
+
+
+  <a href="${xls_link}">
+    <i class="icon-download"></i>
+    Download as XLS
+  </a>
+  <a href="${json_link}">
+    <i class="icon-download"></i>
+    Download as JSON
+  </a>
+
+  <table class="table table-bordered time-entries tablesorter {sortlist: [[0,0],[1,0]]}">
+    <thead>
+      <tr>
+        <th tal:repeat="col columns"
+            tal:content="col[1]" />
+      </tr>
+    </thead>
+    <tbody>
+      <tr tal:repeat="row rows">
+        <td tal:repeat="col columns"
+            tal:content="format_web(row[col[0]])" />
+      </tr>
+      <tr>
+        <td tal:repeat="col columns">
+          <tal:label condition="col[0]=='description'">
+            Tot.
+          </tal:label>
+          <tal:total condition="col[0]=='hours'">
+            ${human_tot}
+          </tal:total>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+</div>

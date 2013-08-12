@@ -1,0 +1,12 @@
+<html metal:use-macro="main.macros['master']">
+  <body>
+    <metal:main fill-slot="main">
+        <ul class="nav nav-pills">
+            <li tal:replace="structure actions.tabs(request)" />
+        </ul>
+      <table tal:content="structure fs.render()" class="table"/>
+      <div class="fa_controls" tal:content="structure actions.buttons(request)"></div>
+    </metal:main>
+  </body>
+</html>
+

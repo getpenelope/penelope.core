@@ -1,0 +1,29 @@
+
+/* ----- "All Entries" report form ----- */
+
+form#all_entries div[data-deform-name="users"]:before {
+  /* form fields that should begin a new line */
+  content: " ";
+  display: block;
+}
+
+
+table.pivot .active-popover {
+  background-color: #ffffdd;
+}
+
+table.pivot .active-popover .total {
+  background-color: #e8e8cc;
+}
+
+table.pivot .foldunfold {
+  /* Collapsed cells in the pivot table can be clicked. */
+  display: block;
+  cursor: pointer;
+}
+
+table.pivot .resultcell {
+  font-weight: bold;
+}
+
+

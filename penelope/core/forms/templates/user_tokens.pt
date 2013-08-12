@@ -1,0 +1,29 @@
+<html metal:use-macro="main.macros['master']">
+  <body>
+    <div metal:fill-slot="main">
+        <ul class="nav nav-pills">
+            <li tal:replace="structure actions.tabs(request)" />
+          </ul>
+          <table class="table table-bordered">
+              <thead>
+                <tr>
+                  <th i18n:translate="">Token type</th>
+                  <th i18n:translate="">State</th>
+                  <th i18n:translate="">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Google Docs</td>
+                  <td>${user.gdata_token_status}</td>
+                  <td>
+                    <a tal:condition="user.gdata_auth_token" href="${request.application_url}/clear_gdata_token" class="btn btn-danger">Remove token</a>
+                    <a tal:condition="not: user.gdata_auth_token" href="${request.application_url}/add_gdata_token" class="btn btn-success">Add token</a>
+                  </td>
+                </tr>
+              </tbody>
+          </table>
+    </div>
+  </body>
+</html>
+

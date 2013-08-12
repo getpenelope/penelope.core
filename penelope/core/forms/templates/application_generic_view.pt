@@ -1,0 +1,4 @@
+<metal:main define-macro="main">
+    <p tal:content="structure application.description"></p>
+    <a href="${application.application_uri(request)}">${application.application_uri(request)}</a>
+</metal:main>

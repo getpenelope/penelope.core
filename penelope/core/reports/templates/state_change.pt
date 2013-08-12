@@ -1,0 +1,133 @@
+<div xmlns="http://www.w3.org/1999/xhtml" xml:lang="en"
+     xmlns:tal="http://xml.zope.org/namespaces/tal"
+     id="report-state-change">
+
+  <p tal:condition="errors" class="alert alert-error alert-block">
+    There have been ${len(errors)} errros. See below for details.
+  </p>
+
+  <h3 tal:condition="not:entries_tree">
+    No time entries found
+  </h3>
+
+  <form tal:condition="entries_tree"
+        action="${request.url}" method="POST">
+
+    <tal:customer_request repeat="customer_request sorted(entries_tree, key=lambda x:x.name.lower())">
+      <h3>
+        ${customer_request.project.customer.name} (${customer_request.project.name}) - ${customer_request.name}
+      </h3>
+
+      <tal:ticket repeat="ticket_description python:sorted(entries_tree[customer_request])">
+
+        <h4>
+          ${ticket_description}
+        </h4>
+
+        <table tal:define="rows python:entries_tree[customer_request][ticket_description]"
+               class="table table-bordered time-entries table-condensed tablesorter {sortlist: [[0,0],[1,0]]}">
+          <colgroup>
+            <col class="col_checkbox" />
+            <col class="col_state" />
+            <col class="col_date" />
+            <col class="col_hours" />
+            <col class="col_description" />
+            <col class="col_location" />
+            <col class="col_invoice" />
+            <col class="col_tickettype" />
+          </colgroup>
+          <thead>
+            <tr>
+              <th>
+                <input tal:condition="python:len(rows)>1"
+                       type="checkbox" class="check_ticket" />
+              </th>
+              <th>state</th>
+              <th>date</th>
+              <th>hours</th>
+              <th>description</th>
+              <th>location</th>
+              <th>invoice</th>
+              <th>contract</th>
+              <th>type</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr tal:repeat="row rows"
+                class="selectable">
+              <td>
+                <input type="checkbox" name="te_${row['id']}" />
+              </td>
+              <td>
+                <span class="${'statechange-done' if row['id'] in done_state else 'statechange-error' if row['id'] in errors else nothing}">
+                  ${wf_state_names[row['workflow_state']] if row['workflow_state'] else nothing}
+                </span>
+              </td>
+              <td>${row['date']}</td>
+              <td>${row['hours_str']}</td>
+              <td>
+                <tal:description content="structure python:row['description']" />
+                <p tal:condition="row['id'] in errors" class="statechange-error-message">
+                  ${errors[row['id']]}
+                </p>
+              </td>
+              <td>
+                ${row['location']}
+              </td>
+              <td>
+                ${row['invoice_number']}
+              </td>
+              <td>
+                <span class="${'statechange-done' if row['id'] in done_contract else 'statechange-error' if row['id'] in errors else nothing}">
+                  ${row['contract']}
+                </span>
+              </td>
+              <td>
+                ${row['tickettype']}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+      </tal:ticket>
+
+    </tal:customer_request>
+
+    <div class="well form-inline">
+      <input type="checkbox" class="check_all" id="check_all" />
+      <label for="check_all">
+        Select all&nbsp;
+      </label>
+
+      <select id="new_state" name="new_state" class="i-can-haz-chzn-select">
+        <option value="">Choose a new state...</option>
+        <option tal:repeat="ws all_wf_states"
+                value="${ws[0]}">${ws[1]}</option>
+      </select>
+      <script>$('#new_state').chosen()</script>
+      <select id="new_contract" name="new_contract" class="i-can-haz-chzn-select">
+        <option value="">Choose a new contract...</option>
+        <option tal:repeat="contract all_contracts"
+                value="${contract[0]}">${contract[1]}</option>
+      </select>
+      <script>$('#new_contract').chosen()</script>
+
+      <input type="text"
+             name="invoice_number"
+             class="input-mini"
+             maxlength="10"
+             placeholder="invoice nr."
+             pattern="\d+\/\d+"
+             title="invoice must be year/number"
+             style="display:none" />
+
+      <button class="btn btn-small btn-primary" type="submit" value="state_change" name="submit">
+        <i class="icon-white icon-ok"></i>
+        Change
+      </button>
+      <span id="te_selected_counter" />
+    </div>
+
+  </form>
+
+</div>

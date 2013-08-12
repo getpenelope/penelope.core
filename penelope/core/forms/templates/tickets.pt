@@ -1,0 +1,31 @@
+<html metal:use-macro="main.macros['master']">
+  <body>
+    <div metal:fill-slot="main">
+        <ul class="nav nav-pills">
+            <li tal:replace="structure actions.tabs(request)" />
+        </ul>
+        <tal:cr repeat="customer_request customer_requests">
+            <div tal:condition="customer_request.placement==customer_request.PLACEMENT_BOARD">
+                <h1 tal:content="customer_request.name">customer request</h1>
+                <table class="table table-bordered">
+                    <thead>
+                      <tr>
+                        <th i18n:translate="">Tickets</th>
+                        <th i18n:translate="">Details</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                        <tal:ticket repeat="ticket customer_request.get_tickets(request=request)">
+                            <tr>
+                                <td><a tal:attributes="href ticket.href"
+                                    tal:content="'#%s' % ticket.id">#BBB</a></td>
+                                <td tal:content="ticket">TODO</td>
+                            </tr>
+                        </tal:ticket>
+                    </tbody>
+                </table>
+            </div>
+        </tal:cr>
+    </div>
+  </body>
+</html>
