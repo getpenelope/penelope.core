@@ -39,7 +39,7 @@ from penelope.core.models.tickets import ticket_store
 from penelope.core.models.interfaces import ICustomerRequest, IRoleable, IProjectRelated
 from penelope.core.models.interfaces import IProject, IUser, IPorModel, ICustomer, IRole
 from penelope.core.models.interfaces import IApplication, ITrac, ISVN, IGoogleDocs
-from penelope.core.models.interfaces import ITracReport, IGenericApp, IContract
+from penelope.core.models.interfaces import ITracReport, IGenericApp, IContract, IKanbanBoard
 
 
 role_assignments = Table('role_assignments', Base.metadata,
@@ -922,3 +922,35 @@ class SavedQuery(dublincore.DublinCore, Base):
 
 event.listen(SavedQuery, "before_insert", dublincore.dublincore_insert)
 event.listen(SavedQuery, "before_update", dublincore.dublincore_update)
+
+
+class KanbanBoard(dublincore.DublinCore, Base):
+    implements(IKanbanBoard)
+
+    __tablename__ = 'kanban_boards'
+    __acl__ = deepcopy(CRUD_ACL)
+    __acl__.allow(Authenticated, 'new')
+    __acl__.allow('role:owner', 'view')
+    __acl__.allow('role:owner', 'edit')
+    __acl__.allow('role:owner', 'delete')
+
+    id = Column(Integer, primary_key=True)
+    name = Column(Unicode)
+    json = Column(Unicode)
+    author = relationship(User,
+                          uselist=False,
+                          primaryjoin='KanbanBoard.author_id==User.id',
+                          backref='kanban_boards')
+
+    def __repr__(self):
+        return "<KanbanBoard id=%d>" % self.id
+
+    def __str__(self):
+        return self.__unicode__().encode('utf8')
+
+    def __unicode__(self):
+        return self.name
+
+
+event.listen(KanbanBoard, "before_insert", dublincore.dublincore_insert)
+event.listen(KanbanBoard, "before_update", dublincore.dublincore_update)

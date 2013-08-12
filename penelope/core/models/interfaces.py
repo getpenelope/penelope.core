@@ -31,6 +31,10 @@ class IDublinCore(IPorModel):
     "marker interfaces for dublincore models"
 
 
+class IKanbanBoard(IPorModel):
+    "Marker interface for kanbanboard"
+
+
 class IProject(IPorModel):
     "interface that provides get_tickets method"
 
