@@ -1,0 +1,68 @@
+<html metal:use-macro="main.macros['master']">
+  <body>
+    <div metal:fill-slot="main">
+      <tal:tabs replace="structure actions.tabs(request)" tal:condition="actions.has_key('tabs')"/>
+      <div ng-app="kanban">
+        <div class="kanban" ng-controller="KanbanCtrl"> 
+          <table class="table rounded" border="1" ng-init="init('${request.model_instance.id}')">
+                 <tr id="task_pool_header_container">
+                   <th class="task_pool_header dotted_separator" ng-repeat="column in columns"
+                     style="background-color:{{column.color}}">
+                     <div class="header_name">
+                       <img class="title_bullet" src="/fanstatic/por/por_kanban/img/mookup/bullet.png">
+                       <a class="btn btn-mini btn-danger pull-right" href="#" title="Remove column"
+                          ng-click="removeColumn($index)"
+                          ng-show="$index != 0">
+                          <i class="icon-remove-sign icon-white"></i>
+                        </a>
+                        <a xeditable
+                           data-ng-model="column.title"
+                           href="#" data-type="text" data-title="Enter column name">{{column.title}}</a>
+                      </div>
+                      <div class="WIP">WIP: 
+                        <a xeditable
+                           data-ng-model="column.wip"
+                           href="#" data-type="text" data-title="Enter column WIP">{{column.wip}}</a>
+                       </div>
+                        <a xeditable
+                           data-ng-model="column.color"
+                           href="#" data-type="text" data-title="Enter column Color">{{column.color}}</a>
+                    </th>
+                 </tr>
+                 <tr id="task_pool_container">
+                   <td class="task_pool ui-sortable dotted_separator"
+                     style="background-color:{{column.color}}"
+                     ng-repeat="column in columns"
+                     ng-model="columns[$index].tasks"
+                     data-drop="true"
+                     jqyoui-droppable="{multiple:true, onDrop:'handleDrop'}">
+
+                     <div class="big_container" id="{{task.id}}" 
+                       jqyoui-draggable="{animate:true, placeholder:true, index:{{$index}}}"
+                       data-drag="true" 
+                       data-jqyoui-options="{revert: 'invalid'}" 
+                       ng-repeat="task in column.tasks"  
+                       ng-model="columns[$parent.$index].tasks[$index]"
+                       ng-show="task.id">
+
+                       <div class="box_itm rounded">
+                         <strong><a target="_blank" href="{{task.url}}">{{task.project}} #{{task.id}}</a></strong>
+                         <br>
+                         {{task.summary}}
+                       </div>
+                       <div class="shadow"></div>
+
+                     </div>
+
+                   </td>
+                 </tr>
+               </table>
+            <fieldset class="form-actions">
+              <div class="fa_controls" tal:content="structure actions.buttons(request)"></div>
+            </fieldset>
+            </div>
+        </div>
+    </div>
+  </body>
+</html>
+

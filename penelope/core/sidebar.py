@@ -13,7 +13,7 @@ from fa.bootstrap.actions import TabsActions, TabAction, UIButton
 from penelope.core.interfaces import ISidebar
 from penelope.core.lib.helpers import unicodelower
 from penelope.core.lib.htmlhelpers import render_application_icon
-from penelope.core.models.interfaces import IProjectRelated, ICustomerRequest, IApplication
+from penelope.core.models.interfaces import IProjectRelated, ICustomerRequest, IApplication#, IKanbanBoard
 
 gsm = zope.component.getGlobalSiteManager()
 
@@ -329,3 +329,31 @@ class AppSidebarRenderer(ProjectSidebarRenderer):
 
 gsm.registerAdapter(AppSidebarRenderer, (IApplication,), ISidebar)
 
+
+class ManageSidebarRenderer(SidebarRenderer):
+
+    def render(self, request):
+        #Customer request
+        board = HeaderSidebarAction('kanban_boards',
+                      content=u'Boards',
+                      permission='view',
+                      no_link=True)
+        board.append(Button(id='add',
+                      content=literal('<i class="icon-plus-sign icon-white"></i>'),
+                      _class='btn btn-success btn-mini',
+                      permission='new',
+                      attrs=dict(href=safe_fa_url('KanbanBoard', 'new'),
+                                 title="'Add new board'")))
+        self.actions.append(board)
+        for kanban in request.authenticated_user.kanban_boards:
+            icon = 'icon-time'
+            self.actions.append(SidebarAction('board_%s' % kanban.id,
+                                              content=literal(u'<i class="%s"></i> %s' % (icon, kanban)),
+                                              permission='view',
+                                              attrs=dict(href=safe_fa_url('KanbanBoard', kanban.id))))
+
+        actions = self.actions.render(request)
+        template =  get_renderer('penelope.core.forms:templates/project_sidebar.pt').implementation()
+        return template(actions=actions, request=request)
+
+#gsm.registerAdapter(ManageSidebarRenderer, (IKanbanBoard,), ISidebar)

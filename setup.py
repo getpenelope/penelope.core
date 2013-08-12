@@ -25,6 +25,7 @@ requires = [
     'js.jquery_datatables==1.8.2',
     'js.jquery_timepicker_addon',
     'js.lesscss',
+    'js.xeditable',
     'jsonrpc',
     'lingua',
     'lorem-ipsum-generator',

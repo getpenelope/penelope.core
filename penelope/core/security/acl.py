@@ -11,7 +11,7 @@ from pyramid.security import Authenticated
 from zope.interface import Interface
 
 from penelope.core.interfaces import IRoleFinder
-from penelope.core.models.interfaces import IProjectRelated, ICustomer, IUser
+from penelope.core.models.interfaces import IProjectRelated, ICustomer, IUser, IDublinCore
 
 
 class ACL(list):
@@ -242,7 +242,15 @@ class GenericRoles(object):
 gsm.registerAdapter(GenericRoles, (Interface, IUser), IRoleFinder)
 
 
-class ProjectRelatedRoles(GenericRoles):
+class DublincoreRelatedRoles(GenericRoles):
+    def get_roles(self):
+        if getattr(self.context, 'author', None) == self.user:
+            self.roles.add('owner')
+        return self.roles
+
+gsm.registerAdapter(DublincoreRelatedRoles, (IDublinCore, IUser), IRoleFinder)
+
+class ProjectRelatedRoles(DublincoreRelatedRoles):
     def add_project_roles(self, project):
         if project.manager == self.user:
             self.roles.add('project_manager')
@@ -254,8 +262,6 @@ class ProjectRelatedRoles(GenericRoles):
         self.roles -= ONLY_PROJECT_ROLES
         if self.context.project:
             self.add_project_roles(self.context.project)
-        if getattr(self.context, 'author', None) == self.user:
-            self.roles.add('owner')
         return self.roles
 
 gsm.registerAdapter(ProjectRelatedRoles, (IProjectRelated, IUser), IRoleFinder)
@@ -266,8 +272,6 @@ class CustomerRelatedRoles(ProjectRelatedRoles):
         self.roles -= ONLY_PROJECT_ROLES
         for project in self.context.projects:
             self.add_project_roles(project)
-        if getattr(self.context, 'author', None) == self.user:
-            self.roles.add('owner')
         return self.roles
 
 gsm.registerAdapter(CustomerRelatedRoles, (ICustomer, IUser), IRoleFinder)

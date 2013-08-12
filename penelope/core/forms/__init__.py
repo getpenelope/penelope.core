@@ -208,7 +208,7 @@ class ModelView(Base):
 
 
 
-from penelope.core.forms import project, customer, application, customer_request, timeentry, group, user, role, contract
+from penelope.core.forms import project, customer, application, customer_request, timeentry, group, user, role, contract, kanbanboard
 
 def include_forms(config):
     project.configurate(config)
@@ -220,6 +220,7 @@ def include_forms(config):
     user.configurate(config)
     role.configurate(config)
     contract.configurate(config)
+    kanbanboard.configurate(config)
 
 class AttributeField(fields.AttributeField):
     """

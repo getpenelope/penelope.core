@@ -1,32 +1,28 @@
 
-from sqlalchemy.util import OrderedDict
-
-from zope.interface import Interface
-
+from fa.jquery.fanstatic_resources import fa_pyramid_js
+from fa.jquery.renderers import RichTextFieldRenderer
 from formalchemy import Field, fatypes
 from formalchemy.exceptions import ValidationError
-from formalchemy.fields import HiddenFieldRenderer, SelectFieldRenderer
 from formalchemy.fields import _query_options
-
-from pyramid_formalchemy import events
-from pyramid.security import has_permission
-from pyramid.i18n import TranslationStringFactory
-
-from fa.jquery.renderers import RichTextFieldRenderer
-from fa.jquery.fanstatic_resources import fa_pyramid_js
+from formalchemy.fields import HiddenFieldRenderer, SelectFieldRenderer
 from plone.i18n.normalizer import idnormalizer
+from pyramid.i18n import TranslationStringFactory
+from pyramid.security import has_permission
+from pyramid_formalchemy import events
+from sqlalchemy.util import OrderedDict
+from zope.interface import Interface
 
+from penelope.core import PROJECT_ID_BLACKLIST
+from penelope.core.forms.renderers import grooming_label_renderer, UrlRenderer
+from penelope.core.forms.renderers import TicketRenderer
+from penelope.core.lib.fa_fields import BigTextAreaFieldRenderer
 from penelope.core.models import DBSession
 from penelope.core.models.dashboard import TRAC, SVN, Application, Customer, \
-        CustomerRequest, Group, Project, User, Contract
-from penelope.core.models.tp import TimeEntry
-from penelope.core.lib.fa_fields import BigTextAreaFieldRenderer
-from penelope.core.forms.renderers import grooming_label_renderer, UrlRenderer
+        CustomerRequest, Group, Project, User, Contract, KanbanBoard
 from penelope.core.models.dublincore import DublinCore
-from penelope.core.models.workflow import Workflow
 from penelope.core.models.interfaces import IRoleable, ITimeEntry
-from penelope.core.forms.renderers import TicketRenderer
-from penelope.core import PROJECT_ID_BLACKLIST
+from penelope.core.models.tp import TimeEntry
+from penelope.core.models.workflow import Workflow
 
 _ = TranslationStringFactory('penelope')
 
@@ -358,6 +354,13 @@ def before_customerrequest_render(context, event):
     if fs.readonly:
         fs.append(Field('estimation_days', type=fatypes.Float))
         fs.estimation_days._value = context.estimation_days
+
+@events.subscriber([KanbanBoard, events.IBeforeRenderEvent])
+def before_kanban_render(context, event):
+    fs = event.kwargs['fs']
+    if not fs._render_fields.keys():
+        fs.configure(readonly=fs.readonly)
+    del fs._render_fields['json']
 
 
 #TimeEntry events
