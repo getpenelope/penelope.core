@@ -29,6 +29,7 @@ requires = [
     'lingua',
     'lorem-ipsum-generator',
     'lxml',
+    'PasteScript',
     'penelope.trac',
     'plone.i18n',
     'profilehooks',
