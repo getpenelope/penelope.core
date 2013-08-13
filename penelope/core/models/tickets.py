@@ -3,7 +3,7 @@ from pyramid.threadlocal import get_current_registry, get_current_request
 from zope.interface import implements
 from penelope.core.models.interfaces import ITicketStore
 from penelope.core.models import DBSession
-from por.trac.api import TracXmlProxy
+from penelope.trac.api import TracXmlProxy
 
 
 class TicketStore(object):
@@ -76,7 +76,7 @@ class TicketStore(object):
         from penelope.core.models.dashboard import User
 
         settings = get_current_registry().settings
-        tracenvs = settings.get('por.trac.envs')
+        tracenvs = settings.get('penelope.trac.envs')
         request = get_current_request()
 
         for trac in project.tracs:

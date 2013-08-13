@@ -56,7 +56,7 @@ def manage_svn_authz(request):
     authz_file = settings.get('por.svn.authz')
 
     if request.method == 'POST':
-        from por.trac.authz import generate_authz
+        from penelope.trac.authz import generate_authz
         generate_authz(request.registry.settings)
 
     with open(authz_file, 'r') as configfile:

@@ -25,7 +25,7 @@ Project; User; GlobalConfig; PasswordResetToken; Role; SavedQuery
 Application; Customer; CustomerRequest; Group; OpenId; Estimation; Contract
 
 from penelope.core.models.tp import TimeEntry; TimeEntry
-from por.trac import events; events
+from penelope.trac import events; events
 
 
 def includeme(config):

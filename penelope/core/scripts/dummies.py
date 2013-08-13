@@ -13,7 +13,7 @@ from penelope.core.models.scripts import add_customer, add_customer_request, add
 from penelope.core.models.dbsession import DBSession
 from penelope.core.models import Base
 from penelope.core.models.dashboard import GlobalConfig
-from por.trac.populate import add_trac_tickets
+from penelope.trac.populate import add_trac_tickets
 
 
 beaker.cache.cache_regions.update(dict(calculate_matrix={'key_length':''}))
