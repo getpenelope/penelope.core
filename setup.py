@@ -66,6 +66,19 @@ requires = [
     'zope.sqlalchemy',
     ]
 
+tests_require = [
+    'WebTest',
+    'mock',
+    'pyquery',
+    'pytest',
+    'pytest-cov',
+    'pytest-pep8!=1.0.3',
+    'pytest-xdist',
+    'wsgi_intercept',
+    'zope.testbrowser',
+    ]
+
+
 setup(name='penelope.core',
       version='1.2.dev0',
       description='Penelope main package',
@@ -84,6 +97,7 @@ setup(name='penelope.core',
       zip_safe=False,
       test_suite='penelope.core',
       install_requires = requires,
+      tests_require=tests_require,
       entry_points = """\
       [paste.app_factory]
       main = penelope.core:main
@@ -103,4 +117,6 @@ setup(name='penelope.core',
       quality_export = penelope.core.scripts.quality_export:main
       contracts_import = penelope.core.scripts.contracts_import:main
       """,
+      extras_require={
+        'test': tests_require,}
       )

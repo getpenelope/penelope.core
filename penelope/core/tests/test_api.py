@@ -124,7 +124,7 @@ class TestJSONRPCProxy(unittest2.TestCase):
         #Try to get errors
         resp = self.proxy.create_new_simple_time_entry(1, entry_date,
                                                        entry_hours, entry_description,
-                                                       entry_location,10)
+                                                       entry_location, project_id)
         self.assertEqual(resp['message'], u"'int' object has no attribute 'decode'")
 
         resp = self.proxy.create_new_simple_time_entry(entry_ticket,
@@ -132,18 +132,18 @@ class TestJSONRPCProxy(unittest2.TestCase):
                                                        u'9000',
                                                        entry_description,
                                                        entry_location,
-                                                       10)
+                                                       project_id)
 
         self.assertEqual(resp['message'], u'Cannot parse time (must be HH:MM)')
 
         resp = self.proxy.create_new_simple_time_entry(entry_ticket,
                                                        entry_date,
-                                                       u'9:40',
+                                                       u'19:40',
                                                        entry_description,
                                                        entry_location,
-                                                       10)
+                                                       project_id)
 
-        self.assertEqual(resp['message'], u'Time value too big (must be <= 8:00)')
+        self.assertEqual(resp['message'], u'Time value too big (must be <= 16:00)')
 
         resp = self.proxy.create_new_simple_time_entry(entry_ticket,
                                                        entry_date,
