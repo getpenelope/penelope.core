@@ -1,4 +1,4 @@
-1.1 (unreleased)
+1.1 (2013-08-13)
 ----------------
 
 - merge integration with penelope.trac [amleczko]
