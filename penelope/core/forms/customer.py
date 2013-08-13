@@ -51,7 +51,16 @@ def configurate(config):
         permission='new',
         name='add_project',
         attr='add_project',
-        renderer='fa.bootstrap:templates/admin/new.pt',
+        renderer='penelope.core.forms:templates/new.pt',
+        model='penelope.core.models.dashboard.Customer',
+        view=CustomerModelView)
+
+    config.formalchemy_model_view('admin',
+        request_method='POST',
+        permission='new',
+        name='add_project',
+        attr='add_project',
+        renderer='penelope.core.forms:templates/new.pt',
         model='penelope.core.models.dashboard.Customer',
         view=CustomerModelView)
 
@@ -137,6 +146,7 @@ class CustomerModelView(ModelView):
     def add_project(self, *args, **kwargs):
         self.request.model_class = dashboard.Project
         self.request.model_name = dashboard.Project.__name__
+        self.request.form_action = ['Customer', self.request.model_id, 'add_project']
         return self.new()
 
     @actions.action('customer_projects')

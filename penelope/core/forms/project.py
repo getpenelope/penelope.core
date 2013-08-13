@@ -50,7 +50,16 @@ def configurate(config):
         permission='new',
         name='add_group',
         attr='add_group',
-        renderer='fa.bootstrap:templates/admin/new.pt',
+        renderer='penelope.core.forms:templates/new.pt',
+        model='penelope.core.models.dashboard.Project',
+        view=ProjectModelView)
+
+    config.formalchemy_model_view('admin',
+        request_method='POST',
+        permission='new',
+        name='add_group',
+        attr='add_group',
+        renderer='penelope.core.forms:templates/new.pt',
         model='penelope.core.models.dashboard.Project',
         view=ProjectModelView)
 
@@ -60,7 +69,16 @@ def configurate(config):
         permission='new',
         name='add_application',
         attr='add_application',
-        renderer='fa.bootstrap:templates/admin/new.pt',
+        renderer='penelope.core.forms:templates/new.pt',
+        model='penelope.core.models.dashboard.Project',
+        view=ProjectModelView)
+
+    config.formalchemy_model_view('admin',
+        request_method='POST',
+        permission='new',
+        name='add_application',
+        attr='add_application',
+        renderer='penelope.core.forms:templates/new.pt',
         model='penelope.core.models.dashboard.Project',
         view=ProjectModelView)
 
@@ -140,7 +158,16 @@ def configurate(config):
         permission='new',
         name='add_customer_request',
         attr='add_customer_request',
-        renderer='fa.bootstrap:templates/admin/new.pt',
+        renderer='penelope.core.forms:templates/new.pt',
+        model='penelope.core.models.dashboard.Project',
+        view=ProjectModelView)
+
+    config.formalchemy_model_view('admin',
+        request_method='POST',
+        permission='new',
+        name='add_customer_request',
+        attr='add_customer_request',
+        renderer='penelope.core.forms:templates/new.pt',
         model='penelope.core.models.dashboard.Project',
         view=ProjectModelView)
 
@@ -150,7 +177,16 @@ def configurate(config):
         permission='new',
         name='add_contract',
         attr='add_contract',
-        renderer='fa.bootstrap:templates/admin/new.pt',
+        renderer='penelope.core.forms:templates/new.pt',
+        model='penelope.core.models.dashboard.Project',
+        view=ProjectModelView)
+
+    config.formalchemy_model_view('admin',
+        request_method='POST',
+        permission='new',
+        name='add_contract',
+        attr='add_contract',
+        renderer='penelope.core.forms:templates/new.pt',
         model='penelope.core.models.dashboard.Project',
         view=ProjectModelView)
 
@@ -200,21 +236,25 @@ class ProjectModelView(ModelView):
     def add_group(self, *args, **kwargs):
         self.request.model_class = dashboard.Group
         self.request.model_name = dashboard.Group.__name__
+        self.request.form_action = ['Project', self.request.model_id, 'add_group']
         return self.new()
 
     def add_application(self, *args, **kwargs):
         self.request.model_class = dashboard.Application
         self.request.model_name = dashboard.Application.__name__
+        self.request.form_action = ['Project', self.request.model_id, 'add_application']
         return self.new()
 
     def add_customer_request(self, *args, **kwargs):
         self.request.model_class = dashboard.CustomerRequest
         self.request.model_name = dashboard.CustomerRequest.__name__
+        self.request.form_action = ['Project', self.request.model_id, 'add_customer_request']
         return self.new()
 
     def add_contract(self, *args, **kwargs):
         self.request.model_class = dashboard.Contract
         self.request.model_name = dashboard.Contract.__name__
+        self.request.form_action = ['Project', self.request.model_id, 'add_contract']
         return self.new()
 
     def all_customer_requests(self):
