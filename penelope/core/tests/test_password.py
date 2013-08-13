@@ -44,9 +44,9 @@ class TestSecurity(unittest2.TestCase):
     def test_autoregister(self):
         from penelope.core.security.views import autoregister
 
-        profile = {'emails': ['user0@dummy.it'],
-                   'displayName': 'user0',
-                   'accounts': [{'username': 'user0'}]}
+        profile = {'emails': [u'user0@dummy.it'],
+                   'displayName': u'user0',
+                   'accounts': [{'username': u'user0'}]}
         user = autoregister(profile)
         self.assertEqual(user.email, 'user0@dummy.it')
 
