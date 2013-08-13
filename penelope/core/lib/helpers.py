@@ -1,10 +1,29 @@
 # -*- coding: utf-8 -*-
 
-from penelope.core.models.tp import timedelta_as_human_str
-
 import datetime
 import operator
 import re
+
+SECS_IN_HR = 60.0*60.0
+WORK_HOURS_IN_DAY = 8.0
+
+
+def timedelta_as_work_days(td):
+    return (td.days*24.0 + td.seconds/SECS_IN_HR) / WORK_HOURS_IN_DAY
+
+
+def timedelta_as_human_str(td, seconds=False):
+    """
+    Formats a timedelta for human consumption. Also used by some reports.
+    """
+    if td is None:
+        return ''
+    hh, rem = divmod(td.days*24.0*SECS_IN_HR + td.seconds, SECS_IN_HR)
+    mm, ss = divmod(rem, 60)
+    if seconds or ss:
+        return '%d:%02d:%02d' % (hh, mm, ss)
+    else:
+        return '%d:%02d' % (hh, mm)
 
 
 def ticket_url(request, project, ticket_id):
