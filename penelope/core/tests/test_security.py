@@ -18,7 +18,7 @@ from penelope.core.views import PORRequest
 settings = {'test': True,
             'sa.dashboard.url': 'sqlite://',
             'sa.dashboard.echo': False,
-            'cache.regions' : 'calculate_matrix',
+            'cache.regions' : 'calculate_matrix, template_caching, default_term',
             'cache.type' : 'memory',
             'cache.calculate_matrix.expire' : '1',
             'project_name': 'Penelope',
