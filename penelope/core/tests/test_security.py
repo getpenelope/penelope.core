@@ -21,7 +21,7 @@ settings = {'test': True,
             'sa.dashboard.echo': False,
             'cache.regions' : 'calculate_matrix, template_caching, default_term',
             'cache.type' : 'memory',
-            'cache.calculate_matrix.expire' : '1',
+            'cache.calculate_matrix.expire' : '0',
             'project_name': 'Penelope',
             'velruse.openid.store':'openid.store.memstore.MemoryStore',
             'velruse.openid.realm':'localhost',}
@@ -150,13 +150,6 @@ class IntegrationTestBase(BaseTestCase):
         super(IntegrationTestBase, self).setUp()
 
 
-
-
-
-
-
-
-
 class TestQuerySecurity(IntegrationTestBase):
 
     def setUp(self):
@@ -204,17 +197,6 @@ class TestQuerySecurity(IntegrationTestBase):
         request = self._add_policy(user)
         filtered_projects = request.filter_viewables(query)
         self.assertEqual(tuple(filtered_projects),())
-
-
-
-
-
-
-
-
-
-"""
-BBB: To be fixed - problems with session
 
     def test_security_listing(self):
         user = User(email=u'u2@rt.com')
@@ -282,33 +264,32 @@ BBB: To be fixed - problems with session
         filtered_projects = request.filter_viewables(query)
         self.assertEqual(len(tuple(filtered_projects)), 2)
 
-#    def test_roles_in_context(self):
-#        user = User(email=u'roles_matrix')
-#        internal_developer = Role(name=u'internal_developer')
-#        user.roles.append(internal_developer)
-#
-#        self.session.add(user)
-#
-#        project = Project(name=u'p1_for_roles_matrix')
-#        external_developer = Role(name=u'external_developer')
-#        a_role = Role(name=u'a role')
-#        p1_group_2 = Group(project=project)
-#        p1_group_2.roles.append(a_role)
-#        p1_group = Group(project=project)
-#        p1_group.add_user(user)
-#        p1_group.roles.append(external_developer)
-#
-#        self.session.add(project)
-#        self.session.commit()
-#
-#        from penelope.core.security import acl
-#        self.assertEqual(acl.GenericRoles(project, user).get_roles(), set(['internal_developer']))
-#        self.assertEqual(acl.GenericRoles(None, user).get_roles(), set(['internal_developer']))
-#        self.assertTrue('internal_developer' in acl.ProjectRelatedRoles(project, user).get_roles())
-#        self.assertTrue('external_developer' in acl.ProjectRelatedRoles(project, user).get_roles())
-#        self.assertTrue('owner' in acl.UserRoles(user, user).get_roles())
-#        self.assertTrue('internal_developer' in acl.UserRoles(user, user).get_roles())
-"""
+    def test_roles_in_context(self):
+        user = User(email=u'roles_matrix')
+        internal_developer = Role(name=u'internal_developer')
+        user.roles.append(internal_developer)
+
+        self.session.add(user)
+
+        project = Project(name=u'p1_for_roles_matrix')
+        external_developer = Role(name=u'external_developer')
+        a_role = Role(name=u'a role')
+        p1_group_2 = Group(project=project)
+        p1_group_2.roles.append(a_role)
+        p1_group = Group(project=project)
+        p1_group.add_user(user)
+        p1_group.roles.append(external_developer)
+
+        self.session.add(project)
+        self.session.commit()
+
+        from penelope.core.security import acl
+        self.assertItemsEqual(acl.GenericRoles(project, user).get_roles(), set(['internal_developer']))
+        self.assertItemsEqual(acl.GenericRoles(None, user).get_roles(), set(['internal_developer']))
+        self.assertTrue('internal_developer' not in acl.ProjectRelatedRoles(project, user).get_roles())
+        self.assertTrue('external_developer' in acl.ProjectRelatedRoles(project, user).get_roles())
+        self.assertTrue('owner' in acl.UserRoles(user, user).get_roles())
+        self.assertTrue('internal_developer' in acl.UserRoles(user, user).get_roles())
 
 TestQuerySecurity.setUpClass()
 
@@ -441,7 +422,6 @@ class SecurityLocalRolesMatrixTest(IntegrationTestBase):
 
         res = self.app.get('/')
         self.assertNotIn(project.name, res.ubody)
-
 
 
 SecurityLocalRolesMatrixTest.setUpClass()
