@@ -72,7 +72,7 @@ def before_role_render(context, event):
     fs = event.kwargs['fs']
     if not fs._render_fields.keys():
         fs.configure(readonly=fs.readonly)
-    if not has_permission('manage', context, event.request):
+    if not has_permission('manage_roles', context, event.request):
         del fs._render_fields['roles']
 
 

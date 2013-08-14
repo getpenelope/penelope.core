@@ -861,6 +861,9 @@ class Group(Principal):
     __acl__.allow('role:project_manager', 'new')
     #edit
     __acl__.allow('role:project_manager', 'edit')
+    __acl__.allow('role:project_manager', 'manage_roles')
+    #delete
+    __acl__.allow('role:project_manager', 'delete')
 
     id = Column(Integer, ForeignKey(Principal.id),
         Sequence("principals_id"),
