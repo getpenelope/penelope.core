@@ -703,7 +703,7 @@ class SecurityMatrixTest(IntegrationTestBase):
                                        ])
 
     def test_role_edit(self):
-        role = Role(name='old_role')
+        role = Role(name=u'old_role')
         self.session.add(role)
         self.session.commit()
         path = '/admin/Role/old_role/edit'
@@ -1081,7 +1081,7 @@ class SecurityMatrixTest(IntegrationTestBase):
         self.add_initial_roles()
         with patch('penelope.trac.events.add_trac_to_project'):
             app = Application(name=u'testing trac')
-            app.application_type = 'trac'
+            app.application_type = u'trac'
             prj = self.session.query(Project).get('my-project')
             prj.add_application(app)
             self.session.commit()
