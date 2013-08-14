@@ -1,4 +1,4 @@
-1.2 (unreleased)
+1.2 (2013-08-14)
 ----------------
 
 - fix problem with formalchemy validation [amleczko]
