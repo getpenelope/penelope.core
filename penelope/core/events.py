@@ -18,7 +18,8 @@ from plone.i18n.normalizer import idnormalizer
 
 from penelope.core.models import DBSession
 from penelope.core.models.dashboard import TRAC, SVN, Application, Customer, \
-        CustomerRequest, Group, Project, User, Contract
+        CustomerRequest, Group, Project, User, Contract, \
+        GOOGLE_DOCS, TRAC_REPORT, GENERIC_APP
 from penelope.core.models.tp import TimeEntry
 from penelope.core.lib.fa_fields import BigTextAreaFieldRenderer
 from penelope.core.forms.renderers import grooming_label_renderer, UrlRenderer
@@ -258,7 +259,12 @@ def before_application_edit_render(context, event):
     fs.append(fs.name.required())
     del fs._render_fields['project']
     fs.append(Field('application_type', type=fatypes.String))
-    fs.application_type.set(renderer=SelectFieldRenderer, options=['trac', 'svn', 'trac report', 'google docs', 'generic'])
+    fs.application_type.set(renderer=SelectFieldRenderer,
+            options=[('Trac', TRAC),
+                     ('SVN', SVN),
+                     ('Trac Report', TRAC_REPORT),
+                     ('Google Docs', GOOGLE_DOCS),
+                     ('Generic', GENERIC_APP)])
     bind_project(context, event)
     [fs.append(fs._render_fields.pop(a)) for a in fs._render_fields if a != 'name']
 
