@@ -209,7 +209,7 @@ def __calculate_matrix__(user_id):
     if u'internal_developer' in roles_from_projects:
         global_roles.add(u'local_developer')
 
-    # if user in a project_manager in one of the projects add:
+    # if user is a project_manager in one of the projects add:
     if u'project_manager' in roles_from_projects:
         global_roles.add(u'local_project_manager')
 

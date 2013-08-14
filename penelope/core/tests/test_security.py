@@ -291,6 +291,25 @@ class TestQuerySecurity(IntegrationTestBase):
         self.assertTrue('owner' in acl.UserRoles(user, user).get_roles())
         self.assertTrue('internal_developer' in acl.UserRoles(user, user).get_roles())
 
+    def test_project_manager_in_context(self):
+        user = User(email=u'roles_matrix')
+        self.session.add(user)
+
+        project = Project(name=u'p1_for_roles_matrix')
+        cr = CustomerRequest(name=u"My CR", id="my-p1_for_roles_matrix")
+        project.add_customer_request(cr)
+        pm = Role(name=u'project_manager')
+        p1_group = Group(project=project)
+        p1_group.add_user(user)
+        p1_group.roles.append(pm)
+
+        self.session.add(project)
+        self.session.commit()
+
+        from penelope.core.security import acl
+        self.assertTrue('project_manager' in acl.ProjectRelatedRoles(project, user).get_roles())
+
+
 TestQuerySecurity.setUpClass()
 
 

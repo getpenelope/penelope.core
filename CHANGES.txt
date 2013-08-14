@@ -2,6 +2,7 @@
 ----------------
 
 - fix problem with formalchemy validation [amleczko]
+- fix various security problems and update test coverage [amleczko]
 
 
 1.1 (2013-08-13)

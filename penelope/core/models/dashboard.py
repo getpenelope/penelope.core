@@ -704,6 +704,8 @@ class CustomerRequest(dublincore.DublinCore, workflow.Workflow, Base):
     __acl__.allow('role:internal_developer', 'edit')
     #contract view/edit
     __acl__.allow('role:secretary', 'contract')
+    #delete
+    __acl__.allow('role:project_manager', 'delete')
 
     PLACEMENT_BACKLOG = 0
     PLACEMENT_GROOMING = 1
