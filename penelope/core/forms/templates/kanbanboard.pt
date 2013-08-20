@@ -1,15 +1,24 @@
 <html metal:use-macro="main.macros['master']">
-  <body>
-    <div metal:fill-slot="main">
-      <tal:tabs replace="structure actions.tabs(request)" tal:condition="actions.has_key('tabs')"/>
-      <div ng-app="kanban">
-        <div class="kanban" ng-controller="KanbanCtrl"> 
-          <table class="table rounded" border="1" ng-init="init('${request.model_instance.id}')">
-                 <tr id="task_pool_header_container">
-                   <th class="task_pool_header dotted_separator" ng-repeat="column in columns"
-                     style="background-color:{{column.color}}">
+  <body metal:fill-slot="body">
+    <div ng-app="kanban" ng-controller="KanbanCtrl">
+        <div class="page-header">
+            <div class="pull-right" tal:content="structure actions.buttons(request)"></div>
+            <h3 tal:condition="request.model_name">
+                 <span tal:condition="request.model_id and hasattr(request.model_class, '__unicode__')"
+                       tal:replace="unicode(request.model_instance)"/>
+                 <span tal:condition="request.model_id and not hasattr(request.model_class, '__unicode__')"
+                       tal:replace="request.model_id"/>
+                 <span tal:condition="not request.model_id"
+                       tal:replace="unicode(request.model_class.label)"/>
+            </h3>
+        </div>
+
+      <div class="row-fluid">
+       <div class="span12">
+         <ul class="kanban" ng-init="init('${request.model_instance.id}')">
+               <li class="span3" ng-repeat="column in columns">
+               <div class="thumbnail">
                      <div class="header_name">
-                       <img class="title_bullet" src="/fanstatic/por/por_kanban/img/mookup/bullet.png">
                        <a class="btn btn-mini btn-danger pull-right" href="#" title="Remove column"
                           ng-click="removeColumn($index)"
                           ng-show="$index != 0">
@@ -19,50 +28,30 @@
                            data-ng-model="column.title"
                            href="#" data-type="text" data-title="Enter column name">{{column.title}}</a>
                       </div>
-                      <div class="WIP">WIP: 
+                      <div class="WIP {{column.tasks.length > column.wip && 'oversized'}}" ng-show="$index != 0">WIP: 
                         <a xeditable
                            data-ng-model="column.wip"
                            href="#" data-type="text" data-title="Enter column WIP">{{column.wip}}</a>
                        </div>
-                        <a xeditable
-                           data-ng-model="column.color"
-                           href="#" data-type="text" data-title="Enter column Color">{{column.color}}</a>
-                    </th>
-                 </tr>
-                 <tr id="task_pool_container">
-                   <td class="task_pool ui-sortable dotted_separator"
-                     style="background-color:{{column.color}}"
-                     ng-repeat="column in columns"
-                     ng-model="columns[$index].tasks"
-                     data-drop="true"
-                     jqyoui-droppable="{multiple:true, onDrop:'handleDrop'}">
 
-                     <div class="big_container" id="{{task.id}}" 
-                       jqyoui-draggable="{animate:true, placeholder:true, index:{{$index}}}"
-                       data-drag="true" 
-                       data-jqyoui-options="{revert: 'invalid'}" 
-                       ng-repeat="task in column.tasks"  
-                       ng-model="columns[$parent.$index].tasks[$index]"
-                       ng-show="task.id">
-
-                       <div class="box_itm rounded">
-                         <strong><a target="_blank" href="{{task.url}}">{{task.project}} #{{task.id}}</a></strong>
-                         <br>
-                         {{task.summary}}
-                       </div>
-                       <div class="shadow"></div>
-
-                     </div>
-
-                   </td>
-                 </tr>
-               </table>
-            <fieldset class="form-actions">
-              <div class="fa_controls" tal:content="structure actions.buttons(request)"></div>
-            </fieldset>
-            </div>
+                       <ul class="task_pool" ui-sortable="sortableOptions" ng-model="column.tasks">
+                         <li class="big_container {{task.priority && 'priority'}}" id="{{task.id}}" 
+                                ng-repeat="task in column.tasks"
+                                ng-model="columns[$parent.$index].tasks[$index]"
+                                ng-show="task.id">
+                             <div class="box_itm">
+                               <div class="number pull-right">#{{task.ticket}}</div>
+                               <span class="project" style="{{getColor($parent.$index, $index)}}" title="{{task.customer}}">{{task.project}}</span>
+                               <span class="ticket"><a target="_blank" href="{{task.url}}">{{task.summary}}</a></span>
+                            </div>
+                          </li>
+                   </ul>
+                 </div>
+              </li>
+            </ul>
         </div>
-    </div>
+        </div>
+        </div>
   </body>
 </html>
 

@@ -1,4 +1,4 @@
-angular.module('kanban', ['ngDragDrop'])
+angular.module('kanban', ['ui.sortable'])
   .controller("KanbanCtrl", function($scope, $http) {
 
     $scope.columns = [];
@@ -10,9 +10,20 @@ angular.module('kanban', ['ngDragDrop'])
         });
     }
 
+    $scope.getWIP = function(column_id){
+        console($scope.columns[column_id].tasks.length, $scope.columns[column_id].wip)
+        if ($scope.columns[column_id].tasks.length >= $scope.columns[column_id].wip){
+            return 'blabla'
+        }
+    };
+
+    $scope.getColor = function(column_id, task_id){
+        return 'background: #' + md5($scope.columns[column_id].tasks[task_id].project).slice(0, 6);
+    };
+
     $scope.addColumn = function() {
         $scope.columns.push({'title': 'New column ' + $scope.columns.length,
-                             'wip': 0,
+                             'wip': 3,
                              'tasks': []});
         $scope.boardChanged();
     };
@@ -27,14 +38,15 @@ angular.module('kanban', ['ngDragDrop'])
     $scope.boardChanged = function() {
         $http.post($scope.board_id + '/post_tickets.json',
                    $scope.columns.slice(1, $scope.columns.length))
-             .success(function(data){
-                 console.log('updated');
-             });
     };
 
-    $scope.handleDrop = function(event, ui) {
-        $scope.boardChanged();
-    }
+    $scope.sortableOptions = {
+        placeholder: "ui-state-highlight",
+        connectWith: ".task_pool",
+        update: function(e, ui) {
+           $scope.boardChanged();
+        },
+    };
 
   })
 
@@ -45,6 +57,7 @@ angular.module('kanban', ['ngDragDrop'])
         link: function(scope, element, attrs, ngModel) {
             var loadXeditable = function() {
                 angular.element(element).editable({
+                    mode: 'inline',
                     validate: function(value) {
                         if($.trim(value) == '') {
                             return 'This field is required';

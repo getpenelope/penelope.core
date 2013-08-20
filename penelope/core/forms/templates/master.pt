@@ -3,7 +3,7 @@
     <head>
       <script type="text/javascript" metal:define-slot="javascript"></script>
     </head>
-    <body metal:fill-slot="body">
+    <body metal:fill-slot="body" metal:define-slot="body">
         <div class="page-header" tal:on-error="'Error'" metal:define-slot="page-header">
             <h3 tal:condition="request.model_name">
                  <span tal:condition="request.model_id and hasattr(request.model_class, '__unicode__')"

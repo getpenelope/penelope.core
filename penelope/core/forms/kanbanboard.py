@@ -106,17 +106,16 @@ def configurate(config):
 
 add_column = factions.UIButton(id='add_col',
             content='Add column',
-            permission='view',
+            permission='edit',
             _class='btn btn-primary',
             attrs={'href':"'#'",
                    'ng-click': "'addColumn()'",})
 
-remove_column = factions.UIButton(id='remove_col',
-            content='Remove column',
-            permission='view',
-            _class='btn btn-danger',
-            attrs={'href':"'#'",
-                   'ng-click': "'removeColumn()'",})
+security = factions.UIButton(id='remove_col',
+            content='Security',
+            permission='edit',
+            _class='btn btn-inverse',
+            attrs=dict(href="request.fa_url(request.model_name, request.model_id, 'security')"))
 
 security_edit = factions.UIButton(id='security_edit',
                                  content='Edit',
@@ -141,7 +140,7 @@ security_cancel = factions.UIButton(id='security_cancel',
 class KanbanBoardModelView(ModelView):
     actions_categories = ('buttons',)
     defaults_actions = deepcopy(factions.defaults_actions)
-    defaults_actions['show_buttons'] = factions.Actions(factions.edit, add_column)#, remove_column)
+    defaults_actions['show_buttons'] = factions.Actions(add_column, factions.edit, security)
 
     acl_permission_names = ['view', 'edit']
 
@@ -163,11 +162,14 @@ class KanbanBoardModelView(ModelView):
         viewable_project_ids = [p.id for p in viewable_projects]
         all_tracs = DBSession.query(Trac).join(Project).filter(Project.active).filter(Trac.project_id.in_(viewable_project_ids))
         where =  board.board_query or """owner='%(email)s' AND status!='closed'"""
-        query = """SELECT DISTINCT '%(trac)s' AS trac_name, '%(project)s' as project, id AS ticket, summary  FROM "trac_%(trac)s".ticket WHERE %(where)s"""
+        query = """SELECT DISTINCT '%(trac)s' AS trac_name, '%(project)s' as project, '%(customer)s' as customer,
+                                   id AS ticket, summary, priority
+                                   FROM "trac_%(trac)s".ticket WHERE %(where)s"""
         queries = []
         for trac in all_tracs:
             queries.append(query % {'trac': trac.trac_name,
-                                    'project': trac.project,
+                                    'project': trac.project.name,
+                                    'customer': trac.project.customer.name,
                                     'where': where,
                                     'email': self.request.authenticated_user.email})
         sql = '\nUNION '.join(queries)
@@ -200,10 +202,12 @@ class KanbanBoardModelView(ModelView):
             if ticket_id not in existing_tickets:
                 backlog['tasks'].append({'id': ticket_id,
                                          'project': ticket.project,
+                                         'customer': ticket.customer,
                                          'url': '%s/trac/%s/ticket/%s' % (self.request.application_url,
                                                                           ticket.trac_name,
                                                                           ticket.ticket),
                                          'ticket': ticket.ticket,
+                                         'priority': ticket.priority in ['critical', 'blocker'] and 'true' or None,
                                          'summary': ticket.summary})
 
         boards.insert(0, backlog)
