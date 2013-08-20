@@ -81,20 +81,6 @@ remove_column = factions.UIButton(id='remove_col',
                    'ng-click': "'removeColumn()'",})
 
 
-def find_tickets(request):
-    all_tracs = DBSession.query(Trac).join(Project).filter(Project.active)
-    query = """SELECT DISTINCT '%(trac)s' AS trac_name, '%(project)s' as project, id AS ticket, summary  FROM "trac_%(trac)s".ticket WHERE owner='%(email)s' AND status!='closed'"""
-    queries = []
-    for trac in all_tracs:
-        queries.append(query % {'trac': trac.trac_name,
-                                'project': trac.project,
-                                'email': request.authenticated_user.email})
-    sql = '\nUNION '.join(queries)
-    sql += ';'
-    tracs =  DBSession().execute(sql).fetchall()
-    return tracs
-
-
 class KanbanBoardModelView(ModelView):
     actions_categories = ('buttons',)
     defaults_actions = deepcopy(factions.defaults_actions)
@@ -111,6 +97,24 @@ class KanbanBoardModelView(ModelView):
         No additional validation
         """
         return self.force_delete()
+
+    def find_tickets(self):
+        board = self.context.get_instance()
+        viewable_projects = board.projects or self.request.filter_viewables(DBSession.query(Project).filter(Project.active).order_by('name'))
+        viewable_project_ids = [p.id for p in viewable_projects]
+        all_tracs = DBSession.query(Trac).join(Project).filter(Project.active).filter(Trac.project_id.in_(viewable_project_ids))
+        where =  board.board_query or """owner='%(email)s' AND status!='closed'"""
+        query = """SELECT DISTINCT '%(trac)s' AS trac_name, '%(project)s' as project, id AS ticket, summary  FROM "trac_%(trac)s".ticket WHERE %(where)s"""
+        queries = []
+        for trac in all_tracs:
+            queries.append(query % {'trac': trac.trac_name,
+                                    'project': trac.project,
+                                    'where': where,
+                                    'email': self.request.authenticated_user.email})
+        sql = '\nUNION '.join(queries)
+        sql += ';'
+        tracs =  DBSession().execute(sql).fetchall()
+        return tracs
 
     def get_tickets(self):
         """
@@ -130,7 +134,7 @@ class KanbanBoardModelView(ModelView):
                    'tasks': []}
 
         limit = 10
-        for n, ticket in enumerate(find_tickets(self.request)):
+        for n, ticket in enumerate(self.find_tickets()):
             if n > limit:
                 break
             ticket_id = '%s_%s' % (ticket.trac_name, ticket.ticket)

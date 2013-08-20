@@ -56,6 +56,11 @@ favorite_projects = Table('favorite_projects', Base.metadata,
     Column('user_id', Integer, ForeignKey('users.id'))
 )
 
+kanban_projects = Table('kanban_projects', Base.metadata,
+    Column('project_id', String, ForeignKey('projects.id')),
+    Column('kanban_id', Integer, ForeignKey('kanban_boards.id'))
+)
+
 
 class GlobalConfig(Base):
     implements(IPorModel)
@@ -942,12 +947,14 @@ class KanbanBoard(dublincore.DublinCore, Base):
     __acl__.allow('role:owner', 'delete')
 
     id = Column(Integer, primary_key=True)
-    name = Column(Unicode)
+    name = Column(Unicode, nullable=False)
     json = Column(Unicode)
+    board_query = Column(Unicode)
     author = relationship(User,
                           uselist=False,
                           primaryjoin='KanbanBoard.author_id==User.id',
                           backref='kanban_boards')
+    projects = relationship(Project, secondary=kanban_projects, backref="kanban_boards")
 
     def __repr__(self):
         return "<KanbanBoard id=%d>" % self.id

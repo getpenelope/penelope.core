@@ -19,7 +19,8 @@ from penelope.core.models.tickets import ticket_store
 
 
 def _query_options(L):
-    if User in L._mapper_adapter_map.keys():
+    if hasattr(L, '_mapper_adapter_map') and \
+                                         User in L._mapper_adapter_map.keys():
         L = L.filter_by(active=True)
     return [(fields._stringify(item), fields._pk(item)) for item in L]
 fields._query_options = _query_options

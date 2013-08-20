@@ -194,6 +194,7 @@ def before_user_render(context, event):
     del fs._render_fields['salt']
     del fs._render_fields['password']
     del fs._render_fields['active']
+    del fs._render_fields['kanban_boards']
 
 
 @events.subscriber([User, events.IBeforeEditRenderEvent])
@@ -367,6 +368,18 @@ def before_kanban_render(context, event):
     if not fs._render_fields.keys():
         fs.configure(readonly=fs.readonly)
     del fs._render_fields['json']
+
+
+@events.subscriber([KanbanBoard, events.IBeforeEditRenderEvent])
+def before_kanban_edit_render(context, event):
+    fs = event.kwargs['fs']
+    if not fs._render_fields.keys():
+        fs.configure(readonly=fs.readonly)
+    q = event.request.filter_viewables(DBSession().\
+                      query(fs.projects.relation_type()).filter(fs.projects.relation_type().active).order_by('name'))
+    fs.projects.render_opts['options'] = _query_options(q)
+    fs.board_query.set(renderer=BigTextAreaFieldRenderer)
+    fs.board_query.set(instructions=_(u'This is the SQL WHERE statement, ie. status!=\'closed\''))
 
 
 #TimeEntry events
