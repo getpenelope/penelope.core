@@ -1,0 +1,43 @@
+<html metal:use-macro="main.macros['master']">
+  <body>
+    <div class="page-header" metal:fill-slot="page-header">
+      <h3>
+        KanbanBoard security settings
+      </h3>
+    </div>
+    <div metal:fill-slot="main">
+      <ul tal:replace="structure actions.tabs(request)" />
+      <form tal:omit-tag="not form_editing"
+            method="POST"
+            action="security_save">
+        <table class="table table-bordered table-striped" style="width:auto">
+          <thead>
+            <tr>
+              <th>&nbsp;</th>
+              <th tal:repeat="permission_name permission_names">
+                ${permission_name}
+              </th>
+            </tr>
+          </thead>
+          <tr tal:repeat="principal principals">
+            <td>${principal.principal}</td>
+            <td tal:repeat="permission_name permission_names">
+              <tal:cell define="checked acl.get((principal.principal, permission_name), False);
+                                disabled (not form_editing)">
+                <input type="checkbox"
+                       name="${principal.principal}.${permission_name}"
+                       checked="${'checked' if checked else nothing}"
+                       disabled="${'disabled' if disabled else nothing}" />
+              </tal:cell>
+            </td>
+          </tr>
+        </table>
+        <div class="row-fluid">
+          <div class="form-actions">
+              <div class="fa_controls span12" tal:content="structure actions.buttons(request)" />
+          </div>
+        </div>
+      </form>
+    </div>
+  </body>
+</html>

@@ -1,13 +1,15 @@
 # -*- coding: utf-8 -*-
 import transaction
 
-from json import loads, dumps
 from copy import deepcopy
-from pyramid_formalchemy import actions
 from fa.bootstrap import actions as factions
+from json import loads, dumps
+from pyramid.httpexceptions import HTTPFound
+from pyramid_formalchemy import actions
+
 from penelope.core.forms import ModelView
 from penelope.core.fanstatic_resources import kanban
-from penelope.core.models.dashboard import Trac, Project
+from penelope.core.models.dashboard import Trac, Project, KanbanBoard
 from penelope.core.models import DBSession
 
 
@@ -20,6 +22,15 @@ def configurate(config):
             renderer='penelope.core.forms:templates/kanbanboard.pt',
             model='penelope.core.models.dashboard.KanbanBoard',
             view=KanbanBoardModelView)
+
+    config.formalchemy_model_view('admin',
+                    request_method='GET',
+                    permission='listing',
+                    attr='listing',
+                    context='pyramid_formalchemy.resources.ModelListing',
+                    renderer='pyramid_formalchemy:templates/admin/listing.pt',
+                    model='penelope.core.models.dashboard.KanbanBoard',
+                    view=KanbanBoardModelView)
 
     config.formalchemy_model_view('admin',
         request_method='POST',
@@ -66,6 +77,33 @@ def configurate(config):
             model='penelope.core.models.dashboard.KanbanBoard',
             view=KanbanBoardModelView)
 
+    config.formalchemy_model_view('admin',
+                                  request_method='GET',
+                                  permission='edit',
+                                  name='security',
+                                  attr='security',
+                                  model='penelope.core.models.dashboard.KanbanBoard',
+                                  renderer='penelope.core.forms:templates/kanbanboard_acl.pt',
+                                  view=KanbanBoardModelView)
+
+    config.formalchemy_model_view('admin',
+                                  request_method='GET',
+                                  permission='edit',
+                                  name='security_edit',
+                                  attr='security_edit',
+                                  model='penelope.core.models.dashboard.KanbanBoard',
+                                  renderer='penelope.core.forms:templates/kanbanboard_acl.pt',
+                                  view=KanbanBoardModelView)
+
+    config.formalchemy_model_view('admin',
+                                  request_method='POST',
+                                  permission='edit',
+                                  name='security_save',
+                                  attr='security_save',
+                                  model='penelope.core.models.dashboard.KanbanBoard',
+                                  renderer='penelope.core.forms:templates/kanbanboard_acl.pt',
+                                  view=KanbanBoardModelView)
+
 add_column = factions.UIButton(id='add_col',
             content='Add column',
             permission='view',
@@ -80,11 +118,32 @@ remove_column = factions.UIButton(id='remove_col',
             attrs={'href':"'#'",
                    'ng-click': "'removeColumn()'",})
 
+security_edit = factions.UIButton(id='security_edit',
+                                 content='Edit',
+                                 permission='edit',
+                                 _class='btn btn-info',
+                                 attrs=dict(href="request.fa_url(request.model_name, request.model_id, 'security_edit')"))
+
+security_save = factions.UIButton(id='security_save',
+                                 content='Save',
+                                 permission='edit',
+                                 _class='btn btn-success',
+                                 attrs=dict(onclick="jQuery(this).parents('form').submit();"))
+
+security_cancel = factions.UIButton(id='security_cancel',
+                                   content='Cancel',
+                                   permission='edit',
+                                   _class='btn',
+                                   attrs=dict(href="request.fa_url(request.model_name, request.model_id, 'security')"))
+
+
 
 class KanbanBoardModelView(ModelView):
     actions_categories = ('buttons',)
     defaults_actions = deepcopy(factions.defaults_actions)
     defaults_actions['show_buttons'] = factions.Actions(factions.edit, add_column)#, remove_column)
+
+    acl_permission_names = ['view', 'edit']
 
     @actions.action()
     def show(self):
@@ -169,3 +228,45 @@ class KanbanBoardModelView(ModelView):
             board = self.context.get_instance()
             board.json = dumps(data)
         return 'OK'
+
+    def _security_result(self):
+        context = self.context.get_instance()
+        result = super(KanbanBoardModelView, self).show()
+        result['principals'] = context.acl.principals
+        result['permission_names'] = self.acl_permission_names
+
+        result['acl'] = dict()
+        for acl in context.acl.principals:
+            result['acl'][(acl.principal, acl.permission_name)] = True
+        return result
+
+    @actions.action()
+    def security(self):
+        result = self._security_result()
+        result['actions']['buttons'] = actions.Actions(security_edit)
+        result['form_editing'] = False
+        return self.render(**result)
+
+    @actions.action()
+    def security_edit(self):
+        result = self._security_result()
+        result['actions']['buttons'] = actions.Actions(security_save, security_cancel)
+        result['form_editing'] = True
+        return self.render(**result)
+
+    @actions.action()
+    def security_save(self):
+        context = self.context.get_instance()
+
+        for acl in context.acl:
+            DBSession.delete(acl)
+
+        for checkbox_name in self.request.POST:
+            principal, permission_name = checkbox_name.split('.')
+            acl = KanbanBoard(board_id=context.id,
+                              principal=principal,
+                              permission_name=permission_name)
+            DBSession.add(acl)
+
+        request = self.request
+        return HTTPFound(location=request.fa_url(request.model_name, request.model_id, 'security'))

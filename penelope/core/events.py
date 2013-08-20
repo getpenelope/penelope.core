@@ -368,6 +368,7 @@ def before_kanban_render(context, event):
     if not fs._render_fields.keys():
         fs.configure(readonly=fs.readonly)
     del fs._render_fields['json']
+    del fs._render_fields['acl']
 
 
 @events.subscriber([KanbanBoard, events.IBeforeEditRenderEvent])

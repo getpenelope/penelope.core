@@ -941,7 +941,10 @@ class KanbanBoard(dublincore.DublinCore, Base):
 
     __tablename__ = 'kanban_boards'
     __acl__ = deepcopy(CRUD_ACL)
-    __acl__.allow(Authenticated, 'new')
+    #authenticated
+    __acl__.allow('role:redturtle_developer', 'listing')
+    __acl__.allow('role:redturtle_developer', 'new')
+
     __acl__.allow('role:owner', 'view')
     __acl__.allow('role:owner', 'edit')
     __acl__.allow('role:owner', 'delete')
@@ -965,6 +968,53 @@ class KanbanBoard(dublincore.DublinCore, Base):
     def __unicode__(self):
         return self.name
 
+def create_initial_kanban_acl(mapper, connection, target):
+    acl_rules = [
+                ('redturtle_developer', 'view'),
+                ]
 
+    acl = KanbanACL(board_id=target.id)
+    for principal_id, permission_name in acl_rules:
+        principal = KanbanACLPrincipal(principal=principal_id,
+                                       permission_name=permission_name)
+        acl.principals.append(principal)
+    DBSession.add(acl)
+
+event.listen(KanbanBoard, "after_insert", create_initial_kanban_acl, propagate=True)
 event.listen(KanbanBoard, "before_insert", dublincore.dublincore_insert)
 event.listen(KanbanBoard, "before_update", dublincore.dublincore_update)
+
+
+class KanbanACL(Base):
+    __tablename__ = 'kanban_acl'
+
+    id = Column(Integer, primary_key=True)
+    board_id = Column(Integer, ForeignKey('kanban_boards.id', ondelete='cascade'))
+    board = relationship(KanbanBoard, uselist=False, backref=backref('acl',
+                                                                     uselist=False,
+                                                                     cascade="all, delete-orphan",
+                                                                     passive_deletes=True))
+
+    def __str__(self):
+        return self.__unicode__().encode('utf8')
+
+    def __unicode__(self):
+        return '(%s, %s)' % (self.id, self.board_id)
+
+
+class KanbanACLPrincipal(Base):
+    __tablename__ = 'kanban_acl_principals'
+
+    id = Column(Integer, primary_key=True)
+    principal = Column(String)
+    permission_name = Column(String)
+    kanban_acl_id = Column(Integer, ForeignKey('kanban_acl.id', ondelete='cascade'))
+    kanban_acl = relationship(KanbanACL, uselist=False, backref=backref('principals',
+                                                                        cascade="all, delete-orphan",
+                                                                        passive_deletes=True))
+
+    def __str__(self):
+        return self.__unicode__().encode('utf8')
+
+    def __unicode__(self):
+        return '(%s, %s, %s)' % (self.principal, self.kanban_acl_id, self.permission_name)
