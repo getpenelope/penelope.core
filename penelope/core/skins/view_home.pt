@@ -5,7 +5,8 @@
 <body>
   <div metal:fill-slot="body">
 
-    <div>
+    <div tal:condition="kanbanboards">
+      <div class="pull-right"><a href="${request.application_url}/admin/KanbanBoard" class="btn btn-small btn-primary">See all</a></div>
       <h3 i18n:translate="">Kanban boards</h3>
       <div class="projects-board">
         <div class="thumbnail"  tal:repeat="kanbanboard kanbanboards">
@@ -21,6 +22,7 @@
 
     <tal:board repeat="dashboard dashboards">
       <div tal:condition="dashboard['custprojs']">
+      <div class="pull-right"><a href="${request.application_url}/admin/Project" class="btn btn-small btn-primary">See all</a></div>
         <h3 i18n:translate="">${dashboard['title']}</h3>
         <div class="projects-board">
           <div tal:repeat="custprojs dashboard['custprojs']"
