@@ -7,6 +7,7 @@ import re
 import urllib
 import datetime
 
+from json import loads
 from copy import deepcopy
 from zope.interface import implements
 from zope.component import getMultiAdapter
@@ -967,6 +968,12 @@ class KanbanBoard(dublincore.DublinCore, Base):
 
     def __unicode__(self):
         return self.name
+
+    def get_board_columns(self):
+        columns = (self.json and loads(self.json)) or []
+        for column in columns:
+            yield {'name': column['title'],
+                   'tickets': len(column['tasks']) }
 
 def create_initial_kanban_acl(mapper, connection, target):
     acl_rules = [

@@ -189,7 +189,7 @@ def view_home(request):
     my_projects = request.filter_viewables(my_projects)
     other_active_projects = sorted(request.filter_viewables(active_projects.difference(my_projects)), key=unicodelower)
 
-    boards = [
+    dashboards = [
             {
                 'title': 'Favorite projects',
                 'custprojs': group_by_customer(my_projects),
@@ -198,10 +198,10 @@ def view_home(request):
 
     listings = []
 
-    max_board_projects = 20
+    max_dashboard_projects = 20
 
-    if not len(my_projects) and len(other_active_projects) < max_board_projects:
-        boards.append({
+    if not len(my_projects) and len(other_active_projects) < max_dashboard_projects:
+        dashboards.append({
                         'title': 'Active projects',
                         'custprojs': group_by_customer(other_active_projects),
                     })
@@ -212,8 +212,11 @@ def view_home(request):
                         'projgroups': tuple(chunks(tuple(other_active_projects), listing_columns)),
                     })
 
+    kanbanboards = user.kanban_boards
+
     return {
-        'boards': boards,
+        'dashboards': dashboards,
+        'kanbanboards': kanbanboards,
         'listings': listings,
         'render_application_icon': render_application_icon,
         'get_application_link': get_application_link,

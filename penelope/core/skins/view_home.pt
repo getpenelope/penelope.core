@@ -4,11 +4,26 @@
       metal:use-macro="skin: /main_template">
 <body>
   <div metal:fill-slot="body">
-    <tal:board repeat="board boards">
-      <div tal:condition="board['custprojs']">
-        <h3 i18n:translate="">${board['title']}</h3>
+
+    <div>
+      <h3 i18n:translate="">Kanban boards</h3>
+      <div class="projects-board">
+        <div class="thumbnail"  tal:repeat="kanbanboard kanbanboards">
+          <h3>
+                <a href="${request.application_url}/admin/KanbanBoard/${kanbanboard.id}">${kanbanboard.name}</a>
+          </h3>
+          <p tal:repeat="column kanbanboard.get_board_columns()">
+          ${column['name']}: <span class="badge ${column['tickets'] > 0 and 'badge-success' or ''}">${column['tickets']}</span>
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <tal:board repeat="dashboard dashboards">
+      <div tal:condition="dashboard['custprojs']">
+        <h3 i18n:translate="">${dashboard['title']}</h3>
         <div class="projects-board">
-          <div tal:repeat="custprojs board['custprojs']"
+          <div tal:repeat="custprojs dashboard['custprojs']"
               class="thumbnail">
             <h3 tal:define="customer custprojs[0]">
               <a href="${request.application_url}/admin/Customer/${customer.id}">${customer.name}</a>
@@ -48,22 +63,6 @@
       </div>
     </tal:board>
 
-    <div tal:repeat="listing listings"
-         class="projects-listing row-fluid">
-      <h3 i18n:translate="">${listing['title']}</h3>
-      <tal:group repeat="group listing['projgroups']">
-        <div tal:condition="group"
-             class="projects-list span3">
-          <ul>
-            <tal:items repeat="item group">
-              <li tal:condition="item">
-                <a href="${request.application_url}/admin/Project/${item.id}">${item}</a>
-              </li>
-            </tal:items>
-          </ul>
-        </div>
-      </tal:group>
-    </div>
 
 
   </div>
