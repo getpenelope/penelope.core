@@ -1,7 +1,7 @@
-1.3 (unreleased)
+1.2.1 (unreleased)
 ----------------
 
-- Nothing changed yet.
+- ga tracking code slot [amleczko]
 
 
 1.2 (2013-08-14)
