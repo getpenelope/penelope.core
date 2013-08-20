@@ -2,6 +2,7 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" i18n:domain="penelope"
       xmlns:i18n="http://xml.zope.org/namespaces/i18n"
+      tal:define="settings request.registry.settings"
       xmlns:tal="http://xml.zope.org/namespaces/tal">
 <head>
   <title>Penelope</title>
@@ -10,11 +11,6 @@
   <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/>
   <link metal:define-slot="css"/>
   <script type="text/javascript" metal:define-slot="javascript"></script>
-  <style tal:condition="request.registry.settings['project_name'].endswith('Dev')">
-    .navbar .brand {
-      color: red;
-    }
-  </style>
 </head>
 <body>
   <div class="navbar navbar-fixed-top">
@@ -26,7 +22,7 @@
           <span class="icon-bar"></span>
         </a>
         <a class="brand"
-           href="${request.application_url}" i18n:translate="">${request.registry.settings['project_name']}
+           href="${request.application_url}" i18n:translate="">${settings['project_name']}
         </a>
         <div class="nav-collapse" tal:condition="request.isAuthenticated()">
           <ul class="nav">
@@ -174,8 +170,7 @@
     <div class="row-fluid">
       <footer class="footer">
         <ul>
-          <li tal:define="settings request.registry.settings;
-                          href settings.get('penelope.core.logo.href', 'http://www.redturtle.it');
+          <li tal:define="href settings.get('penelope.core.logo.href', 'http://www.redturtle.it');
                           src settings.get('penelope.core.logo.img_src', request.static_url('penelope.core:static/images/logo-redturtle.png'));
                           label settings.get('penelope.core.logo.label', 'RedTurtle Technology')">
             <a href="${href}">
@@ -186,6 +181,19 @@
       </footer>
     </div>
   </div> <!-- /container -->
+
+<script tal:condition="settings.get('penelope.ga_tracking_id')">
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', '${settings['penelope.ga_tracking_id']}', '${settings['penelope.core.google_domain']}');
+  ga('send', 'pageview');
+
+</script>
+
+
 </body>
 </html>
 </metal:main>

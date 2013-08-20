@@ -31,8 +31,8 @@ requires = [
     'lorem-ipsum-generator',
     'lxml',
     'PasteScript',
+    'penelope.trac',
     'plone.i18n',
-    'por.trac',
     'profilehooks',
     'psycopg2',
     'pyramid',
@@ -67,8 +67,21 @@ requires = [
     'zope.sqlalchemy',
     ]
 
+tests_require = [
+    'WebTest',
+    'mock',
+    'pyquery',
+    'pytest',
+    'pytest-cov',
+    'pytest-pep8!=1.0.3',
+    'pytest-xdist',
+    'wsgi_intercept',
+    'zope.testbrowser',
+    ]
+
+
 setup(name='penelope.core',
-      version='1.1.dev0',
+      version='1.3.dev0',
       description='Penelope main package',
       long_description=README + '\n\n' +  CHANGES,
       classifiers=[
@@ -85,6 +98,7 @@ setup(name='penelope.core',
       zip_safe=False,
       test_suite='penelope.core',
       install_requires = requires,
+      tests_require=tests_require,
       entry_points = """\
       [paste.app_factory]
       main = penelope.core:main
@@ -104,4 +118,6 @@ setup(name='penelope.core',
       quality_export = penelope.core.scripts.quality_export:main
       contracts_import = penelope.core.scripts.contracts_import:main
       """,
+      extras_require={
+        'test': tests_require,}
       )

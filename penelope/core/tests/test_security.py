@@ -9,6 +9,7 @@ from pyramid.interfaces import IAuthorizationPolicy, IAuthenticationPolicy
 from pyramid.authentication import RepozeWho1AuthenticationPolicy
 from pyramid.authorization import ACLAuthorizationPolicy
 from webtest import TestApp
+from mock import patch
 
 from penelope.core.models.dashboard import User
 from penelope.core.models import Base, Project, Customer, Role, Group, CustomerRequest, Application, TimeEntry
@@ -18,9 +19,9 @@ from penelope.core.views import PORRequest
 settings = {'test': True,
             'sa.dashboard.url': 'sqlite://',
             'sa.dashboard.echo': False,
-            'cache.regions' : 'calculate_matrix',
+            'cache.regions' : 'calculate_matrix, template_caching, default_term',
             'cache.type' : 'memory',
-            'cache.calculate_matrix.expire' : '1',
+            'cache.calculate_matrix.expire' : '0',
             'project_name': 'Penelope',
             'velruse.openid.store':'openid.store.memstore.MemoryStore',
             'velruse.openid.realm':'localhost',}
@@ -84,7 +85,7 @@ class BaseTestCase(unittest2.TestCase):
         self.session.add(customer)
 
         project = Project(name=u'My Project')
-        cr = CustomerRequest(name="My CR", id="my-project_1")
+        cr = CustomerRequest(name=u"My CR", id="my-project_1")
         project.add_customer_request(cr)
 
         customer.add_project(project)
@@ -149,13 +150,6 @@ class IntegrationTestBase(BaseTestCase):
         super(IntegrationTestBase, self).setUp()
 
 
-
-
-
-
-
-
-
 class TestQuerySecurity(IntegrationTestBase):
 
     def setUp(self):
@@ -203,17 +197,6 @@ class TestQuerySecurity(IntegrationTestBase):
         request = self._add_policy(user)
         filtered_projects = request.filter_viewables(query)
         self.assertEqual(tuple(filtered_projects),())
-
-
-
-
-
-
-
-
-
-"""
-BBB: To be fixed - problems with session
 
     def test_security_listing(self):
         user = User(email=u'u2@rt.com')
@@ -281,33 +264,51 @@ BBB: To be fixed - problems with session
         filtered_projects = request.filter_viewables(query)
         self.assertEqual(len(tuple(filtered_projects)), 2)
 
-#    def test_roles_in_context(self):
-#        user = User(email=u'roles_matrix')
-#        internal_developer = Role(name=u'internal_developer')
-#        user.roles.append(internal_developer)
-#
-#        self.session.add(user)
-#
-#        project = Project(name=u'p1_for_roles_matrix')
-#        external_developer = Role(name=u'external_developer')
-#        a_role = Role(name=u'a role')
-#        p1_group_2 = Group(project=project)
-#        p1_group_2.roles.append(a_role)
-#        p1_group = Group(project=project)
-#        p1_group.add_user(user)
-#        p1_group.roles.append(external_developer)
-#
-#        self.session.add(project)
-#        self.session.commit()
-#
-#        from penelope.core.security import acl
-#        self.assertEqual(acl.GenericRoles(project, user).get_roles(), set(['internal_developer']))
-#        self.assertEqual(acl.GenericRoles(None, user).get_roles(), set(['internal_developer']))
-#        self.assertTrue('internal_developer' in acl.ProjectRelatedRoles(project, user).get_roles())
-#        self.assertTrue('external_developer' in acl.ProjectRelatedRoles(project, user).get_roles())
-#        self.assertTrue('owner' in acl.UserRoles(user, user).get_roles())
-#        self.assertTrue('internal_developer' in acl.UserRoles(user, user).get_roles())
-"""
+    def test_roles_in_context(self):
+        user = User(email=u'roles_matrix')
+        internal_developer = Role(name=u'internal_developer')
+        user.roles.append(internal_developer)
+
+        self.session.add(user)
+
+        project = Project(name=u'p1_for_roles_matrix')
+        external_developer = Role(name=u'external_developer')
+        a_role = Role(name=u'a role')
+        p1_group_2 = Group(project=project)
+        p1_group_2.roles.append(a_role)
+        p1_group = Group(project=project)
+        p1_group.add_user(user)
+        p1_group.roles.append(external_developer)
+
+        self.session.add(project)
+        self.session.commit()
+
+        from penelope.core.security import acl
+        self.assertItemsEqual(acl.GenericRoles(project, user).get_roles(), set(['internal_developer']))
+        self.assertItemsEqual(acl.GenericRoles(None, user).get_roles(), set(['internal_developer']))
+        self.assertTrue('internal_developer' not in acl.ProjectRelatedRoles(project, user).get_roles())
+        self.assertTrue('external_developer' in acl.ProjectRelatedRoles(project, user).get_roles())
+        self.assertTrue('owner' in acl.UserRoles(user, user).get_roles())
+        self.assertTrue('internal_developer' in acl.UserRoles(user, user).get_roles())
+
+    def test_project_manager_in_context(self):
+        user = User(email=u'roles_matrix')
+        self.session.add(user)
+
+        project = Project(name=u'p1_for_roles_matrix')
+        cr = CustomerRequest(name=u"My CR", id="my-p1_for_roles_matrix")
+        project.add_customer_request(cr)
+        pm = Role(name=u'project_manager')
+        p1_group = Group(project=project)
+        p1_group.add_user(user)
+        p1_group.roles.append(pm)
+
+        self.session.add(project)
+        self.session.commit()
+
+        from penelope.core.security import acl
+        self.assertTrue('project_manager' in acl.ProjectRelatedRoles(project, user).get_roles())
+
 
 TestQuerySecurity.setUpClass()
 
@@ -330,7 +331,7 @@ class SecurityLocalRolesMatrixTest(IntegrationTestBase):
         self.session.add(customer)
 
         project = Project(name=u'My Project')
-        cr = CustomerRequest(name="My CR", id="my-project_1")
+        cr = CustomerRequest(name=u"My CR", id="my-project_1")
         project.add_customer_request(cr)
         customer.add_project(project)
         self.session.add(project)
@@ -440,7 +441,6 @@ class SecurityLocalRolesMatrixTest(IntegrationTestBase):
 
         res = self.app.get('/')
         self.assertNotIn(project.name, res.ubody)
-
 
 
 SecurityLocalRolesMatrixTest.setUpClass()
@@ -702,7 +702,7 @@ class SecurityMatrixTest(IntegrationTestBase):
                                        ])
 
     def test_role_edit(self):
-        role = Role(name='old_role')
+        role = Role(name=u'old_role')
         self.session.add(role)
         self.session.commit()
         path = '/admin/Role/old_role/edit'
@@ -969,16 +969,19 @@ class SecurityMatrixTest(IntegrationTestBase):
 
     def test_project_customer_requests(self):
         path = '/admin/Project/my-project/customer_requests'
-        self.por_anonymous(path, 403)
-        self.por_security_matrix(path, [(('authenticated',),      403),
-                                        (('owner',),              403),
-                                        (('customer',),           200),
-                                        (('external_developer',), 200),
-                                        (('internal_developer',), 200),
-                                        (('secretary',),          200),
-                                        (('project_manager',),    200),
-                                        (('administrator',),      200),
-                                       ])
+        from penelope.core.forms.project import Backlog
+        with patch.object(Backlog, 'fetch_done') as fetch_done:
+            fetch_done.return_value = {}
+            self.por_anonymous(path, 403)
+            self.por_security_matrix(path, [(('authenticated',),      403),
+                                            (('owner',),              403),
+                                            (('customer',),           200),
+                                            (('external_developer',), 200),
+                                            (('internal_developer',), 200),
+                                            (('secretary',),          200),
+                                            (('project_manager',),    200),
+                                            (('administrator',),      200),
+                                        ])
 
     def test_project_add_customer_requests(self):
         path = '/admin/Project/my-project/add_customer_request'
@@ -1013,7 +1016,7 @@ class SecurityMatrixTest(IntegrationTestBase):
                                         (('owner',),              403),
                                         (('customer',),           403),
                                         (('external_developer',), 403),
-                                        (('internal_developer',), 403),
+                                        (('internal_developer',), 200),
                                         (('secretary',),          200),
                                         (('project_manager',),    200),
                                         (('administrator',),      200),
@@ -1049,17 +1052,43 @@ class SecurityMatrixTest(IntegrationTestBase):
                                         (('administrator',),      200),
                                        ])
 
-    def test_application_view(self):
+    def add_initial_roles(self):
+        for role in (u'internal_developer', u'external_developer', u'customer',
+                     u'secretary', u'project_manager'):
+            self.session.add(Role(name=role))
+        self.session.commit()
+
+    def test_application_with_acl_view(self):
+        self.add_initial_roles()
         app = Application(name=u'testing trac')
         prj = self.session.query(Project).get('my-project')
         prj.add_application(app)
         self.session.commit()
         path = '/admin/Application/1'
         self.por_anonymous(path, 403)
-        # XXX this test fails because app.acl is empty here.
         self.por_security_matrix(path, [(('authenticated',),      403),
                                         (('owner',),              403),
-                                        (('customer',),           200),
+                                        (('customer',),           403),
+                                        (('external_developer',), 200),
+                                        (('internal_developer',), 200),
+                                        (('secretary',),          200),
+                                        (('project_manager',),    200),
+                                        (('administrator',),      200),
+                                       ])
+
+    def test_trac_with_acl_view(self):
+        self.add_initial_roles()
+        with patch('penelope.trac.events.add_trac_to_project'):
+            app = Application(name=u'testing trac')
+            app.application_type = u'trac'
+            prj = self.session.query(Project).get('my-project')
+            prj.add_application(app)
+            self.session.commit()
+        path = '/admin/Application/1'
+        self.por_anonymous(path, 403)
+        self.por_security_matrix(path, [(('authenticated',),      403),
+                                        (('owner',),              403),
+                                        (('customer',),           403),
                                         (('external_developer',), 200),
                                         (('internal_developer',), 200),
                                         (('secretary',),          200),
@@ -1104,7 +1133,7 @@ class SecurityMatrixTest(IntegrationTestBase):
                                         (('owner',),              200),
                                         (('customer',),           403),
                                         (('external_developer',), 403),
-                                        (('internal_developer',), 403),
+                                        (('internal_developer',), 200),
                                         (('secretary',),          403),
                                         (('project_manager',),    200),
                                         (('administrator',),      200),

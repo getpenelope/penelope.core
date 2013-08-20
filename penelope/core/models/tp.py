@@ -21,31 +21,11 @@ from penelope.core.models import workflow, classproperty
 from penelope.core.models.tickets import ticket_store
 from penelope.core.models.interfaces import ITimeEntry, IProjectRelated
 from penelope.core.security.acl import CRUD_ACL
+from penelope.core.lib.helpers import timedelta_as_human_str, timedelta_as_work_days
 
 
 class TimeEntryException(Exception):
     """Something wrong happened trying to add a time entry to a project"""
-
-SECS_IN_HR = 60.0*60.0
-WORK_HOURS_IN_DAY = 8.0
-
-
-def timedelta_as_work_days(td):
-    return (td.days*24.0 + td.seconds/SECS_IN_HR) / WORK_HOURS_IN_DAY
-
-
-def timedelta_as_human_str(td, seconds=False):
-    """
-    Formats a timedelta for human consumption. Also used by some reports.
-    """
-    if td is None:
-        return ''
-    hh, rem = divmod(td.days*24.0*SECS_IN_HR + td.seconds, SECS_IN_HR)
-    mm, ss = divmod(rem, 60)
-    if seconds or ss:
-        return '%d:%02d:%02d' % (hh, mm, ss)
-    else:
-        return '%d:%02d' % (hh, mm)
 
 
 class TimeEntry(DublinCore, workflow.Workflow, Base):

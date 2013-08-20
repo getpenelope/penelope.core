@@ -18,10 +18,11 @@ from penelope.core.forms.renderers import TicketRenderer
 from penelope.core.lib.fa_fields import BigTextAreaFieldRenderer
 from penelope.core.models import DBSession
 from penelope.core.models.dashboard import TRAC, SVN, Application, Customer, \
-        CustomerRequest, Group, Project, User, Contract, KanbanBoard
+        CustomerRequest, Group, Project, User, Contract, KanbanBoard, \
+        GOOGLE_DOCS, TRAC_REPORT, GENERIC_APP
+from penelope.core.models.tp import TimeEntry
 from penelope.core.models.dublincore import DublinCore
 from penelope.core.models.interfaces import IRoleable, ITimeEntry
-from penelope.core.models.tp import TimeEntry
 from penelope.core.models.workflow import Workflow
 
 _ = TranslationStringFactory('penelope')
@@ -67,7 +68,7 @@ def before_role_render(context, event):
     fs = event.kwargs['fs']
     if not fs._render_fields.keys():
         fs.configure(readonly=fs.readonly)
-    if not has_permission('manage', context, event.request):
+    if not has_permission('manage_roles', context, event.request):
         del fs._render_fields['roles']
 
 
@@ -254,7 +255,12 @@ def before_application_edit_render(context, event):
     fs.append(fs.name.required())
     del fs._render_fields['project']
     fs.append(Field('application_type', type=fatypes.String))
-    fs.application_type.set(renderer=SelectFieldRenderer, options=['trac', 'svn', 'trac report', 'google docs', 'generic'])
+    fs.application_type.set(renderer=SelectFieldRenderer,
+            options=[('Trac', TRAC),
+                     ('SVN', SVN),
+                     ('Trac Report', TRAC_REPORT),
+                     ('Google Docs', GOOGLE_DOCS),
+                     ('Generic', GENERIC_APP)])
     bind_project(context, event)
     [fs.append(fs._render_fields.pop(a)) for a in fs._render_fields if a != 'name']
 

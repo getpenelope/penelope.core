@@ -114,6 +114,15 @@ class ModelView(Base):
 
         return Page(collection, **options)
 
+    @factions.action()
+    def new(self):
+        if not hasattr(self.request,'form_action'):
+            self.request.form_action = self.request.model_name
+        if self.request.method == 'POST':
+            return self.create()
+        else:
+            return super(ModelView, self).new()
+
     @factions.action('new')
     def create(self):
         request = self.request

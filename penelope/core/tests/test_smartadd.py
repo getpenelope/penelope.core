@@ -122,18 +122,6 @@ class TestSmartAddParser(unittest2.TestCase):
             'tickets': ['45'],
             }, par.parsed_time_entry)
 
-
-    def test_ticket_notfound(self):
-        """
-        A ticket tag that does not match an existing ticket
-        """
-        par = SmartAddParser(u'@proj #47 works for me ^1:00',
-                             projects={'proj': 'proj'},
-                             available_tickets=[1, 2, 3, 4, 45])
-        self.assertEqual([u'Ticket #47 not found'],
-                          par.validation_errors())
-
-
     def test_ticket_notfound(self):
         """
         Missing tickets raise an error even when multiple tickets are selected.
@@ -141,12 +129,12 @@ class TestSmartAddParser(unittest2.TestCase):
         par = SmartAddParser(u'@proj #3 #47 works for me ^1:00',
                              projects={'proj': 'proj'},
                              available_tickets=[1, 2, 3, 4, 45])
-        self.assertEqual([u'Ticket #47 not found'],
+        self.assertEqual([u'Ticket #47 not found or customer request already invoiced'],
                           par.validation_errors())
         par = SmartAddParser(u'@proj #47 #3 #2 #66 works for me ^1:00',
                              projects={'proj': 'proj'},
                              available_tickets=[1, 2, 3, 4, 45])
-        self.assertEqual([u'Tickets #47, #66 not found'],
+        self.assertEqual([u'Tickets #47, #66 not found or customer request already invoiced'],
                           par.validation_errors())
 
 
@@ -172,13 +160,13 @@ class TestSmartAddParser(unittest2.TestCase):
         par = SmartAddParser(u'@one #2 ^0:20 blabla',
                              projects={'one': 'one'},
                              available_tickets=ticket_provider)
-        self.assertEqual([u'Ticket #2 not found'],
+        self.assertEqual([u'Ticket #2 not found or customer request already invoiced'],
                           par.validation_errors())
 
         par = SmartAddParser(u'@two #1 ^0:20 blabla',
                              projects={'two': 'two'},
                              available_tickets=ticket_provider)
-        self.assertEqual([u'Ticket #1 not found'],
+        self.assertEqual([u'Ticket #1 not found or customer request already invoiced'],
                           par.validation_errors())
 
 

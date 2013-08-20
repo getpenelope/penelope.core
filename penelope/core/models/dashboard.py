@@ -35,7 +35,6 @@ from penelope.core.security.acl import CRUD_ACL, ACL, IRoleFinder
 from penelope.core.security.acl import invalidate_user_calculate_matrix, invalidate_users_calculate_matrix
 from penelope.core import html2text
 from penelope.core.models import Base, DBSession, dublincore, workflow, classproperty
-from penelope.core.models.tickets import ticket_store
 from penelope.core.models.interfaces import ICustomerRequest, IRoleable, IProjectRelated
 from penelope.core.models.interfaces import IProject, IUser, IPorModel, ICustomer, IRole
 from penelope.core.models.interfaces import IApplication, ITrac, ISVN, IGoogleDocs
@@ -705,6 +704,8 @@ class CustomerRequest(dublincore.DublinCore, workflow.Workflow, Base):
     __acl__.allow('role:internal_developer', 'edit')
     #contract view/edit
     __acl__.allow('role:secretary', 'contract')
+    #delete
+    __acl__.allow('role:project_manager', 'delete')
 
     PLACEMENT_BACKLOG = 0
     PLACEMENT_GROOMING = 1
@@ -736,6 +737,7 @@ class CustomerRequest(dublincore.DublinCore, workflow.Workflow, Base):
         return (self.workflow_state == 'estimated')
 
     def get_tickets(self, request=None):
+        from penelope.core.models.tickets import ticket_store
         return ticket_store.get_tickets_for_request(customer_request=self, request=request or self.request)
 
     def add_ticket_url(self, request):
@@ -782,7 +784,9 @@ class CustomerRequest(dublincore.DublinCore, workflow.Workflow, Base):
 
     @property
     def timeentries_days(self):
-        from penelope.core.models.tp import TimeEntry, timedelta_as_work_days
+        from penelope.core.models.tp import TimeEntry
+        from penelope.core.lib.helpers import timedelta_as_work_days
+        from penelope.core.models.tickets import ticket_store
         request = get_current_request()
         tickets = ticket_store.get_tickets_for_request(customer_request=self, request=request)
         ticket_ids = [a['id'] for a in tickets]
@@ -857,6 +861,9 @@ class Group(Principal):
     __acl__.allow('role:project_manager', 'new')
     #edit
     __acl__.allow('role:project_manager', 'edit')
+    __acl__.allow('role:project_manager', 'manage_roles')
+    #delete
+    __acl__.allow('role:project_manager', 'delete')
 
     id = Column(Integer, ForeignKey(Principal.id),
         Sequence("principals_id"),
