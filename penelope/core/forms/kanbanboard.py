@@ -194,7 +194,7 @@ class KanbanBoardModelView(ModelView):
                    'wip': 0,
                    'tasks': []}
 
-        limit = 10
+        limit = 50
         for n, ticket in enumerate(self.find_tickets()):
             if n > limit:
                 break
