@@ -14,6 +14,21 @@ angular.module('kanban', ['ui.sortable'])
         return md5(email);
     }
 
+    $scope.openModal = function(url){
+        $('#ModalTicket').on('show', function () {
+            $('.progress').show();
+            $('iframe').hide();
+            $('iframe').height('200');
+            $('iframe').attr("src", url);
+            $('iframe').one('load', function() {
+                $('.progress').hide();
+                $('iframe').height('650');
+                $('iframe').show();
+            });
+        });
+        $('#ModalTicket').modal({show:true})
+    }
+
     $scope.getWIP = function(column_id){
         console($scope.columns[column_id].tasks.length, $scope.columns[column_id].wip)
         if ($scope.columns[column_id].tasks.length >= $scope.columns[column_id].wip){

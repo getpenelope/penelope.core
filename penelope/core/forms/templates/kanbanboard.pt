@@ -42,7 +42,7 @@
                              <div class="box_itm media-body">
                                <div class="number pull-right">#{{task.ticket}}</div>
                                <span class="project" style="{{getColor($parent.$index, $index)}}" title="{{task.customer}}">{{task.project}}</span>
-                               <span class="ticket"><a target="_blank" href="{{task.url}}">{{task.summary}}</a></span>
+                               <span class="ticket"><a ng-click="openModal(task.url)" href="#">{{task.summary}}</a></span>
                                <span class="label label-info" ng-show="task.customerrequest">{{task.customerrequest}}</span>
                                <a class="pull-right" href="#" ng-show="task.owner">
                                  <img class="media-object" height="30" width="30" src="http://www.gravatar.com/avatar/{{gravatar(task.owner)}}?s=30">
@@ -54,6 +54,20 @@
                  </div>
               </li>
             </ul>
+                      <!-- Modal -->
+                      <div id="ModalTicket" class="modal hide fade" tabindex="-1" role="dialog">
+                        <div class="modal-header">
+                          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                          <h3>Ticket view</h3>
+                        </div>
+                        <div class="modal-body">
+                          <div class="progress progress-striped active">
+                              <div class="bar" style="width: 100%;"></div>
+                          </div>
+                          <iframe src="" style="zoom:0.60" width="99.6%" height="650" frameborder="0"></iframe>
+                        </div>
+                      </div>
+                      <!--End of modal -->
         </div>
         </div>
         </div>
