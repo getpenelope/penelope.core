@@ -9,7 +9,7 @@ from pyramid_formalchemy import actions
 
 from penelope.core.forms import ModelView
 from penelope.core.fanstatic_resources import kanban
-from penelope.core.models.dashboard import Trac, Project, KanbanBoard
+from penelope.core.models.dashboard import Trac, Project, KanbanBoard, CustomerRequest
 from penelope.core.models import DBSession
 
 
@@ -161,17 +161,24 @@ class KanbanBoardModelView(ModelView):
         viewable_projects = board.projects or self.request.filter_viewables(DBSession.query(Project).filter(Project.active).order_by('name'))
         viewable_project_ids = [p.id for p in viewable_projects]
         all_tracs = DBSession.query(Trac).join(Project).filter(Project.active).filter(Trac.project_id.in_(viewable_project_ids))
-        where =  board.board_query or """owner='%(email)s' AND status!='closed'"""
-        query = """SELECT DISTINCT '%(trac)s' AS trac_name, '%(project)s' as project, '%(customer)s' as customer,
-                                   id AS ticket, summary, priority
-                                   FROM "trac_%(trac)s".ticket WHERE %(where)s"""
+        where =  board.board_query or "owner='%s' AND status!='closed'" % self.request.authenticated_user.email
+        query = """SELECT DISTINCT '%(trac)s' AS trac_name,
+                                   '%(project)s' AS project,
+                                   '%(customer)s' AS customer,
+                                   ticket.id AS id,
+                                   ticket.summary AS summary,
+                                   ticket.priority AS priority,
+                                   ticket.owner AS owner,
+                                   custom.value AS customerrequest
+                                   FROM "trac_%(trac)s".ticket AS ticket
+                                   JOIN "trac_%(trac)s".ticket_custom AS custom ON ticket.id=custom.ticket AND custom.name='customerrequest'
+                                   WHERE %(where)s"""
         queries = []
         for trac in all_tracs:
             queries.append(query % {'trac': trac.trac_name,
                                     'project': trac.project.name,
                                     'customer': trac.project.customer.name,
-                                    'where': where,
-                                    'email': self.request.authenticated_user.email})
+                                    'where': where})
         sql = '\nUNION '.join(queries)
         sql += ';'
         tracs =  DBSession().execute(sql).fetchall()
@@ -189,6 +196,7 @@ class KanbanBoardModelView(ModelView):
 
         existing_tickets = [[b['id'] for b in a['tasks'] if b.get('id')] for a in boards]
         existing_tickets = [item for sublist in existing_tickets for item in sublist]
+        crs = dict(DBSession().query(CustomerRequest.id, CustomerRequest.name))
 
         backlog = {'title': 'Backlog',
                    'wip': 0,
@@ -198,15 +206,17 @@ class KanbanBoardModelView(ModelView):
         for n, ticket in enumerate(self.find_tickets()):
             if n > limit:
                 break
-            ticket_id = '%s_%s' % (ticket.trac_name, ticket.ticket)
+            ticket_id = '%s_%s' % (ticket.trac_name, ticket.id)
             if ticket_id not in existing_tickets:
                 backlog['tasks'].append({'id': ticket_id,
                                          'project': ticket.project,
                                          'customer': ticket.customer,
                                          'url': '%s/trac/%s/ticket/%s' % (self.request.application_url,
                                                                           ticket.trac_name,
-                                                                          ticket.ticket),
-                                         'ticket': ticket.ticket,
+                                                                          ticket.id),
+                                         'ticket': ticket.id,
+                                         'owner': ticket.owner,
+                                         'customerrequest': crs.get(ticket.customerrequest,''),
                                          'priority': ticket.priority in ['critical', 'blocker'] and 'true' or None,
                                          'summary': ticket.summary})
 

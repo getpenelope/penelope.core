@@ -10,6 +10,10 @@ angular.module('kanban', ['ui.sortable'])
         });
     }
 
+    $scope.gravatar = function(email){
+        return md5(email);
+    }
+
     $scope.getWIP = function(column_id){
         console($scope.columns[column_id].tasks.length, $scope.columns[column_id].wip)
         if ($scope.columns[column_id].tasks.length >= $scope.columns[column_id].wip){
