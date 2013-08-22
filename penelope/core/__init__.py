@@ -57,6 +57,8 @@ def main(global_config, **settings):
 
     config.add_static_view('static', 'penelope.core:static')
     config.scan('penelope.core.views')
+    config.add_route('socketio', 'socket.io/*remaining')
+    config.scan('penelope.core.socketspace')
 
     config.add_route('tp', '/tp/*traverse', factory='penelope.core.tp.TPContext')
     config.scan('penelope.core.tp')

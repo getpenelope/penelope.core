@@ -1,22 +1,30 @@
+var WEB_SOCKET_SWF_LOCATION = '/fanstatic/por/por_kanban/js/WebSocketMain.swf'
+
 angular.module('kanban', ['ui.sortable'])
-  .controller("KanbanCtrl", function($scope, $http) {
+  .controller("KanbanCtrl", function($scope, $http, $socketio) {
 
     $scope.columns = [];
-    $scope.backlog = { tasks: []
-                     };
+    $scope.emails = [];
+    $scope.backlog = { tasks: [] };
 
-    $scope.init = function(board_id){
+    $scope.init = function(board_id, email){
         $scope.board_id = board_id;
-        $http.get(board_id + '/get_columns.json')
-             .success(function(data) {
-                $scope.columns = data;
-        });
-        $http.get(board_id + '/get_backlog.json')
-             .success(function(data) {
-                $scope.backlog.tasks = data;
-                $scope.backlog.loading = false;
-        });
+        $socketio.emit("join", { board_id: board_id, 
+                                 email: email });
     }
+
+    $socketio.on('columns', function(data) {
+        $scope.columns = data.value;
+        $socketio.emit("get_backlog");
+    });
+
+    $socketio.on('backlog', function(data) {
+        $scope.backlog.tasks = data.value;
+    });
+
+    $socketio.on('emails', function(data) {
+        $scope.emails = data.value;
+    });
 
     $scope.gravatar = function(email){
         return md5(email);
@@ -56,7 +64,7 @@ angular.module('kanban', ['ui.sortable'])
     };
 
     $scope.boardChanged = function() {
-        $http.post($scope.board_id + '/post_columns.json', $scope.columns)
+        $socketio.emit("board_changed", $scope.columns);
     };
 
     $scope.sortableOptions = {
@@ -97,4 +105,28 @@ angular.module('kanban', ['ui.sortable'])
 
         }
     }
+})
+
+.factory("$socketio", function($rootScope) {
+  var socket = io.connect('/kanban');
+  return {
+    on: function (eventName, callback) {
+      socket.on(eventName, function () {
+        var args = arguments;
+        $rootScope.$apply(function () {
+          callback.apply(socket, args);
+        });
+      });
+    },
+    emit: function (eventName, data, callback) {
+      socket.emit(eventName, data, function () {
+        var args = arguments;
+        $rootScope.$apply(function () {
+          if (callback) {
+            callback.apply(socket, args);
+          }
+        });
+      })
+    }
+  };
 })

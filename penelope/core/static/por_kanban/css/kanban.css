@@ -92,3 +92,11 @@ display: inline-block;
 *display:inline; /* ie7 fix */
 float: none; /* this is the part that makes it work */
 }
+
+.online-users {
+  padding: 0 10px;
+}
+.online-users img {
+  margin: 0 2px;
+  border: 1px solid #08C;
+}

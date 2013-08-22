@@ -10,6 +10,7 @@ from js.jquery_timepicker_addon import timepicker_it
 from js.jquery_datatables import jquery_datatables_js    # jquery_datatables_css only contains a style for the demo table.
 from js.bootstrap import bootstrap_js, bootstrap_responsive_css
 from fa.bootstrap.fanstatic_resources import bootstrap
+from js.socketio import socketio
 from js.xeditable import bootstrap_editable
 
 
@@ -144,7 +145,7 @@ angular_sortable = Resource(por_library,
                       'por_kanban/js/sortable.js',
                       depends=[jqueryui, angular])
 kanban = Group([
-                Resource(por_library, 'por_kanban/js/kanban.js', depends=[bootstrap_js, angular_sortable, angular, bootstrap_editable, js_md5]),
+                Resource(por_library, 'por_kanban/js/kanban.js', depends=[bootstrap_js, angular_sortable, socketio, angular, bootstrap_editable, js_md5]),
                 Resource(por_library, 'por_kanban/css/kanban.css', depends=[bootstrap]),
     ])
 

@@ -3,6 +3,9 @@
     <div ng-app="kanban" ng-controller="KanbanCtrl">
         <div class="page-header">
             <div class="pull-right" tal:content="structure actions.buttons(request)"></div>
+            <div class="pull-right online-users">
+                <img ng-repeat="email in emails" height="30" width="30" src="http://www.gravatar.com/avatar/{{gravatar(email)}}?s=30" />
+            </div>
             <h3 tal:condition="request.model_name">
                  <span tal:condition="request.model_id and hasattr(request.model_class, '__unicode__')"
                        tal:replace="unicode(request.model_instance)"/>
@@ -15,7 +18,7 @@
 
       <div class="row-fluid">
        <div class="span12">
-         <ul class="kanban" ng-init="init('${request.model_instance.id}')">
+         <ul class="kanban" ng-init="init('${request.model_instance.id}', '${request.authenticated_user.email}')">
 
                <!-- Backlog -->
                <li class="span2">
@@ -55,14 +58,16 @@
                         ng-click="removeColumn($index)">
                         <i class="icon-remove-sign icon-white"></i>
                       </a>
-                      <a xeditable
-                          data-ng-model="column.title"
-                          href="#" data-type="text" data-title="Enter column name">{{column.title}}</a>
+                      <a xeditable tal:condition="draggable"
+                         data-ng-model="column.title"
+                         href="#" data-type="text" data-title="Enter column name">{{column.title}}</a>
+                       <div tal:condition="not draggable">{{column.title}}</div>
                     </div>
                     <div class="WIP {{column.tasks.length > column.wip && 'oversized'}}">WIP: 
-                      <a xeditable
-                          data-ng-model="column.wip"
-                          href="#" data-type="text" data-title="Enter column WIP">{{column.wip}}</a>
+                      <a xeditable tal:condition="draggable"
+                         data-ng-model="column.wip"
+                         href="#" data-type="text" data-title="Enter column WIP">{{column.wip}}</a>
+                       <span tal:condition="not draggable">{{column.wip}}</span>
                       </div>
 
                       <ul class="task_pool" ng-model="column.tasks" tal:attributes="draggable">
