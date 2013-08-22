@@ -2,11 +2,19 @@ angular.module('kanban', ['ui.sortable'])
   .controller("KanbanCtrl", function($scope, $http) {
 
     $scope.columns = [];
+    $scope.backlog = { tasks: []
+                     };
+
     $scope.init = function(board_id){
         $scope.board_id = board_id;
-        $http.get(board_id + '/get_tickets.json')
+        $http.get(board_id + '/get_columns.json')
              .success(function(data) {
                 $scope.columns = data;
+        });
+        $http.get(board_id + '/get_backlog.json')
+             .success(function(data) {
+                $scope.backlog.tasks = data;
+                $scope.backlog.loading = false;
         });
     }
 
@@ -16,12 +24,12 @@ angular.module('kanban', ['ui.sortable'])
 
     $scope.openModal = function(url){
         $('#ModalTicket').on('show', function () {
-            $('.progress').show();
+            $('.modal .preloader').show();
             $('iframe').hide();
             $('iframe').height('200');
             $('iframe').attr("src", url);
             $('iframe').one('load', function() {
-                $('.progress').hide();
+                $('.modal .preloader').hide();
                 $('iframe').height('650');
                 $('iframe').show();
             });
@@ -29,15 +37,8 @@ angular.module('kanban', ['ui.sortable'])
         $('#ModalTicket').modal({show:true})
     }
 
-    $scope.getWIP = function(column_id){
-        console($scope.columns[column_id].tasks.length, $scope.columns[column_id].wip)
-        if ($scope.columns[column_id].tasks.length >= $scope.columns[column_id].wip){
-            return 'blabla'
-        }
-    };
-
-    $scope.getColor = function(column_id, task_id){
-        return 'background: #' + md5($scope.columns[column_id].tasks[task_id].project).slice(0, 6);
+    $scope.getColor = function(project){
+        return 'background: #' + md5(project).slice(0, 6);
     };
 
     $scope.addColumn = function() {
@@ -55,8 +56,7 @@ angular.module('kanban', ['ui.sortable'])
     };
 
     $scope.boardChanged = function() {
-        $http.post($scope.board_id + '/post_tickets.json',
-                   $scope.columns.slice(1, $scope.columns.length))
+        $http.post($scope.board_id + '/post_columns.json', $scope.columns)
     };
 
     $scope.sortableOptions = {

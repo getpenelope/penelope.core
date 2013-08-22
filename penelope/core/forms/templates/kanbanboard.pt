@@ -16,58 +16,90 @@
       <div class="row-fluid">
        <div class="span12">
          <ul class="kanban" ng-init="init('${request.model_instance.id}')">
-               <li class="span3" ng-repeat="column in columns">
-               <div class="thumbnail">
-                     <div class="header_name">
-                       <a class="btn btn-mini btn-danger pull-right" href="#" title="Remove column"
-                          ng-click="removeColumn($index)"
-                          ng-show="$index != 0">
-                          <i class="icon-remove-sign icon-white"></i>
-                        </a>
-                        <a xeditable
-                           data-ng-model="column.title"
-                           href="#" data-type="text" data-title="Enter column name">{{column.title}}</a>
-                      </div>
-                      <div class="WIP {{column.tasks.length > column.wip && 'oversized'}}" ng-show="$index != 0">WIP: 
-                        <a xeditable
-                           data-ng-model="column.wip"
-                           href="#" data-type="text" data-title="Enter column WIP">{{column.wip}}</a>
-                       </div>
 
-                       <ul class="task_pool" ui-sortable="sortableOptions" ng-model="column.tasks">
+               <!-- Backlog -->
+               <li class="span2">
+                  <div class="thumbnail">
+                      <div class="header_name">
+                        Backlog
+                      </div>
+                      <div class="preloader" ng-show="backlog.tasks.length == 0">
+                        <img src="${request.application_url}/fanstatic/por/por_kanban/img/loading.gif"/>
+                      </div>
+                       <ul class="task_pool" ng-model="backlog.tasks" tal:attributes="draggable">
                          <li class="big_container {{task.priority && 'priority'}} media" id="{{task.id}}" 
-                                ng-repeat="task in column.tasks"
-                                ng-model="columns[$parent.$index].tasks[$index]"
+                                ng-repeat="task in backlog.tasks"
+                                ng-model="backlog.tasks[$index]"
                                 ng-show="task.id">
                              <div class="box_itm media-body">
                                <div class="number pull-right">#{{task.ticket}}</div>
-                               <span class="project" style="{{getColor($parent.$index, $index)}}" title="{{task.customer}}">{{task.project}}</span>
+                               <span class="project" style="{{getColor(task.project)}}" title="{{task.customer}}">{{task.project}}</span>
                                <span class="ticket"><a ng-click="openModal(task.url)" href="#">{{task.summary}}</a></span>
-                               <span class="label label-info" ng-show="task.customerrequest">{{task.customerrequest}}</span>
                                <a class="pull-right" href="#" ng-show="task.owner">
                                  <img class="media-object" height="30" width="30" src="http://www.gravatar.com/avatar/{{gravatar(task.owner)}}?s=30">
                                </a>
+                               <div ng-show="task.customerrequest">{{task.customerrequest}}</div>
                                <div class="clearfix"></div>
                             </div>
                           </li>
                    </ul>
                  </div>
               </li>
-            </ul>
-                      <!-- Modal -->
-                      <div id="ModalTicket" class="modal hide fade" tabindex="-1" role="dialog">
-                        <div class="modal-header">
-                          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-                          <h3>Ticket view</h3>
-                        </div>
-                        <div class="modal-body">
-                          <div class="progress progress-striped active">
-                              <div class="bar" style="width: 100%;"></div>
-                          </div>
-                          <iframe src="" style="zoom:0.60" width="99.6%" height="650" frameborder="0"></iframe>
-                        </div>
+              <!-- Backlog end -->
+
+              <!-- Columns -->
+              <li class="span2" ng-repeat="column in columns">
+              <div class="thumbnail">
+                    <div class="header_name">
+                      <a class="btn btn-mini btn-danger pull-right" href="#" title="Remove column"
+                        ng-click="removeColumn($index)">
+                        <i class="icon-remove-sign icon-white"></i>
+                      </a>
+                      <a xeditable
+                          data-ng-model="column.title"
+                          href="#" data-type="text" data-title="Enter column name">{{column.title}}</a>
+                    </div>
+                    <div class="WIP {{column.tasks.length > column.wip && 'oversized'}}">WIP: 
+                      <a xeditable
+                          data-ng-model="column.wip"
+                          href="#" data-type="text" data-title="Enter column WIP">{{column.wip}}</a>
                       </div>
-                      <!--End of modal -->
+
+                      <ul class="task_pool" ng-model="column.tasks" tal:attributes="draggable">
+                        <li class="big_container {{task.priority && 'priority'}} media" id="{{task.id}}" 
+                              ng-repeat="task in column.tasks"
+                              ng-model="columns[$parent.$index].tasks[$index]"
+                              ng-show="task.id">
+                            <div class="box_itm media-body">
+                              <div class="number pull-right">#{{task.ticket}}</div>
+                              <span class="project" style="{{getColor(task.project)}}" title="{{task.customer}}">{{task.project}}</span>
+                              <span class="ticket"><a ng-click="openModal(task.url)" href="#">{{task.summary}}</a></span>
+                              <a class="pull-right" href="#" ng-show="task.owner">
+                                <img class="media-object" height="30" width="30" src="http://www.gravatar.com/avatar/{{gravatar(task.owner)}}?s=30">
+                              </a>
+                              <div ng-show="task.customerrequest">{{task.customerrequest}}</div>
+                              <div class="clearfix"></div>
+                          </div>
+                        </li>
+                  </ul>
+                </div>
+            </li>
+
+            </ul>
+            <!-- Modal -->
+            <div id="ModalTicket" class="modal hide fade" tabindex="-1" role="dialog">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                <h3>Ticket view</h3>
+              </div>
+              <div class="modal-body">
+                <div class="preloader">
+                  <img src="${request.application_url}/fanstatic/por/por_kanban/img/loading.gif"/>
+                </div>
+                <iframe src="" style="zoom:0.60" width="99.6%" height="650" frameborder="0"></iframe>
+              </div>
+            </div>
+            <!--End of modal -->
         </div>
         </div>
         </div>

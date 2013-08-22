@@ -3,7 +3,7 @@ from zope.interface import Interface
 from fa.bootstrap import actions
 
 from penelope.core.interfaces import IBreadcrumbs, IReportView
-from penelope.core.models.interfaces import IPorModel, IProjectRelated
+from penelope.core.models.interfaces import IPorModel, IProjectRelated, IKanbanBoard
 
 
 gsm = zope.component.getGlobalSiteManager()
@@ -69,6 +69,16 @@ class BreadcrumbCrudRenderer(BreadcrumbRenderer):
         return unicode(self.context)
 
 gsm.registerAdapter(BreadcrumbCrudRenderer, (IPorModel,), IBreadcrumbs)
+
+
+class BreadcrumbKanbanRenderer(BreadcrumbCrudRenderer):
+    def render(self, request):
+        self.breadcrumbs.append(PORBreadcrumbAction('Kanbanboard',
+            content='Kanbanboard',
+            attrs=dict(href="'%s/admin/KanbanBoard' % request.application_url")))
+        return super(BreadcrumbKanbanRenderer, self).render(request)
+
+gsm.registerAdapter(BreadcrumbKanbanRenderer, (IKanbanBoard,), IBreadcrumbs)
 
 
 class BreadcrumbProjectRelatedRenderer(BreadcrumbRenderer):

@@ -82,3 +82,13 @@ body .modal {
    width: 750px;
    margin-left: -375px;
 }
+
+.preloader {
+  text-align: center;
+}
+
+.preloader img{
+display: inline-block;
+*display:inline; /* ie7 fix */
+float: none; /* this is the part that makes it work */
+}

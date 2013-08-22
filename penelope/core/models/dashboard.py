@@ -945,6 +945,7 @@ class KanbanBoard(dublincore.DublinCore, Base):
     #authenticated
     __acl__.allow('role:redturtle_developer', 'listing')
     __acl__.allow('role:redturtle_developer', 'new')
+    __acl__.allow('role:redturtle_developer', 'view')
 
     __acl__.allow('role:owner', 'view')
     __acl__.allow('role:owner', 'edit')

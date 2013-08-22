@@ -44,36 +44,27 @@ def configurate(config):
     config.formalchemy_model_view('admin',
             request_method='GET',
             permission='view',
-            name='get_board_data.json',
-            attr='get_board_data',
+            name='get_backlog.json',
             renderer='json',
-            model='penelope.core.models.dashboard.KanbanBoard',
-            view=KanbanBoardModelView)
-
-    config.formalchemy_model_view('admin',
-            request_method='POST',
-            permission='edit',
-            name='set_board_data.json',
-            attr='set_board_data',
-            renderer='json',
+            attr='get_backlog',
             model='penelope.core.models.dashboard.KanbanBoard',
             view=KanbanBoardModelView)
 
     config.formalchemy_model_view('admin',
             request_method='GET',
             permission='view',
-            name='get_tickets.json',
+            name='get_columns.json',
             renderer='json',
-            attr='get_tickets',
+            attr='get_columns',
             model='penelope.core.models.dashboard.KanbanBoard',
             view=KanbanBoardModelView)
 
     config.formalchemy_model_view('admin',
             request_method='POST',
             permission='edit',
-            name='post_tickets.json',
+            name='post_columns.json',
             renderer='json',
-            attr='post_tickets',
+            attr='post_columns',
             model='penelope.core.models.dashboard.KanbanBoard',
             view=KanbanBoardModelView)
 
@@ -147,7 +138,10 @@ class KanbanBoardModelView(ModelView):
     @actions.action()
     def show(self):
         kanban.need()
-        return super(KanbanBoardModelView, self).show()
+        draggable = {}
+        if self.request.has_permission('edit', self.context.get_instance()):
+            draggable['ui-sortable'] = 'sortableOptions'
+        return self.render(draggable=draggable)
 
     def delete(self):
         """
@@ -184,9 +178,43 @@ class KanbanBoardModelView(ModelView):
         tracs =  DBSession().execute(sql).fetchall()
         return tracs
 
-    def get_tickets(self):
+    def get_backlog(self):
         """
-        Get tickets from board and add backlog.
+        Get backlog from trac query
+        """
+        board = self.context.get_instance()
+        try:
+            boards = loads(board.json)
+        except (ValueError, TypeError):
+            boards = []
+        existing_tickets = [[b['id'] for b in a['tasks'] if b.get('id')] for a in boards]
+        existing_tickets = [item for sublist in existing_tickets for item in sublist]
+        crs = dict(DBSession().query(CustomerRequest.id, CustomerRequest.name))
+
+        limit = 50
+        tasks = []
+        for n, ticket in enumerate(self.find_tickets()):
+            if n > limit:
+                break
+            ticket_id = '%s_%s' % (ticket.trac_name, ticket.id)
+            if ticket_id not in existing_tickets:
+                tasks.append({'id': ticket_id,
+                              'project': ticket.project,
+                              'customer': ticket.customer,
+                              'url': '%s/trac/%s/ticket/%s' % (self.request.application_url,
+                                                               ticket.trac_name,
+                                                               ticket.id),
+                              'ticket': ticket.id,
+                              'owner': ticket.owner,
+                              'customerrequest': crs.get(ticket.customerrequest,''),
+                              'priority': ticket.priority in ['critical', 'blocker'] and 'true' or None,
+                              'summary': ticket.summary})
+
+        return tasks
+
+    def get_columns(self):
+        """
+        Get columns from board json.
         """
         board = self.context.get_instance()
         try:
@@ -194,36 +222,9 @@ class KanbanBoardModelView(ModelView):
         except (ValueError, TypeError):
             boards = []
 
-        existing_tickets = [[b['id'] for b in a['tasks'] if b.get('id')] for a in boards]
-        existing_tickets = [item for sublist in existing_tickets for item in sublist]
-        crs = dict(DBSession().query(CustomerRequest.id, CustomerRequest.name))
-
-        backlog = {'title': 'Backlog',
-                   'wip': 0,
-                   'tasks': []}
-
-        limit = 50
-        for n, ticket in enumerate(self.find_tickets()):
-            if n > limit:
-                break
-            ticket_id = '%s_%s' % (ticket.trac_name, ticket.id)
-            if ticket_id not in existing_tickets:
-                backlog['tasks'].append({'id': ticket_id,
-                                         'project': ticket.project,
-                                         'customer': ticket.customer,
-                                         'url': '%s/trac/%s/ticket/%s' % (self.request.application_url,
-                                                                          ticket.trac_name,
-                                                                          ticket.id),
-                                         'ticket': ticket.id,
-                                         'owner': ticket.owner,
-                                         'customerrequest': crs.get(ticket.customerrequest,''),
-                                         'priority': ticket.priority in ['critical', 'blocker'] and 'true' or None,
-                                         'summary': ticket.summary})
-
-        boards.insert(0, backlog)
         return boards
 
-    def post_tickets(self):
+    def post_columns(self):
         """
         Update board with json
         """
