@@ -27,7 +27,7 @@ angular.module('kanban', ['ui.sortable', 'ui.bootstrap'])
     });
 
     $scope.gravatar = function(email){
-        return md5(email);
+        return md5(email) + '?s=30';
     }
 
     $scope.openModal = function(url){

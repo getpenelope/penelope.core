@@ -129,11 +129,14 @@ class KanbanNamespace(BaseNamespace, BoardMixin):
                 break
             ticket_id = '%s_%s' % (ticket.trac_name, ticket.id)
             if ticket_id not in existing_tickets:
-                involved = ticket.involved.split(',')
-                #try:
-                #    involved = involved.remove(ticket.owner)
-                #except ValueError:
-                #    pass
+                try:
+                    involved = set(ticket.involved.split(','))
+                except AttributeError:
+                    involved = set()
+
+                involved.add(ticket.reporter)
+                involved = involved.difference([ticket.owner])
+
                 tasks.append({'id': ticket_id,
                               'project': ticket.project,
                               'customer': ticket.customer,
@@ -143,7 +146,7 @@ class KanbanNamespace(BaseNamespace, BoardMixin):
                                                                ticket.id),
                               'ticket': ticket.id,
                               'owner': ticket.owner,
-                              'involved': involved,
+                              'involved': list(involved),
                               'customerrequest': crs.get(ticket.customerrequest,''),
                               'priority': ticket.priority in ['critical', 'blocker'] and 'true' or None,
                               'summary': ticket.summary})
@@ -161,13 +164,15 @@ class KanbanNamespace(BaseNamespace, BoardMixin):
                                 ticket.summary AS summary,
                                 ticket.priority AS priority,
                                 ticket.owner AS owner,
-                                custom.value AS customerrequest,
+                                ticket.reporter as reporter,
+                                customerrequest.value AS customerrequest,
                                 string_agg(DISTINCT change.author,',') AS involved
                                 FROM "trac_%(trac)s".ticket AS ticket
-                                JOIN "trac_%(trac)s".ticket_custom AS custom ON ticket.id=custom.ticket AND custom.name='customerrequest'
-                                JOIN "trac_penelope".ticket_change as change ON ticket.id=change.ticket
+                                LEFT OUTER JOIN "trac_%(trac)s".ticket_custom AS customerrequest ON ticket.id=customerrequest.ticket AND customerrequest.name='customerrequest'
+                                LEFT OUTER JOIN "trac_%(trac)s".ticket_custom AS probabilita ON ticket.id=probabilita.ticket AND probabilita.name='probabilita'
+                                LEFT OUTER JOIN "trac_%(trac)s".ticket_change AS change ON ticket.id=change.ticket
                                 WHERE %(where)s
-                                GROUP BY ticket.id, custom.value
+                                GROUP BY ticket.id, customerrequest.value
                                 """
         queries = []
         for trac in all_tracs:

@@ -5,7 +5,7 @@
             <div class="pull-right" tal:content="structure actions.buttons(request)"></div>
             <div class="pull-right online-users" ng-show="emails">
               <span class="label">Online: </span>
-              <img ng-repeat="email in emails" height="30" width="30" alt="{{email}}" src="http://www.gravatar.com/avatar/{{gravatar(email)}}?s=30" />
+              <img ng-repeat="email in emails" height="30" width="30" alt="{{email}}" src="http://www.gravatar.com/avatar/{{gravatar(email)}}" />
             </div>
             <h3 tal:condition="request.model_name">
                  <span tal:condition="request.model_id and hasattr(request.model_class, '__unicode__')"
@@ -38,14 +38,15 @@
                              <div class="box_itm media-body">
                                <div class="number pull-right">#{{task.ticket}}</div>
                                <span class="project" style="{{getColor(task.project)}}" title="{{task.customer}}">{{task.project}}</span>
-                               <span class="ticket"><a ng-click="openModal(task.url)" href="#">{{task.summary}}</a></span>
+                               <span class="ticket"><a ng-click="openModal(task.url)" href="javascript:void(0)">{{task.summary}}</a></span>
                                <div class="pull-right users">
-                                 <a href="#"  ng-click="task.involvedCollapsed = !task.involvedCollapsed" title="Click to see all involved users:">
-                                 <img class="media-object"
-                                      height="30" width="30" src="http://www.gravatar.com/avatar/{{gravatar(task.owner)}}?s=30">
+                                 <a href="javascript:void(0)"  ng-click="task.involvedCollapsed = !task.involvedCollapsed" title="Click to see all involved users:">
+                                   <img class="media-object" tooltip="{{task.owner}}"
+                                      height="30" width="30" src="http://www.gravatar.com/avatar/{{gravatar(task.owner)}}">
                                  </a>
                                  <div collapse="task.involvedCollapsed">
-                                    <img ng-repeat="email in task.involved" height="30" width="30" alt="{{email}}" src="http://www.gravatar.com/avatar/{{gravatar(email)}}?s=30" />
+                                   <img ng-repeat="email in task.involved" tooltip="{{email}}" tooltip-placement="bottom" tooltip-append-to-body="true"
+                                        height="30" width="30" alt="{{email}}" src="http://www.gravatar.com/avatar/{{gravatar(email)}}" />
                                  </div>
                                </div>
                                <div ng-show="task.customerrequest">{{task.customerrequest}}</div>
@@ -61,10 +62,10 @@
               <li class="span2" ng-repeat="column in columns">
               <div class="thumbnail">
                     <div class="header_name">
-                      <a class="btn btn-mini btn-danger pull-right" href="#" title="Remove column"
+                      <button class="btn btn-mini btn-danger pull-right" title="Remove column" ng-disabled="column.tasks.length>0"
                         ng-click="removeColumn($index)">
                         <i class="icon-remove-sign icon-white"></i>
-                      </a>
+                      </button>
                       <a xeditable tal:condition="draggable"
                          data-ng-model="column.title"
                          href="#" data-type="text" data-title="Enter column name">{{column.title}}</a>
@@ -79,20 +80,21 @@
 
                       <ul class="task_pool" ng-model="column.tasks" tal:attributes="draggable">
                         <li class="big_container {{task.priority && 'priority'}} media" id="{{task.id}}" 
-                              ng-repeat="task in column.tasks"
+                              ng-repeat="task in column.tasks track by $index"
                               ng-model="columns[$parent.$index].tasks[$index]"
                               ng-show="task.id">
                             <div class="box_itm media-body">
                               <div class="number pull-right">#{{task.ticket}}</div>
                               <span class="project" style="{{getColor(task.project)}}" title="{{task.customer}}">{{task.project}}</span>
-                              <span class="ticket"><a ng-click="openModal(task.url)" href="#">{{task.summary}}</a></span>
+                              <span class="ticket"><a ng-click="openModal(task.url)" href="javascript:void(0)">{{task.summary}}</a></span>
                                <div class="pull-right users">
-                                 <a href="#"  ng-click="task.involvedCollapsed = !task.involvedCollapsed" title="Click to see all involved users:">
-                                 <img class="media-object"
-                                      height="30" width="30" src="http://www.gravatar.com/avatar/{{gravatar(task.owner)}}?s=30">
+                                 <a href="javascript:void(0)"  ng-click="task.involvedCollapsed = !task.involvedCollapsed" title="Click to see all involved users:">
+                                   <img class="media-object" tooltip="{{task.owner}}"
+                                      height="30" width="30" src="http://www.gravatar.com/avatar/{{gravatar(task.owner)}}">
                                  </a>
                                  <div collapse="task.involvedCollapsed">
-                                    <img ng-repeat="email in task.involved" height="30" width="30" alt="{{email}}" src="http://www.gravatar.com/avatar/{{gravatar(email)}}?s=30" />
+                                   <img ng-repeat="email in task.involved" tooltip="{{email}}" tooltip-placement="bottom" tooltip-append-to-body="true"
+                                        height="30" width="30" alt="{{email}}" src="http://www.gravatar.com/avatar/{{gravatar(email)}}" />
                                  </div>
                                </div>
                               <div ng-show="task.customerrequest">{{task.customerrequest}}</div>
