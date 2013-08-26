@@ -1,5 +1,5 @@
-2.0a (unreleased)
-----------------
+2.0a (2013-08-26)
+-----------------
 
 - Kanban board [amleczko]
 - Switch to socket.io [amleczko]
