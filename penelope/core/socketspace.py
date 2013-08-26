@@ -28,7 +28,7 @@ class BoardMixin(object):
     def leave(self, board, email):
         try:
             return self.users_online.get(self._get_board_name(board), set()).remove(email)
-        except (KeyError, TypeError):
+        except KeyError:
             pass
 
     def board_users(self, board):
@@ -90,8 +90,9 @@ class KanbanNamespace(BaseNamespace, BoardMixin):
         self.emit_to_board(self.board, "emails", {"value": self.board_users(self.board)})
 
     def recv_disconnect(self):
-        self.leave(self.board, self.email)
-        self.emit_to_board(self.board, "emails", {"value": self.board_users(self.board)})
+        if self.board and self.email:
+            self.leave(self.board, self.email)
+            self.emit_to_board(self.board, "emails", {"value": self.board_users(self.board)})
         self.disconnect(silent=True)
 
     def on_board_changed(self, data):
@@ -128,14 +129,21 @@ class KanbanNamespace(BaseNamespace, BoardMixin):
                 break
             ticket_id = '%s_%s' % (ticket.trac_name, ticket.id)
             if ticket_id not in existing_tickets:
+                involved = ticket.involved.split(',')
+                #try:
+                #    involved = involved.remove(ticket.owner)
+                #except ValueError:
+                #    pass
                 tasks.append({'id': ticket_id,
                               'project': ticket.project,
                               'customer': ticket.customer,
+                              'involvedCollapsed': True,
                               'url': '%s/trac/%s/ticket/%s' % (self.request.application_url,
                                                                ticket.trac_name,
                                                                ticket.id),
                               'ticket': ticket.id,
                               'owner': ticket.owner,
+                              'involved': involved,
                               'customerrequest': crs.get(ticket.customerrequest,''),
                               'priority': ticket.priority in ['critical', 'blocker'] and 'true' or None,
                               'summary': ticket.summary})
@@ -153,10 +161,14 @@ class KanbanNamespace(BaseNamespace, BoardMixin):
                                 ticket.summary AS summary,
                                 ticket.priority AS priority,
                                 ticket.owner AS owner,
-                                custom.value AS customerrequest
+                                custom.value AS customerrequest,
+                                string_agg(DISTINCT change.author,',') AS involved
                                 FROM "trac_%(trac)s".ticket AS ticket
                                 JOIN "trac_%(trac)s".ticket_custom AS custom ON ticket.id=custom.ticket AND custom.name='customerrequest'
-                                WHERE %(where)s"""
+                                JOIN "trac_penelope".ticket_change as change ON ticket.id=change.ticket
+                                WHERE %(where)s
+                                GROUP BY ticket.id, custom.value
+                                """
         queries = []
         for trac in all_tracs:
             queries.append(query % {'trac': trac.trac_name,

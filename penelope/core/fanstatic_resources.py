@@ -137,15 +137,20 @@ angular_dd = Resource(por_library,
                       minified='por_kanban/js/angular-dragdrop.min.js',
                       depends=[jqueryui, angular])
 
-js_md5 = Resource(por_library,
-                  'por_kanban/js/md5.js',
-                  minified='por_kanban/js/md5.min.js',)
+angular_bootstrap_ui = Resource(por_library,
+                      'por_kanban/js/ui-bootstrap-tpls-0.5.0.min.js',
+                      depends=[bootstrap_js, angular])
 
 angular_sortable = Resource(por_library,
                       'por_kanban/js/sortable.js',
                       depends=[jqueryui, angular])
+
+js_md5 = Resource(por_library,
+                  'por_kanban/js/md5.js',
+                  minified='por_kanban/js/md5.min.js',)
+
 kanban = Group([
-                Resource(por_library, 'por_kanban/js/kanban.js', depends=[bootstrap_js, angular_sortable, socketio, angular, bootstrap_editable, js_md5]),
+                Resource(por_library, 'por_kanban/js/kanban.js', depends=[bootstrap_js, angular_sortable, socketio, angular, bootstrap_editable, js_md5, angular_bootstrap_ui]),
                 Resource(por_library, 'por_kanban/css/kanban.css', depends=[bootstrap]),
     ])
 

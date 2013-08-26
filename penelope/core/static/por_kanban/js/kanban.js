@@ -1,6 +1,6 @@
 var WEB_SOCKET_SWF_LOCATION = '/fanstatic/por/por_kanban/js/WebSocketMain.swf'
 
-angular.module('kanban', ['ui.sortable'])
+angular.module('kanban', ['ui.sortable', 'ui.bootstrap'])
   .controller("KanbanCtrl", function($scope, $http, $socketio) {
 
     $scope.columns = [];
@@ -48,6 +48,10 @@ angular.module('kanban', ['ui.sortable'])
     $scope.getColor = function(project){
         return 'background: #' + md5(project).slice(0, 6);
     };
+
+    $scope.getUserImages = function(emails){
+        return '<img height="30" width="30" src="http://www.gravatar.com/avatar/'+ $scope.gravatar(emails[0])+'?s=30" />'
+    }
 
     $scope.addColumn = function() {
         $scope.columns.push({'title': 'New column ' + $scope.columns.length,

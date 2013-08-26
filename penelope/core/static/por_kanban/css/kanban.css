@@ -100,3 +100,6 @@ float: none; /* this is the part that makes it work */
   margin: 0 2px;
   border: 1px solid #08C;
 }
+.users {
+  text-align: right;
+}

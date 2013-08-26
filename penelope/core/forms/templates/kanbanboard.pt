@@ -3,8 +3,9 @@
     <div ng-app="kanban" ng-controller="KanbanCtrl">
         <div class="page-header">
             <div class="pull-right" tal:content="structure actions.buttons(request)"></div>
-            <div class="pull-right online-users">
-                <img ng-repeat="email in emails" height="30" width="30" src="http://www.gravatar.com/avatar/{{gravatar(email)}}?s=30" />
+            <div class="pull-right online-users" ng-show="emails">
+              <span class="label">Online: </span>
+              <img ng-repeat="email in emails" height="30" width="30" alt="{{email}}" src="http://www.gravatar.com/avatar/{{gravatar(email)}}?s=30" />
             </div>
             <h3 tal:condition="request.model_name">
                  <span tal:condition="request.model_id and hasattr(request.model_class, '__unicode__')"
@@ -38,9 +39,15 @@
                                <div class="number pull-right">#{{task.ticket}}</div>
                                <span class="project" style="{{getColor(task.project)}}" title="{{task.customer}}">{{task.project}}</span>
                                <span class="ticket"><a ng-click="openModal(task.url)" href="#">{{task.summary}}</a></span>
-                               <a class="pull-right" href="#" ng-show="task.owner">
-                                 <img class="media-object" height="30" width="30" src="http://www.gravatar.com/avatar/{{gravatar(task.owner)}}?s=30">
-                               </a>
+                               <div class="pull-right users">
+                                 <a href="#"  ng-click="task.involvedCollapsed = !task.involvedCollapsed" title="Click to see all involved users:">
+                                 <img class="media-object"
+                                      height="30" width="30" src="http://www.gravatar.com/avatar/{{gravatar(task.owner)}}?s=30">
+                                 </a>
+                                 <div collapse="task.involvedCollapsed">
+                                    <img ng-repeat="email in task.involved" height="30" width="30" alt="{{email}}" src="http://www.gravatar.com/avatar/{{gravatar(email)}}?s=30" />
+                                 </div>
+                               </div>
                                <div ng-show="task.customerrequest">{{task.customerrequest}}</div>
                                <div class="clearfix"></div>
                             </div>
@@ -79,9 +86,15 @@
                               <div class="number pull-right">#{{task.ticket}}</div>
                               <span class="project" style="{{getColor(task.project)}}" title="{{task.customer}}">{{task.project}}</span>
                               <span class="ticket"><a ng-click="openModal(task.url)" href="#">{{task.summary}}</a></span>
-                              <a class="pull-right" href="#" ng-show="task.owner">
-                                <img class="media-object" height="30" width="30" src="http://www.gravatar.com/avatar/{{gravatar(task.owner)}}?s=30">
-                              </a>
+                               <div class="pull-right users">
+                                 <a href="#"  ng-click="task.involvedCollapsed = !task.involvedCollapsed" title="Click to see all involved users:">
+                                 <img class="media-object"
+                                      height="30" width="30" src="http://www.gravatar.com/avatar/{{gravatar(task.owner)}}?s=30">
+                                 </a>
+                                 <div collapse="task.involvedCollapsed">
+                                    <img ng-repeat="email in task.involved" height="30" width="30" alt="{{email}}" src="http://www.gravatar.com/avatar/{{gravatar(email)}}?s=30" />
+                                 </div>
+                               </div>
                               <div ng-show="task.customerrequest">{{task.customerrequest}}</div>
                               <div class="clearfix"></div>
                           </div>
