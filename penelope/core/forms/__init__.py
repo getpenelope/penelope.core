@@ -231,6 +231,11 @@ def include_forms(config):
     contract.configurate(config)
     kanbanboard.configurate(config)
 
+    config.override_asset(
+        to_override="fa.bootstrap:templates/forms/",
+        override_with="penelope.core.forms:templates/forms/")
+
+
 class AttributeField(fields.AttributeField):
     """
     We are monkey patching formalchemy's AttributeField to add

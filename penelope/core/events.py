@@ -380,7 +380,9 @@ def before_kanban_edit_render(context, event):
                       query(fs.projects.relation_type()).filter(fs.projects.relation_type().active).order_by('name'))
     fs.projects.render_opts['options'] = _query_options(q)
     fs.board_query.set(renderer=BigTextAreaFieldRenderer)
-    fs.board_query.set(instructions=_(u'This is the SQL WHERE statement, ie. status!=\'closed\''))
+    fs.board_query.set(instructions=_(u'This is the SQL WHERE statement.<br/>'
+                                      u'The default query equals to: <code>ticket.owner=\'%s\' AND ticket.status!=\'closed\'</code>.<br/>'
+                                      u'Available fields: <code>ticket.owner, ticket.status, ticket.id, ticket.priority, ticket.reporter, customerrequest.value, probabilita.value</code>' % event.request.authenticated_user))
 
 
 #TimeEntry events
