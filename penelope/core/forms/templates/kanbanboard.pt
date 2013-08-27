@@ -15,6 +15,7 @@
                  <span tal:condition="not request.model_id"
                        tal:replace="unicode(request.model_class.label)"/>
             </h3>
+            <button class="btn" ng-show="history.length>0" ng-click="isHistoryCollapsed = !isHistoryCollapsed">Toggle history</button>
         </div>
 
       <div class="row-fluid">

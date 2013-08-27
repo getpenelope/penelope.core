@@ -4,14 +4,16 @@ angular.module('kanban', ['ui.sortable', 'ui.bootstrap'])
   .controller("KanbanCtrl", function($scope, $http, $socketio) {
 
     $scope.columns = [];
-    $scope.emails = [];
     $scope.backlog = { tasks: [],
                        loaded: false};
+    $scope.emails = [];
+    $scope.user = '';
 
     $scope.init = function(board_id, email){
         $scope.board_id = board_id;
         $socketio.emit("join", { board_id: board_id, 
                                  email: email });
+        $scope.user = email;
     }
 
     $socketio.on('columns', function(data) {
@@ -47,6 +49,21 @@ angular.module('kanban', ['ui.sortable', 'ui.bootstrap'])
         $('#ModalTicket').modal({show:true})
     }
 
+    $scope.addHistory = function(info){
+        $socketio.emit("history", { info: info,
+                                    user: $scope.user });
+    }
+    $socketio.on("history", function(data) {
+        info = '<img height="30" width="30" src="http://www.gravatar.com/avatar/'+ $scope.gravatar(data.user) +'?s=30" /> ' + data.info
+        $.pnotify({
+            title: 'Board updated',
+            text: info,
+            type: 'info',
+            addclass: "stack-topleft",
+            icon: false
+        });
+    });
+
     $scope.getColor = function(project){
         return 'background: #' + md5(project).slice(0, 6);
     };
@@ -59,14 +76,14 @@ angular.module('kanban', ['ui.sortable', 'ui.bootstrap'])
         $scope.columns.push({'title': 'New column ' + $scope.columns.length,
                              'wip': 3,
                              'tasks': []});
+        $scope.addHistory('New column created.');
         $scope.boardChanged();
     };
 
     $scope.removeColumn = function(item) {
-        if (item != 0){
-          $scope.columns.splice(item, 1);
-          $scope.boardChanged();
-       };
+        $scope.columns.splice(item, 1);
+        $scope.addHistory('Column ' + (item + 1) + ' removed.');
+        $scope.boardChanged();
     };
 
     $scope.boardChanged = function() {
@@ -77,7 +94,14 @@ angular.module('kanban', ['ui.sortable', 'ui.bootstrap'])
         placeholder: "ui-state-highlight",
         connectWith: ".task_pool",
         update: function(e, ui) {
-           $scope.boardChanged();
+           if(ui.sender){
+               $scope.addHistory('Ticket moved between columns.');
+               $scope.boardChanged();
+           }
+           else{
+               $scope.addHistory('Ticket order changed.');
+               $scope.boardChanged();
+           }
         },
     };
 
@@ -101,6 +125,7 @@ angular.module('kanban', ['ui.sortable', 'ui.bootstrap'])
                         scope.$apply();
                     },
                     success: function(response, newValue) {
+                        scope.addHistory('Column modified.');
                         scope.boardChanged();
                     }
                 });

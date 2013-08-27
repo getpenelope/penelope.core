@@ -96,6 +96,9 @@ class KanbanNamespace(BaseNamespace, BoardMixin):
             self.emit_to_board(self.board, "emails", {"value": self.board_users(self.board)})
         self.disconnect(silent=True)
 
+    def on_history(self, data):
+        self.emit_to_board_not_me(self.board, "history", data)
+
     def on_board_changed(self, data):
         # cleanup data - make sure we will not save empty tasks
         for col in data:

@@ -149,8 +149,16 @@ js_md5 = Resource(por_library,
                   'por_kanban/js/md5.js',
                   minified='por_kanban/js/md5.min.js',)
 
+pnotify = Group([ 
+                   Resource(por_library, 'por_kanban/css/jquery.pnotify.default.css'),
+                   Resource(por_library, 'por_kanban/css/jquery.pnotify.default.icons.css'),
+                   Resource(por_library, 'por_kanban/js/jquery.pnotify.js',
+                            minified='por_kanban/js/jquery.pnotify.min.js',
+                            depends=[jqueryui])
+                   ])
+
 kanban = Group([
-                Resource(por_library, 'por_kanban/js/kanban.js', depends=[bootstrap_js, angular_sortable, socketio, angular, bootstrap_editable, js_md5, angular_bootstrap_ui]),
+                Resource(por_library, 'por_kanban/js/kanban.js', depends=[bootstrap_js, angular_sortable, socketio, angular, bootstrap_editable, js_md5, angular_bootstrap_ui, pnotify]),
                 Resource(por_library, 'por_kanban/css/kanban.css', depends=[bootstrap]),
     ])
 
