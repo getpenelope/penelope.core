@@ -107,3 +107,8 @@ float: none; /* this is the part that makes it work */
 .users .collapse img {
   padding-top: 5px;
 }
+
+.nobacklog {
+  top: 20px;
+  position:relative;
+}

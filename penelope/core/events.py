@@ -19,7 +19,8 @@ from penelope.core.lib.fa_fields import BigTextAreaFieldRenderer
 from penelope.core.models import DBSession
 from penelope.core.models.dashboard import TRAC, SVN, Application, Customer, \
         CustomerRequest, Group, Project, User, Contract, KanbanBoard, \
-        GOOGLE_DOCS, TRAC_REPORT, GENERIC_APP
+        GOOGLE_DOCS, TRAC_REPORT, GENERIC_APP, BACKLOG_PRIORITY_ORDER, \
+        BACKLOG_MODIFICATION_ORDER
 from penelope.core.models.tp import TimeEntry
 from penelope.core.models.dublincore import DublinCore
 from penelope.core.models.interfaces import IRoleable, ITimeEntry
@@ -379,10 +380,13 @@ def before_kanban_edit_render(context, event):
     q = event.request.filter_viewables(DBSession().\
                       query(fs.projects.relation_type()).filter(fs.projects.relation_type().active).order_by('name'))
     fs.projects.render_opts['options'] = _query_options(q)
-    fs.board_query.set(renderer=BigTextAreaFieldRenderer)
-    fs.board_query.set(instructions=_(u'This is the SQL WHERE statement.<br/>'
+    fs.backlog_query.set(renderer=BigTextAreaFieldRenderer)
+    fs.backlog_query.set(instructions=_(u'This is the SQL WHERE statement.<br/>'
                                       u'The default query equals to: <code>ticket.owner=\'%s\' AND ticket.status!=\'closed\'</code>.<br/>'
-                                      u'Available fields: <code>ticket.owner, ticket.status, ticket.id, ticket.priority, ticket.reporter, customerrequest.value, probabilita.value</code>' % event.request.authenticated_user))
+                                      u'Available fields: <code>ticket.owner, ticket.status, ticket.id, ticket.priority, ticket.reporter, customerrequest.value, probabilita.value</code>' % event.request.authenticated_user.email))
+    fs.backlog_order.set(renderer=SelectFieldRenderer,
+                options=[('Priority', BACKLOG_PRIORITY_ORDER),
+                         ('Modification', BACKLOG_MODIFICATION_ORDER)])
 
 
 #TimeEntry events

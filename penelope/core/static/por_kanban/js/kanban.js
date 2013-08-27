@@ -5,7 +5,8 @@ angular.module('kanban', ['ui.sortable', 'ui.bootstrap'])
 
     $scope.columns = [];
     $scope.emails = [];
-    $scope.backlog = { tasks: [] };
+    $scope.backlog = { tasks: [],
+                       loaded: false};
 
     $scope.init = function(board_id, email){
         $scope.board_id = board_id;
@@ -20,6 +21,7 @@ angular.module('kanban', ['ui.sortable', 'ui.bootstrap'])
 
     $socketio.on('backlog', function(data) {
         $scope.backlog.tasks = data.value;
+        $scope.backlog.loaded = true;
     });
 
     $socketio.on('emails', function(data) {

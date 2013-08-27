@@ -937,6 +937,10 @@ event.listen(SavedQuery, "before_insert", dublincore.dublincore_insert)
 event.listen(SavedQuery, "before_update", dublincore.dublincore_update)
 
 
+BACKLOG_PRIORITY_ORDER = 'priority'
+BACKLOG_MODIFICATION_ORDER = 'modification'
+
+
 class KanbanBoard(dublincore.DublinCore, Base):
     implements(IKanbanBoard)
 
@@ -954,7 +958,9 @@ class KanbanBoard(dublincore.DublinCore, Base):
     id = Column(Integer, primary_key=True)
     name = Column(Unicode, nullable=False)
     json = Column(Unicode)
-    board_query = Column(Unicode)
+    backlog_query = Column(Unicode)
+    backlog_limit = Column(Integer, default=10, nullable=False)
+    backlog_order = Column(Unicode, nullable=False)
     author = relationship(User,
                           uselist=False,
                           primaryjoin='KanbanBoard.author_id==User.id',

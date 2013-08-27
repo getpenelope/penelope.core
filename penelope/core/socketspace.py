@@ -6,7 +6,8 @@ from pyramid.view import view_config
 from socketio import socketio_manage
 from socketio.namespace import BaseNamespace
 
-from penelope.core.models.dashboard import KanbanBoard
+from penelope.core.models.dashboard import KanbanBoard, \
+        BACKLOG_PRIORITY_ORDER, BACKLOG_MODIFICATION_ORDER
 from penelope.core.models.dashboard import Trac, Project, CustomerRequest
 from penelope.core.models import DBSession
 
@@ -121,42 +122,54 @@ class KanbanNamespace(BaseNamespace, BoardMixin):
         existing_tickets = [item for sublist in existing_tickets for item in sublist]
         crs = dict(DBSession().query(CustomerRequest.id, CustomerRequest.name))
 
-        limit = 50
+        backlog_tickets = [t for t in self.find_tickets(board) \
+                                   if '%s_%s' % (t.trac_name, t.id) \
+                                                      not in existing_tickets]
+
+        if board.backlog_order == BACKLOG_PRIORITY_ORDER:
+            priorities = {'blocker': 0,
+                          'critical': 1,
+                          'major': 2,
+                          'minor': 3,
+                          'trivial': 4}
+            backlog_tickets.sort(key=lambda t: priorities[t.priority])
+
+        elif board.backlog_order == BACKLOG_MODIFICATION_ORDER:
+            backlog_tickets.sort(key=lambda t: t.modification, reverse=True)
+
+        backlog_tickets = backlog_tickets[:board.backlog_limit]
         tasks = []
 
-        for n, ticket in enumerate(self.find_tickets(board)):
-            if n > limit:
-                break
+        for n, ticket in enumerate(backlog_tickets):
             ticket_id = '%s_%s' % (ticket.trac_name, ticket.id)
-            if ticket_id not in existing_tickets:
-                try:
-                    involved = set(ticket.involved.split(','))
-                except AttributeError:
-                    involved = set()
+            try:
+                involved = set(ticket.involved.split(','))
+            except AttributeError:
+                involved = set()
 
-                involved.add(ticket.reporter)
-                involved = involved.difference([ticket.owner])
+            involved.add(ticket.reporter)
+            involved = involved.difference([ticket.owner])
 
-                tasks.append({'id': ticket_id,
-                              'project': ticket.project,
-                              'customer': ticket.customer,
-                              'involvedCollapsed': True,
-                              'url': '%s/trac/%s/ticket/%s' % (self.request.application_url,
-                                                               ticket.trac_name,
-                                                               ticket.id),
-                              'ticket': ticket.id,
-                              'owner': ticket.owner,
-                              'involved': list(involved),
-                              'customerrequest': crs.get(ticket.customerrequest,''),
-                              'priority': ticket.priority in ['critical', 'blocker'] and 'true' or None,
-                              'summary': ticket.summary})
+            tasks.append({'id': ticket_id,
+                          'project': ticket.project,
+                          'customer': ticket.customer,
+                          'involvedCollapsed': True,
+                          'url': '%s/trac/%s/ticket/%s' % (self.request.application_url,
+                                                           ticket.trac_name,
+                                                           ticket.id),
+                          'ticket': ticket.id,
+                          'owner': ticket.owner,
+                          'involved': list(involved),
+                          'customerrequest': crs.get(ticket.customerrequest,''),
+                          'priority': ticket.priority in ['critical', 'blocker'] and 'true' or None,
+                          'summary': ticket.summary})
         self.emit("backlog", {"value": tasks})
 
     def find_tickets(self, board):
         viewable_projects = board.projects or self.request.filter_viewables(DBSession.query(Project).filter(Project.active).order_by('name'))
         viewable_project_ids = [p.id for p in viewable_projects]
         all_tracs = DBSession.query(Trac).join(Project).filter(Project.active).filter(Trac.project_id.in_(viewable_project_ids))
-        where =  board.board_query or "owner='%s' AND status!='closed'" % self.request.authenticated_user.email
+        where =  board.backlog_query or "owner='%s' AND status!='closed'" % self.request.authenticated_user.email
         query = """SELECT DISTINCT '%(trac)s' AS trac_name,
                                 '%(project)s' AS project,
                                 '%(customer)s' AS customer,
@@ -164,6 +177,7 @@ class KanbanNamespace(BaseNamespace, BoardMixin):
                                 ticket.summary AS summary,
                                 ticket.priority AS priority,
                                 ticket.owner AS owner,
+                                ticket.changetime as modification,
                                 ticket.reporter as reporter,
                                 customerrequest.value AS customerrequest,
                                 string_agg(DISTINCT change.author,',') AS involved

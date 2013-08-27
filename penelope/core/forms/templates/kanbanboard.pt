@@ -27,9 +27,16 @@
                       <div class="header_name">
                         Backlog
                       </div>
-                      <div class="preloader" ng-show="backlog.tasks.length == 0">
+                      <div class="preloader" ng-show="backlog.loaded==false">
                         <img src="${request.application_url}/fanstatic/por/por_kanban/img/loading.gif"/>
                       </div>
+
+                      <div class="alert alert-block nobacklog" ng-show="backlog.loaded==true && backlog.tasks.length==0">
+                            <h4>Warning!</h4>
+                            Your query <code>${request.model_instance.backlog_query}</code>
+                            didn't return any tickets. Please check if there is no syntax error or a simple typo.
+                       </div>
+
                        <ul class="task_pool" ng-model="backlog.tasks" tal:attributes="draggable">
                          <li class="big_container {{task.priority && 'priority'}} media" id="{{task.id}}" 
                                 ng-repeat="task in backlog.tasks"

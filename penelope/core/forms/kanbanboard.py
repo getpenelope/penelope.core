@@ -155,7 +155,7 @@ class KanbanBoardModelView(ModelView):
         viewable_projects = board.projects or self.request.filter_viewables(DBSession.query(Project).filter(Project.active).order_by('name'))
         viewable_project_ids = [p.id for p in viewable_projects]
         all_tracs = DBSession.query(Trac).join(Project).filter(Project.active).filter(Trac.project_id.in_(viewable_project_ids))
-        where =  board.board_query or "owner='%s' AND status!='closed'" % self.request.authenticated_user.email
+        where =  board.backlog_query or "owner='%s' AND status!='closed'" % self.request.authenticated_user.email
         query = """SELECT DISTINCT '%(trac)s' AS trac_name,
                                    '%(project)s' AS project,
                                    '%(customer)s' AS customer,
