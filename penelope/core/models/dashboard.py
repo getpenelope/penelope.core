@@ -945,20 +945,25 @@ class KanbanBoard(dublincore.DublinCore, Base):
     implements(IKanbanBoard)
 
     __tablename__ = 'kanban_boards'
+
     @classproperty
     def __acl__(self):
         acl = deepcopy(CRUD_ACL)
+
+        acl.allow('role:redturtle_developer', 'new')
+        acl.allow('role:redturtle_developer', 'listing')
 
         acl.allow('role:owner', 'view')
         acl.allow('role:owner', 'edit')
         acl.allow('role:owner', 'delete')
 
         # dynamically set by deform
-        for _acl in self.acl:
-            acl.allow(_acl.principal, _acl.permission_name)
-
+        try:
+            for _acl in self.acl:
+                acl.allow(_acl.principal, _acl.permission_name)
+        except TypeError: # if self is a class the acl attribute is not iterable
+            pass
         return acl
-
 
     id = Column(Integer, primary_key=True)
     name = Column(Unicode, nullable=False)

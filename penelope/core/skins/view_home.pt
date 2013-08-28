@@ -5,7 +5,7 @@
 <body>
   <div metal:fill-slot="body">
 
-    <div tal:condition="kanbanboards">
+    <div tal:condition="can_see_kanbanboards">
       <div class="pull-right"><a href="${request.application_url}/admin/KanbanBoard" class="btn btn-small btn-primary">See all</a></div>
       <h3 i18n:translate="">Kanban boards</h3>
       <div class="projects-board">
@@ -16,6 +16,10 @@
           <p tal:repeat="column kanbanboard.get_board_columns()">
           ${column['name']}: <span class="badge ${column['tickets'] > 0 and 'badge-success' or ''}">${column['tickets']}</span>
           </p>
+        </div>
+        <div class="thumbnail"  tal:condition="not kanbanboards">
+          <h3>No boards</h3>
+          <a href="${request.application_url}/admin/KanbanBoard/new" class="btn btn-success">Create first one</a>
         </div>
       </div>
     </div>

@@ -18,7 +18,7 @@ from penelope.core.lib.helpers import chunks, unicodelower
 from penelope.core.lib.htmlhelpers import render_application_icon, get_application_link
 from penelope.core.security import acl
 
-from penelope.core.models import DBSession, CustomerRequest, Project
+from penelope.core.models import DBSession, CustomerRequest, Project, KanbanBoard
 from penelope.core.models.interfaces import IProjectRelated
 
 
@@ -215,12 +215,13 @@ def view_home(request):
     kanbanboards = user.kanban_boards
 
     return {
-        'dashboards': dashboards,
-        'kanbanboards': kanbanboards,
-        'listings': listings,
-        'render_application_icon': render_application_icon,
-        'get_application_link': get_application_link,
-        }
+            'dashboards': dashboards,
+            'kanbanboards': kanbanboards,
+            'listings': listings,
+            'can_see_kanbanboards':  request.has_permission('listing', KanbanBoard),
+            'render_application_icon': render_application_icon,
+            'get_application_link': get_application_link,
+            }
 
 
 @view_config(renderer='skin', permission='view_home', route_name='navbar')
