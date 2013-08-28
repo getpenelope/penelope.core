@@ -16,8 +16,8 @@
 }
 
 .outstanding-tickets {
-  float: left;
-  padding-top: 6px;
+ /* float: left;
+  padding-top: 6px;*/
   padding-left: 5px;
 }
 
@@ -56,3 +56,10 @@
   margin-left: 1.5%;
 }
 
+.row-fluid [class*="span"] {
+  margin-left: 1.164102564%;
+}
+
+li .spark{
+    margin-right: 20px;
+}

@@ -3,73 +3,80 @@
   i18n:domain="penelope"
       metal:use-macro="skin: /main_template">
 <body>
-  <div metal:fill-slot="body">
+  <div metal:fill-slot="body" tal:omit-tag="">
 
-    <div tal:condition="can_see_kanbanboards">
-      <div class="pull-right"><a href="${request.application_url}/admin/KanbanBoard" class="btn btn-small btn-primary">See all</a></div>
-      <h3 i18n:translate="">Kanban boards</h3>
-      <div class="projects-board">
-        <div class="thumbnail"  tal:repeat="kanbanboard kanbanboards">
-          <h3>
-                <a href="${request.application_url}/admin/KanbanBoard/${kanbanboard.id}">${kanbanboard.name}</a>
-          </h3>
-          <p tal:repeat="column kanbanboard.get_board_columns()">
-          ${column['name']}: <span class="badge ${column['tickets'] > 0 and 'badge-success' or ''}">${column['tickets']}</span>
-          </p>
-        </div>
-        <div class="thumbnail"  tal:condition="not kanbanboards">
-          <h3>No boards</h3>
-          <a href="${request.application_url}/admin/KanbanBoard/new" class="btn btn-success">Create first one</a>
-        </div>
+    <div class="span12"></div>
+
+    <!-- kanban -->
+    <div tal:condition="can_see_kanbanboards" tal:omit-tag="">
+      <div class="span12">
+        <h2>Favorite boards
+          <a class="page-meta" href="${request.application_url}/admin/KanbanBoard">See all boards</a>
+        </h2>
+      </div>
+
+      <div class="span12">
+        <ul class="today-datas">
+          <li class="bgreen" tal:repeat="kanbanboard kanbanboards">
+            <div class="pull-left">
+              <span class="spark">${','.join(kanbanboard.get_board_columns())}</span>
+            </div>
+            <div class="datas-text pull-right"><span class="bold"><a href="${request.application_url}/admin/KanbanBoard/${kanbanboard.id}">${kanbanboard.name}</a></span></div>
+            <div class="clearfix"></div>
+          </li>
+        </ul>
       </div>
     </div>
 
-    <tal:board repeat="dashboard dashboards">
-      <div tal:condition="dashboard['custprojs']">
-      <div class="pull-right"><a href="${request.application_url}/admin/Project" class="btn btn-small btn-primary">See all</a></div>
-        <h3 i18n:translate="">${dashboard['title']}</h3>
-        <div class="projects-board">
-          <div tal:repeat="custprojs dashboard['custprojs']"
-              class="thumbnail">
-            <h3 tal:define="customer custprojs[0]">
-              <a href="${request.application_url}/admin/Customer/${customer.id}">${customer.name}</a>
-            </h3>
-            <div tal:repeat="project custprojs[1]"
-                class="boarded-project">
-              <tal:trac-uri define="trac_apps list(project.tracs);
-                                    trac_uri trac_apps[0].api_uri if trac_apps else None">
-                <div class="btn-group"
-                    tal:define="applications request.filter_viewables(project.applications)" >
-                  <a href="${request.application_url}/admin/Project/${project.id}"
-                    class="btn">${project.name}</a>
-                  <button tal:condition="applications"
-                          class="btn dropdown-toggle"
-                          data-toggle="dropdown">
-                    <span class="caret"></span>
-                  </button>
-                  <ul tal:condition="applications"
-                      class="dropdown-menu">
-                    <li tal:repeat="application applications">
-                      <a tal:define="icon_html render_application_icon(request, application)"
-                          href="${get_application_link(request, application)}">
-                        <tal:icon condition="icon_html"
-                                  replace="icon_html" />
-                        ${application.name}
-                      </a>
-                    </li>
-                  </ul>
-                </div>
-                <span tal:condition="trac_uri"
-                      class="outstanding-tickets"
-                      data-trac-uri="${trac_uri}"><span>
-              </tal:trac-uri>
+    <!-- projects -->
+    <div class="span12">
+      <h2>Favorite projects
+        <a class="page-meta" href="${request.application_url}/admin/Project">See all projects</a>
+      </h2>
+    </div>
+    <div tal:repeat="project my_projects" class="span3">
+      <div class="widget wlightblue" 
+        tal:define="trac_apps list(project.tracs);
+        customer project.customer;
+        trac_uri trac_apps[0].api_uri if trac_apps else None" >
+        <!-- Widget title -->
+        <div class="widget-head">
+          <div class="pull-left">
+            <a href="${request.application_url}/admin/Project/${project.id}">${project.name}</a>
+          </div>
+          <div class="clearfix"></div>
+        </div>
+        <div class="widget-subhead">
+          <div class="pull-left">
+            <a href="${request.application_url}/admin/Customer/${customer.id}">${customer.name}</a>
+          </div>
+          <div class="clearfix"></div>
+        </div>
+        <div class="widget-foot" tal:condition="trac_uri">
+          <span class="outstanding-tickets"
+            data-trac-uri="${trac_uri}"><span>
+              <a class="pull-right label" href="javascript:void(0)" data-toggle="collapse" data-target="#${project.id}-applications">Toggle apps</a>
+            </div>
+            <div class="widget-content">
+              <div id="${project.id}-applications" class="collapse">
+                <table class="table table-bordered"
+                  tal:condition="applications"
+                  tal:define="applications request.filter_viewables(project.applications)">
+                  <tbody>
+                    <tr tal:repeat="application applications">
+                      <td tal:define="icon_html render_application_icon(request, application)">
+                        <img src="" alt="" tal:replace="icon_html" tal:condition="icon_html">
+                      </td>
+                      <td>
+                        <a href="${get_application_link(request, application)}">${application.name}</a>
+                      </td>
+                    </tr> 
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-    </tal:board>
-
-
 
   </div>
 

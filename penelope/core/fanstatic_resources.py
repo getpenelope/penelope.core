@@ -75,10 +75,13 @@ deform_bootstrap = Group([
 # Our stuff
 #----------
 
+spark = Resource(por_library, 'por_home/js/jquery.sparkline.min.js', depends=[jquery,])
 dashboard_home = Group([
-                        Resource(por_library, 'por_home/home.js', depends=[jquery, masonry]),
-                        Resource(por_library, 'por_home/outstanding_tickets.js', depends=[jquery, mustache, spin]),
-                        Resource(por_library, 'por_home/home.css')
+                        Resource(por_library, 'por_home/js/home.js', depends=[spark]),
+                        Resource(por_library, 'por_home/css/home.css'),
+                        Resource(por_library, 'por_home/js/outstanding_tickets.js', depends=[jquery, mustache, spin]),
+                        Resource(por_library, 'por_home/css/font-awesome.css'),
+                        Resource(por_library, 'por_home/css/penelope.min.css'),
                         ])
 
 dashboard_js = Resource(por_library, 'js/dashboard.js', depends=[bootstrap_js, jqueryui, timepicker_it])

@@ -987,10 +987,8 @@ class KanbanBoard(dublincore.DublinCore, Base):
         return self.name
 
     def get_board_columns(self):
-        columns = (self.json and loads(self.json)) or []
-        for column in columns:
-            yield {'name': column['title'],
-                   'tickets': len(column['tasks']) }
+        columns = self.json and loads(self.json) or []
+        return [str(len(c['tasks'])) for c in columns]
 
 def create_initial_kanban_acl(mapper, connection, target):
     acl_rules = [

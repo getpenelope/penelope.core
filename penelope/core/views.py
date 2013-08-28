@@ -14,7 +14,6 @@ from pyramid.httpexceptions import HTTPForbidden
 
 from penelope.core import fanstatic_resources, messages
 from penelope.core.interfaces import IBreadcrumbs, IPorRequest, ISidebar
-from penelope.core.lib.helpers import chunks, unicodelower
 from penelope.core.lib.htmlhelpers import render_application_icon, get_application_link
 from penelope.core.security import acl
 
@@ -180,42 +179,16 @@ def view_home(request):
     user = request.authenticated_user
     projects = session.query(Project)
 
-    active_projects = set(projects.filter(Project.active))
-
     my_projects = projects\
                   .filter(Project.users_favorite(user))\
                   .order_by(Project.customer_id).all()
 
     my_projects = request.filter_viewables(my_projects)
-    other_active_projects = sorted(request.filter_viewables(active_projects.difference(my_projects)), key=unicodelower)
-
-    dashboards = [
-            {
-                'title': 'Favorite projects',
-                'custprojs': group_by_customer(my_projects),
-            }
-        ]
-
     listings = []
-
-    max_dashboard_projects = 20
-
-    if not len(my_projects) and len(other_active_projects) < max_dashboard_projects:
-        dashboards.append({
-                        'title': 'Active projects',
-                        'custprojs': group_by_customer(other_active_projects),
-                    })
-    else:
-        listing_columns = 4
-        listings.append({
-                        'title': 'Active projects',
-                        'projgroups': tuple(chunks(tuple(other_active_projects), listing_columns)),
-                    })
-
     kanbanboards = user.kanban_boards
 
     return {
-            'dashboards': dashboards,
+            'my_projects': my_projects,
             'kanbanboards': kanbanboards,
             'listings': listings,
             'can_see_kanbanboards':  request.has_permission('listing', KanbanBoard),
