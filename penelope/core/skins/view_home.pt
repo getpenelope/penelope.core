@@ -24,6 +24,15 @@
             <div class="datas-text pull-right"><span class="bold"><a href="${request.application_url}/admin/KanbanBoard/${kanbanboard.id}">${kanbanboard.name}</a></span></div>
             <div class="clearfix"></div>
           </li>
+          <li class="bred" tal:condition="not kanbanboards">
+            <div class="pull-left">
+                <i class="icon-plus-sign"></i>
+            </div>
+            <div class="datas-text pull-right"><span class="bold"><a href="${request.application_url}/admin/KanbanBoard/new">Add first board</a></span>
+              seems you don't have any boards
+            </div>
+            <div class="clearfix"></div>
+          </li>
         </ul>
       </div>
     </div>

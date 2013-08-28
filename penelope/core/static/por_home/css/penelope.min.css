@@ -264,6 +264,7 @@
 .borange a,
 .bviolet a{
 	color: #eee !important;
+  text-decoration: none;
 }
 
 .blightblue a:hover,
