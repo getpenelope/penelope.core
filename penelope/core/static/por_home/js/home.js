@@ -2,6 +2,8 @@
 /*global document, $: false */
 
 $(document).ready(function() {
+
+    $("[rel='tooltip']").tooltip();
     $('.spark').sparkline('html',
         {
             type: 'bar',
@@ -9,6 +11,6 @@ $(document).ready(function() {
             chartRangeMin: 0,
             barWidth: 7,
             barColor: '#fff'}
-    ); 
+    );
 });
 

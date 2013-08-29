@@ -80,12 +80,12 @@ dashboard_home = Group([
                         Resource(por_library, 'por_home/js/home.js', depends=[spark]),
                         Resource(por_library, 'por_home/css/home.css'),
                         Resource(por_library, 'por_home/js/outstanding_tickets.js', depends=[jquery, mustache, spin]),
-                        Resource(por_library, 'por_home/css/font-awesome.css'),
                         Resource(por_library, 'por_home/css/penelope.min.css'),
                         ])
 
+font_awesome = Resource(por_library, 'por_home/css/font-awesome.css', minified='por_home/css/font-awesome.min.css', depends=[bootstrap_responsive_css])
 dashboard_js = Resource(por_library, 'js/dashboard.js', depends=[bootstrap_js, jqueryui, timepicker_it])
-dashboard_css = Resource(por_library, 'css/dashboard.css', depends=[bootstrap_responsive_css, respond])
+dashboard_css = Resource(por_library, 'css/dashboard.css', depends=[bootstrap_responsive_css, respond, font_awesome])
 
 project_filter = Resource(por_library, 'por_report/select_project_filter.js')
 

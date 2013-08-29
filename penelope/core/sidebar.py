@@ -12,7 +12,6 @@ from fa.bootstrap.actions import TabsActions, TabAction, UIButton
 
 from penelope.core.interfaces import ISidebar
 from penelope.core.lib.helpers import unicodelower
-from penelope.core.lib.htmlhelpers import render_application_icon
 from penelope.core.models.interfaces import IProjectRelated, ICustomerRequest, IApplication#, IKanbanBoard
 
 gsm = zope.component.getGlobalSiteManager()
@@ -250,7 +249,7 @@ class ProjectSidebarRenderer(SidebarRenderer):
                 href = safe_fa_url('Application', app.id)
 
             self.applications.append(SidebarAction('app_%s' % app.id,
-                                     content=HTML.SPAN(render_application_icon(request, app), ' ', app.name),
+                                     content=literal(u'<i class="%s"></i> %s' % (app.get_icon(), app.name)),
                                      permission='view',
                                      attrs=dict(href=href)))
 

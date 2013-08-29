@@ -63,3 +63,63 @@
 li .spark{
     margin-right: 20px;
 }
+
+.widget-head .customer {
+  font-size: 11px;
+}
+
+.btn.btn-app.btn-mini {
+  width: 50px;
+  font-size: 15px;
+  border-radius: 5px;
+  padding-bottom: 7px;
+  padding-top: 8px;
+}
+
+.btn.btn-app {
+  display: inline-block;
+  width: 100px;
+  margin: 2px;
+  position: relative;
+  font-size: 18px;
+  font-weight: normal;
+  color: #FFF;
+  text-align: center;
+  text-shadow: 0 -1px -1px rgba(0,0,0,0.2)!important;
+  border: 0;
+  border-radius: 12px;
+  padding: 12px 0 8px;}
+
+.btn {
+  display: inline-block;
+  color: #FFF!important;
+  text-shadow: 0 -1px 0 rgba(0,0,0,0.25)!important;
+  background-image: none!important;
+  border: 5px solid;
+  border-radius: 0;
+  box-shadow: none!important;
+  -webkit-transition: all ease .15s;
+  -moz-transition: all ease .15s;
+  -o-transition: all ease .15s;
+  transition: all ease .15s;
+  cursor: pointer;
+  vertical-align: middle;
+  margin: 0;
+  position: relative;
+  padding: 0 12px 1px;
+  line-height: 32px;
+  font-size: 14px;
+}
+.btn-mini {
+  padding: 0 5px;
+  line-height: 22px;
+  border-width: 2px;
+  font-size: 12px;
+}
+
+.btn.btn-app.btn-mini>[class*=icon] {
+  display: block;
+  font-size: 20px;
+  line-height: 20px;
+  margin: 0;
+}

@@ -485,6 +485,20 @@ class Application(dublincore.DublinCore, Base):
             self.api_uri = new_api_uri
         return self.api_uri
 
+    def get_icon(self):
+        return {
+                'google docs': 'icon-file-text-alt',
+                'trac': 'icon-bug',
+                'svn': 'icon-code-fork',
+                }.get(self.application_type, '')
+
+    def get_color(self):
+        return {
+                'google docs': 'btn-primary',
+                'trac': 'btn-danger',
+                'svn': 'btn-warning',
+                }.get(self.application_type, '')
+
 
 class ApplicationACL(Base):
     __tablename__ = 'applications_acl'

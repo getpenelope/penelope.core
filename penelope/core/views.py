@@ -14,7 +14,7 @@ from pyramid.httpexceptions import HTTPForbidden
 
 from penelope.core import fanstatic_resources, messages
 from penelope.core.interfaces import IBreadcrumbs, IPorRequest, ISidebar
-from penelope.core.lib.htmlhelpers import render_application_icon, get_application_link
+from penelope.core.lib.htmlhelpers import get_application_link
 from penelope.core.security import acl
 
 from penelope.core.models import DBSession, CustomerRequest, Project, KanbanBoard
@@ -192,7 +192,6 @@ def view_home(request):
             'kanbanboards': kanbanboards,
             'listings': listings,
             'can_see_kanbanboards':  request.has_permission('listing', KanbanBoard),
-            'render_application_icon': render_application_icon,
             'get_application_link': get_application_link,
             }
 
