@@ -1,6 +1,10 @@
+import psycopg2
 import transaction
+import gevent
 
 from json import loads, dumps
+from psycogreen.gevent import patch_psycopg
+from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 from pyramid.response import Response
 from pyramid.view import view_config
 from socketio import socketio_manage
@@ -11,6 +15,7 @@ from penelope.core.models.dashboard import KanbanBoard, \
 from penelope.core.models.dashboard import Trac, Project, CustomerRequest
 from penelope.core.models import DBSession
 
+patch_psycopg()
 
 class BoardMixin(object):
 
@@ -77,9 +82,28 @@ class KanbanNamespace(BaseNamespace, BoardMixin):
     def email(self):
         return self.session.get('email')
 
+    def dblisten(self, dns):
+        cnn = psycopg2.connect(dns)
+        cnn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
+        cur = cnn.cursor()
+        cur.execute("LISTEN tickets;")
+        while True:
+            cnn.poll()
+            while cnn.notifies:
+                notification = cnn.notifies.pop()
+                if notification.payload in self.session['tracs']:
+                    print "TICKET event for %s" % notification.payload
+                    self.emit_to_board(self.board, "history", {'info': 'Trac %s has been updated.' % notification.payload})
+            gevent.sleep(1)
+
     def on_join(self, data):
         self.session['board'] = data['board_id']
         self.session['email'] = data['email']
+        self.session['tracs'] = []
+
+        dns = "dbname='%(database)s' user='%(username)s' password='%(password)s' host='%(host)s'" % DBSession.connection().engine.url.__dict__
+        self.spawn(self.dblisten, dns)
+
         self.join(data)
 
         board = DBSession().query(KanbanBoard).get(self.board)
@@ -168,10 +192,15 @@ class KanbanNamespace(BaseNamespace, BoardMixin):
                           'summary': ticket.summary})
         self.emit("backlog", {"value": tasks})
 
-    def find_tickets(self, board):
+    def board_tracs(self, board):
         viewable_projects = board.projects or self.request.filter_viewables(DBSession.query(Project).filter(Project.active).order_by('name'))
         viewable_project_ids = [p.id for p in viewable_projects]
-        all_tracs = DBSession.query(Trac).join(Project).filter(Project.active).filter(Trac.project_id.in_(viewable_project_ids))
+        tracs = DBSession.query(Trac).join(Project).filter(Project.active).filter(Trac.project_id.in_(viewable_project_ids))
+        self.session['tracs'] = [t.trac_name for t in tracs]
+        return tracs
+
+    def find_tickets(self, board):
+        all_tracs = self.board_tracs(board)
         where =  board.backlog_query or "owner='%s' AND status!='closed'" % self.request.authenticated_user.email
         query = """SELECT DISTINCT '%(trac)s' AS trac_name,
                                 '%(project)s' AS project,

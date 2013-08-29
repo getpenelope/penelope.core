@@ -37,6 +37,7 @@ requires = [
     'plone.i18n',
     'profilehooks',
     'psycopg2',
+    'psycogreen',
     'pyramid',
     'pyramid_beaker',
     'pyramid_debugtoolbar',
