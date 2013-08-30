@@ -490,14 +490,14 @@ class Application(dublincore.DublinCore, Base):
                 'google docs': 'icon-file-text-alt',
                 'trac': 'icon-bug',
                 'svn': 'icon-code-fork',
-                }.get(self.application_type, '')
+                }.get(self.application_type, 'icon-folder-close-alt')
 
     def get_color(self):
         return {
                 'google docs': 'btn-primary',
                 'trac': 'btn-danger',
                 'svn': 'btn-warning',
-                }.get(self.application_type, '')
+                }.get(self.application_type, 'btn-inverse')
 
 
 class ApplicationACL(Base):
