@@ -5,7 +5,7 @@
             <div class="pull-right" tal:content="structure actions.buttons(request)"></div>
             <div class="pull-right online-users" ng-show="emails">
               <span class="label">Online: </span>
-              <img ng-repeat="email in emails" height="30" width="30" alt="{{email}}" src="http://www.gravatar.com/avatar/{{gravatar(email)}}" />
+              <img ng-repeat="email in emails" height="30" width="30" alt="{{email}}" src="https://www.gravatar.com/avatar/{{gravatar(email)}}" />
             </div>
             <h3 tal:condition="request.model_name">
                  <span tal:condition="request.model_id and hasattr(request.model_class, '__unicode__')"
@@ -50,11 +50,11 @@
                                <div class="pull-right users">
                                  <a href="javascript:void(0)"  ng-click="task.involvedCollapsed = !task.involvedCollapsed" title="Click to see all involved users:">
                                    <img class="media-object" tooltip="{{task.owner}}"
-                                      height="30" width="30" src="http://www.gravatar.com/avatar/{{gravatar(task.owner)}}">
+                                      height="30" width="30" src="https://www.gravatar.com/avatar/{{gravatar(task.owner)}}">
                                  </a>
                                  <div collapse="task.involvedCollapsed">
                                    <img ng-repeat="email in task.involved" tooltip="{{email}}" tooltip-placement="bottom" tooltip-append-to-body="true"
-                                        height="30" width="30" alt="{{email}}" src="http://www.gravatar.com/avatar/{{gravatar(email)}}" />
+                                        height="30" width="30" alt="{{email}}" src="https://www.gravatar.com/avatar/{{gravatar(email)}}" />
                                  </div>
                                </div>
                                <div ng-show="task.customerrequest">{{task.customerrequest}}</div>
@@ -98,11 +98,11 @@
                                <div class="pull-right users">
                                  <a href="javascript:void(0)"  ng-click="task.involvedCollapsed = !task.involvedCollapsed" title="Click to see all involved users:">
                                    <img class="media-object" tooltip="{{task.owner}}"
-                                      height="30" width="30" src="http://www.gravatar.com/avatar/{{gravatar(task.owner)}}">
+                                      height="30" width="30" src="https://www.gravatar.com/avatar/{{gravatar(task.owner)}}">
                                  </a>
                                  <div collapse="task.involvedCollapsed">
                                    <img ng-repeat="email in task.involved" tooltip="{{email}}" tooltip-placement="bottom" tooltip-append-to-body="true"
-                                        height="30" width="30" alt="{{email}}" src="http://www.gravatar.com/avatar/{{gravatar(email)}}" />
+                                        height="30" width="30" alt="{{email}}" src="https://www.gravatar.com/avatar/{{gravatar(email)}}" />
                                  </div>
                                </div>
                               <div ng-show="task.customerrequest">{{task.customerrequest}}</div>

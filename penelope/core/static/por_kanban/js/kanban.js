@@ -54,7 +54,7 @@ angular.module('kanban', ['ui.sortable', 'ui.bootstrap'])
                                     user: $scope.user });
     }
     $socketio.on("history", function(data) {
-        info = '<img height="30" width="30" src="http://www.gravatar.com/avatar/'+ $scope.gravatar(data.user) +'?s=30" /> ' + data.info
+        info = '<img height="30" width="30" src="https://www.gravatar.com/avatar/'+ $scope.gravatar(data.user) +'?s=30" /> ' + data.info
         $.pnotify({
             title: 'Board updated',
             text: info,
@@ -69,7 +69,7 @@ angular.module('kanban', ['ui.sortable', 'ui.bootstrap'])
     };
 
     $scope.getUserImages = function(emails){
-        return '<img height="30" width="30" src="http://www.gravatar.com/avatar/'+ $scope.gravatar(emails[0])+'?s=30" />'
+        return '<img height="30" width="30" src="https://www.gravatar.com/avatar/'+ $scope.gravatar(emails[0])+'?s=30" />'
     }
 
     $scope.addColumn = function() {
