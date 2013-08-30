@@ -1,3 +1,9 @@
+2.0 (unreleased)
+----------------
+
+- new dashboard [amleczko]
+- kanban board bug fixes [amleczko]
+
 2.0a (2013-08-26)
 -----------------
 
