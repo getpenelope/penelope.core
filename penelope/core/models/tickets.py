@@ -14,13 +14,13 @@ class TicketStore(object):
         project = DBSession().query(Project).get(project_id)
         if request and project:
             for trac in project.tracs:
-                proxy = TracXmlProxy(trac.application_uri(request), request=request)
+                proxy = TracXmlProxy('/trac/%s' % trac.trac_name, request=request)
                 return proxy.ticket.get(ticket_id)
 
     def get_tickets_for_project(self, project, request, query=None, limit=None, not_invoiced=False):
         tickets = []
         for trac in project.tracs:
-            proxy = TracXmlProxy(trac.application_uri(request), request=request)
+            proxy = TracXmlProxy('/trac/%s' % trac.trac_name, request=request)
             if not query:
                 query = [
                     # 'modified=1weekago',
@@ -52,7 +52,7 @@ class TicketStore(object):
         ret = {}
 
         for trac in project.tracs:
-            proxy = TracXmlProxy(trac.application_uri(request), request=request)
+            proxy = TracXmlProxy('/trac/%s' % trac.trac_name, request=request)
             try:
                 for ticket_id, cr_id in proxy.ticket.queryAllCustomerRequests():
                     ret[ticket_id] = cr_id
@@ -64,7 +64,7 @@ class TicketStore(object):
     def get_requests_from_tickets(self, project, ticket_ids, request=None):
         ticket_cr = []
         for trac in project.tracs:
-            proxy = TracXmlProxy(trac.application_uri(request), request=request)
+            proxy = TracXmlProxy('/trac/%s' % trac.trac_name, request=request)
             ticket_cr.extend(proxy.ticket.queryCustomerRequestsByTicktes(ticket_ids))
         return ticket_cr
 
