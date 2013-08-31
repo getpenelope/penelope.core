@@ -112,3 +112,13 @@ float: none; /* this is the part that makes it work */
   top: 20px;
   position:relative;
 }
+
+.header_name input {
+  margin-top: 5px;
+}
+
+.header_name, .WIP {
+  font-variant: small-caps;
+  margin-left: 3px;
+  font-weight: 600;
+}

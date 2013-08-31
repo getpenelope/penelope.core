@@ -21,6 +21,7 @@ requires = [
     'feedparser',
     'gdata==2.0.14',
     'gevent-socketio',
+    'gevent-psycopg2',
     'gspread',
     'js.jqgrid',
     'js.jquery_datatables==1.8.2',

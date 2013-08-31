@@ -27,6 +27,7 @@
                   <div class="thumbnail">
                       <div class="header_name">
                         Backlog
+                        <input id="searchText" type="search" placeholder="Live Search Posts..." ng-model-instant ng-model="searchText" ng-show="backlog.tasks.length>0" />
                       </div>
                       <div class="preloader" ng-show="backlog.loaded==false">
                         <img src="${request.application_url}/fanstatic/por/por_kanban/img/loading.gif"/>
@@ -40,7 +41,7 @@
 
                        <ul class="task_pool" ng-model="backlog.tasks" tal:attributes="draggable">
                          <li class="big_container {{task.priority && 'priority'}} media" id="{{task.id}}" 
-                                ng-repeat="task in backlog.tasks"
+                                ng-repeat="task in backlog.tasks | filter:searchText"
                                 ng-model="backlog.tasks[$index]"
                                 ng-show="task.id">
                              <div class="box_itm media-body">

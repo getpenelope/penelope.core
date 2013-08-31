@@ -1,7 +1,7 @@
-2.1 (unreleased)
+2.0.1 (unreleased)
 ----------------
 
-- Nothing changed yet.
+- switch to green psycopg2 [amleczko]
 
 
 2.0 (2013-08-30)
