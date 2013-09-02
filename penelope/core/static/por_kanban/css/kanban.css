@@ -115,6 +115,7 @@ float: none; /* this is the part that makes it work */
 
 .header_name input {
   margin-top: 5px;
+  width: auto;
 }
 
 .header_name, .WIP {

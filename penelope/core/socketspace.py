@@ -168,10 +168,41 @@ class KanbanNamespace(BaseNamespace, BoardMixin):
                           'summary': ticket.summary})
         self.emit("backlog", {"value": tasks})
 
+    def viewable_tracs(self, board):
+        all_tracs = DBSession().query(Trac)
+        viewable_tracs = []
+
+        if board.projects:
+            for project in board.projects:
+                for trac in project.tracs:
+                    viewable_tracs.append(trac)
+        else:
+            # a list of tracs user can view:
+            if not self.request.has_permission('manage', None):
+                user_projects = [g.project for g in self.request.authenticated_user.groups]
+                for project in user_projects:
+                    for trac in project.tracs:
+                        viewable_tracs.append(trac)
+            else:
+                viewable_tracs = all_tracs
+
+        query = """SELECT DISTINCT '%(trac)s' AS trac_name
+                   FROM "trac_%(trac)s".permission
+                   WHERE username IN ('internal_developer', '%(user)s')"""
+
+        queries = []
+        for trac in viewable_tracs:
+            queries.append(query % {'trac': trac.trac_name,
+                                    'user': self.request.authenticated_user.email})
+        sql = '\nUNION '.join(queries)
+        sql += ';'
+        return DBSession().execute(sql).fetchall()
+
     def find_tickets(self, board):
-        viewable_projects = board.projects or self.request.filter_viewables(DBSession.query(Project).filter(Project.active).order_by('name'))
-        viewable_project_ids = [p.id for p in viewable_projects]
-        all_tracs = DBSession.query(Trac).join(Project).filter(Project.active).filter(Trac.project_id.in_(viewable_project_ids))
+        viewable_tracs = [t.trac_name for t in self.viewable_tracs(board)]
+        all_tracs = DBSession.query(Trac).join(Project).filter(Project.active).filter(Trac.trac_name.in_(viewable_tracs))
+        if all_tracs.count() == 0:
+            return []
         where =  board.backlog_query or "owner='%s' AND status!='closed'" % self.request.authenticated_user.email
         query = """SELECT DISTINCT '%(trac)s' AS trac_name,
                                 '%(project)s' AS project,
@@ -191,6 +222,7 @@ class KanbanNamespace(BaseNamespace, BoardMixin):
                                 WHERE %(where)s
                                 GROUP BY ticket.id, customerrequest.value
                                 """
+        #WHERE %(where)s AND tp.username in ('internal_developer', '%(user)s')
         queries = []
         for trac in all_tracs:
             queries.append(query % {'trac': trac.trac_name,
