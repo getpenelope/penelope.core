@@ -58,7 +58,7 @@ class TicketRenderer(fields.IntegerFieldRenderer):
 
         try:
             ticket_data = ticket_store.get_ticket(request, te.project_id, te.ticket)
-        except xmlrpclib.Fault:
+        except (xmlrpclib.Fault, xmlrpclib.Error):
             ticket_data = None
 
         if ticket_data:

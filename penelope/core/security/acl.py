@@ -243,10 +243,10 @@ gsm.registerAdapter(GenericRoles, (Interface, IUser), IRoleFinder)
 
 
 class DublincoreRelatedRoles(GenericRoles):
-    def get_roles(self):
+    def __init__(self, context, user):
+        super(DublincoreRelatedRoles, self).__init__(context, user)
         if getattr(self.context, 'author', None) == self.user:
             self.roles.add('owner')
-        return self.roles
 
 gsm.registerAdapter(DublincoreRelatedRoles, (IDublinCore, IUser), IRoleFinder)
 

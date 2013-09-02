@@ -1,7 +1,8 @@
-2.1 (unreleased)
+2.0.3 (unreleased)
 ----------------
 
-- Nothing changed yet.
+- make sure xmlrpc is handling dns errors [amleczko]
+- fix owner role bug [amleczko]
 
 
 2.0.2 (2013-09-02)
