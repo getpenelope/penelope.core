@@ -1,5 +1,5 @@
-2.0.2 (unreleased)
-----------------
+2.0.2 (2013-09-02)
+------------------
 
 - fix problem with proxy in front of xml-rpc protocol [amleczko]
 - hide gevent-psycopg2 for a moment [amleczko]
