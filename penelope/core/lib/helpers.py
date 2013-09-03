@@ -121,8 +121,10 @@ def unicodelower(obj):
     """
     Case insensitive sort key.
     """
-    return unicode(obj).lower()
-
+    try:
+        return unicode(obj, errors='ignore').lower()
+    except TypeError:
+        return unicode(obj).lower()
 
 
 def listwrap(obj):
