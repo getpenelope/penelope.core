@@ -44,7 +44,8 @@
         <a class="page-meta" href="${request.application_url}/admin/Project">See all projects</a>
       </h2>
     </div>
-    <div tal:repeat="project my_projects" class="span2">
+    <tal:project tal:repeat="project my_projects">
+    <div class="span2">
       <div class="widget wlightblue" 
         tal:define="trac_apps list(project.tracs);
                     customer project.customer;
@@ -54,14 +55,13 @@
           <div class="project">
             <a href="${request.application_url}/admin/Project/${project.id}">${project.name}</a>
           </div>
-          <div class="customer">
-            from <a href="${request.application_url}/admin/Customer/${customer.id}">${customer.name}</a>
-          </div>
-          <div class="clearfix"></div>
+        </div>
+        <div class="widget-head customer" style="background-color:#${customer.color}">
+            <a href="${request.application_url}/admin/Customer/${customer.id}">${customer.name}</a>
         </div>
         <div class="widget-foot" 
              tal:condition="applications"
-             tal:define="applications request.filter_viewables(project.applications)">
+             tal:define="applications request.filter_viewables(project.dashboard_apps())">
 
             <tal:application repeat="application applications">
                 <a class="btn btn-app ${application.get_color()} btn-mini"
@@ -71,12 +71,18 @@
                   <i class="${icon}"></i>
                 </a>
             </tal:application> 
+                <a class="btn btn-app btn-primary btn-mini"
+                  rel="tooltip" title="Tekken"
+                  href="${request.application_url}/admin/Project/${project.id}//customer_requests">
+                  <i class="icon-trello"></i>
+                </a>
+            <div class="clearfix"></div>
             <span class="outstanding-tickets" tal:condition="trac_uri" data-trac-uri="${trac_uri}"><span>
-
             </div>
           </div>
         </div>
-
+      <div tal:condition="not repeat.project.number%6" class="clearfix"></div>
+      </tal:project>
   </div>
 
 </body>

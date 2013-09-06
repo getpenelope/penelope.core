@@ -17,8 +17,8 @@
 
 .outstanding-tickets {
  /* float: left;
-  padding-top: 6px;*/
-  padding-left: 5px;
+  padding-top: 6px;
+  padding-left: 5px;*/
 }
 
 .outstanding-tickets .badge {
@@ -64,12 +64,22 @@ li .spark{
     margin-right: 20px;
 }
 
-.widget-head .customer {
-  font-size: 11px;
+.widget .widget-head.customer {
+  font-size: 12px;
+  padding-top: 2px;
+  padding-bottom: 2px;
+}
+
+.outstanding-tickets .btn.btn-app.btn-mini {
+  width: 30px;
+  font-size: 12px;
+  border-radius: 5px;
+  padding-bottom: 1px;
+  padding-top: 1px;
 }
 
 .btn.btn-app.btn-mini {
-  width: 50px;
+  width: 45px;
   font-size: 15px;
   border-radius: 5px;
   padding-bottom: 7px;

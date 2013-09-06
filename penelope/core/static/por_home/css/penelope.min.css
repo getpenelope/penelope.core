@@ -7,36 +7,36 @@
 }
 
 .widget hr{
-	margin: 4px 0px;
-	padding: 4px 0px;
-	border-top: 0px;
-	border-bottom: 1px solid #ddd;
+  margin: 4px 0px;
+  padding: 4px 0px;
+  border-top: 0px;
+  border-bottom: 1px solid #ddd;
 }
 
 .widget .table{
-	margin: 0px;
-	width: 100%;
+  margin: 0px;
+  width: 100%;
 }
 
 .widget .table-bordered{
-	border: 0px;
+  border: 0px;
 }
 
 .widget .table-bordered th{
-	border-bottom: 1px solid #ccc !important;
+  border-bottom: 1px solid #ccc !important;
 }
 
 .widget .table-bordered td{
-	border-top: 0px !important;
-	border-bottom: 1px solid #ccc !important;
+  border-top: 0px !important;
+  border-bottom: 1px solid #ccc !important;
 }
 
 .widget .table-bordered td:first-child, .widget .table-bordered th:first-child{
-	border-left: 0px;
+  border-left: 0px;
 }
 
 .widget .padd{
-	padding: 15px;
+  padding: 15px;
 }
 
 .widget .widget-head{
@@ -55,22 +55,22 @@
 }
 
 .widget .widget-head .widget-icons i{
-	font-size: 14px;
-	margin: 0px 4px;
+  font-size: 14px;
+  margin: 0px 4px;
 }
 
 .widget .widget-head .widget-icons a{
-	color: #aaa;
+  color: #aaa;
 }
 
 .widget .widget-head .widget-icons a:hover{
-	color: #888;
+  color: #888;
 }
 
 .widget .widget-content{
-	border-left: 1px solid #ddd;
-	border-right:1px solid #ddd;
-	border-bottom: 1px solid #ddd;
+  border-left: 1px solid #ddd;
+  border-right:1px solid #ddd;
+  border-bottom: 1px solid #ddd;
 }
 
 .widget .widget-foot{
@@ -91,8 +91,8 @@
 }
 
 .widget.wlightblue .widget-head{
-  background-color: #52b9e9;
-  border: 1px solid #52b9e9;
+  background-color: #444444;
+  border: 0px;
   color: #fff;
 }
 
@@ -126,7 +126,7 @@
 .widget.worange .widget-head .widget-icons a,
 .widget.wgreen .widget-head .widget-icons a,
 .widget.wviolet .widget-head .widget-icons a{
-	color: #fff;
+  color: #fff;
 }
 
 .widget.wred .widget-head .widget-icons a:hover,
@@ -135,21 +135,21 @@
 .widget.worange .widget-head .widget-icons a:hover,
 .widget.wgreen .widget-head .widget-icons a:hover,
 .widget.wviolet .widget-head .widget-icons a:hover{
-	color: #eee;
+  color: #eee;
 }
 
 /* Widget white extras */
 
 .widget .nav-tabs > li a {
-   	padding: 5px 10px;
+    padding: 5px 10px;
 }
 
 .widget .nav-tabs {
-	margin-bottom: 5px;
+  margin-bottom: 5px;
 }
 
 .widget .tab-content{
-	margin-bottom: 10px;
+  margin-bottom: 10px;
 }
 
 .page-meta{
@@ -213,39 +213,39 @@
 
 
 .blightblue{
-	background:#52b9e9 !important;
-	color: #fff !important;
-	border: 0px !important;
+  background:#52b9e9 !important;
+  color: #fff !important;
+  border: 0px !important;
 }
 
 .bblue{
-	background:#1171a3 !important;
-	color: #fff !important;	
-	border: 0px !important;
+  background:#1171a3 !important;
+  color: #fff !important; 
+  border: 0px !important;
 }
 
 .bgreen{
-	background: #43c83c !important;
-	color: #fff !important;	
-	border: 0px !important;
+  background: #43c83c !important;
+  color: #fff !important; 
+  border: 0px !important;
 }
 
 .borange{
-	background:#f88529 !important;
-	color: #fff !important;	
-	border: 0px !important;	
+  background:#f88529 !important;
+  color: #fff !important; 
+  border: 0px !important; 
 }
 
 .bred{
-	background: #fa3031 !important;
-	color: #fff !important;	
-	border: 0px !important;
+  background: #fa3031 !important;
+  color: #fff !important; 
+  border: 0px !important;
 }
 
 .bviolet{
-	background: #932ab6 !important;
-	color: #fff !important;	
-	border: 0px !important;
+  background: #932ab6 !important;
+  color: #fff !important; 
+  border: 0px !important;
 }
 
 .blightblue h2,.blightblue h3, .blightblue h3, .blightblue h4, .blightblue h5, .blightblue h6,
@@ -254,7 +254,7 @@
 .bred h2,.bred h3, .bred h3, .bred h4, .bred h5, .bred h6,
 .bviolet h2,.bviolet h3, .bviolet h3, .bviolet h4, .bviolet h5, .bviolet h6,
 .borange h2,.borange h3, .borange h3, .borange h4, .borange h5, .borange h6{
-	color: #fff !important;
+  color: #fff !important;
 }
  
 .blightblue a,
@@ -263,7 +263,7 @@
 .bred a,
 .borange a,
 .bviolet a{
-	color: #fff !important;
+  color: #fff !important;
   text-decoration: none;
 }
 
@@ -273,31 +273,31 @@
 .bred a:hover,
 .borange a:hover,
 .bviolet a:hover{
-	color: #ddd !important;
+  color: #ddd !important;
 }
 
 /* Text colors */
 
 .lightblue{
-	color:#52b9e9 !important;
+  color:#52b9e9 !important;
 }
 
 .blue{
-	color:#1171a3 !important;
+  color:#1171a3 !important;
 }
 
 .green{
-	color: #43c83c !important;
+  color: #43c83c !important;
 }
 
 .orange{
-	color:#f88529 !important;
+  color:#f88529 !important;
 }
 
 .red{
-	color: #fa3031 !important;
+  color: #fa3031 !important;
 }
 
 .violet{
-	color: #932ab6 !important;
+  color: #932ab6 !important;
 }

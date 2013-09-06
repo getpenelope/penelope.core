@@ -277,6 +277,10 @@ class Customer(dublincore.DublinCore, Base):
             raise AttributeError('Duplicated project name. %s already exists' % project.name)
         self.projects.append(project)
 
+    @property
+    def color(self):
+        return hashlib.md5(self.name).hexdigest()[:6]
+
 
 def new_customer_created(mapper, connection, target):
     target.id = idnormalizer.normalize(target.name)
@@ -366,6 +370,10 @@ class Project(dublincore.DublinCore, Base):
     def project(self):
         "compatibility with IProjectRelated"
         return self
+
+    def dashboard_apps(self):
+        """ return only svn and trac """
+        return [a for a in self.applications if a.application_type in [TRAC, SVN]]
 
     def add_application(self, application):
         if [app for app in self.applications if app.name == application.name]:

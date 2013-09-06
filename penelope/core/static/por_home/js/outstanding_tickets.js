@@ -50,7 +50,7 @@ $(document).ready(function() {
         }
 
         if (tickets.length) {
-            $badge = $('<span class="badge ' + cls + '" style="cursor:pointer">')
+            $badge = $('<span class="btn btn-mini btn-app btn-info ' + cls + '" style="cursor:pointer">')
                         .text(tickets.length)
                         .attr({
                             'title': title,
