@@ -101,11 +101,22 @@ class KanbanNamespace(BaseNamespace, BoardMixin):
 
     def on_board_changed(self, data):
         # cleanup data - make sure we will not save empty tasks
+        self.emit_to_board_not_me(self.board, "columns", {"value": data})
         for col in data:
             to_remove = []
+            try:
+                del col['$$hashKey'] # angular id that shouldn't be stored
+            except KeyError:
+                pass
             for n, task in enumerate(col['tasks']):
+                if not task:
+                    continue
                 if not 'id' in task:
                     to_remove.append(n)
+                try:
+                    del task['$$hashKey'] # angular id that shouldn't be stored
+                except KeyError:
+                    pass
             to_remove.reverse()
             for n in to_remove:
                 col['tasks'].pop(n)
@@ -113,7 +124,6 @@ class KanbanNamespace(BaseNamespace, BoardMixin):
         with transaction.manager:
             board = DBSession().query(KanbanBoard).get(self.board)
             board.json = dumps(data)
-            self.emit_to_board_not_me(self.board, "columns", {"value": data})
 
     def on_get_backlog(self, data):
         board = DBSession().query(KanbanBoard).get(self.board)
