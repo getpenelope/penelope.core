@@ -123,3 +123,24 @@ float: none; /* this is the part that makes it work */
   margin-left: 3px;
   font-weight: 600;
 }
+/*
+ul.kanban {
+  overflow-x: auto;
+  white-space: nowrap;
+  margin: 0;
+  width: 100%;
+  overflow-y: hidden;
+}
+ul.kanban li[class*="span"] {
+  display: inline-table;
+  float: none;
+  width: 240px;
+  margin-left: 25px;    
+  vertical-align: top;
+}
+.kanban ul.task_pool {
+  height: 500px;
+  overflow-y: auto;
+  white-space: normal;
+}
+*/

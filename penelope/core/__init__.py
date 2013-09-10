@@ -20,6 +20,7 @@ except ImportError:
 def main(global_config, **settings):
     """ This function returns a Pyramid WSGI application.
     """
+    settings['mail.port'] = int(settings['mail.port'])
     globalreg = getGlobalSiteManager()
     set_cache_regions_from_settings(settings)
     config = Configurator(registry=globalreg)
