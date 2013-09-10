@@ -990,7 +990,7 @@ class KanbanBoard(dublincore.DublinCore, Base):
     id = Column(Integer, primary_key=True)
     name = Column(Unicode, nullable=False)
     json = Column(Unicode)
-    backlog_query = Column(Unicode)
+    backlog_query = Column(Unicode, nullable=False)
     backlog_limit = Column(Integer, default=10, nullable=False)
     backlog_order = Column(Unicode, nullable=False)
     author = relationship(User,

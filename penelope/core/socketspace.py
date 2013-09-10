@@ -203,7 +203,7 @@ class KanbanNamespace(BaseNamespace, BoardMixin):
         all_tracs = DBSession.query(Trac).join(Project).filter(Project.active).filter(Trac.trac_name.in_(viewable_tracs))
         if all_tracs.count() == 0:
             return []
-        where =  board.backlog_query or "owner='%s' AND status!='closed'" % self.request.authenticated_user.email
+        where =  board.backlog_query
         query = """SELECT DISTINCT '%(trac)s' AS trac_name,
                                 '%(project)s' AS project,
                                 '%(customer)s' AS customer,
