@@ -1,14 +1,15 @@
-import json
+#import json
 import string
 
+import mandrill
 from pyramid.httpexceptions import HTTPForbidden
 from pyramid.httpexceptions import HTTPFound
 from pyramid.i18n import TranslationStringFactory
 from pyramid.security import authenticated_userid
 from pyramid.security import remember, forget
 from pyramid.view import view_config
-from pyramid_mailer import get_mailer
-from pyramid_mailer.message import Message
+#from pyramid_mailer import get_mailer
+#from pyramid_mailer.message import Message
 from pyramid_skins import SkinObject
 from random import choice
 from sqlalchemy.orm.exc import NoResultFound
@@ -105,18 +106,33 @@ def password_reset(request):
         token = None
 
     if token:
-#        settings = request.registry.settings
-        mailer = get_mailer(request)
-        headers = {"header": u'Password reset',
-                   "message": u'Please click on the link bellow to reset your penelope account\'s password.',
-                   "link": '%s/change_password?token=%s' % (request.application_url, token),
-                   "action": 'Reset password'}
-        message = Message(subject=u"Password reset request",
-                          recipients=[email],
-                          body=u'Password reset',
-                          extra_headers={'X-MC-Template': 'general',
-                                         'X-MC-MergeVars': json.dumps(headers)})
-        mailer.send(message)
+        settings = request.registry.settings
+        mandrill_client = mandrill.Mandrill(settings['mail.password'])
+
+        from_addr = settings['mail.default_sender']
+        params = {"header": u'Password reset',
+                  "message": u'Please click on the link bellow to reset your penelope account\'s password.',
+                  "link": '%s/change_password?token=%s' % (request.application_url, token),
+                  "action": 'Reset password'}
+        merged_params = []
+        for k,v in params.items():
+            merged_params.append({'name': k, 'content':v})
+
+        message = {'auto_html': None,
+                   'auto_text': None,
+                   'from_email': from_addr,
+                   'from_name': 'RedTurtle Team',
+                   'headers': {'Reply-To': from_addr},
+                   'important': True,
+                   'inline_css': True,
+                   'global_merge_vars': merged_params,
+                   'subject': u"Password reset request",
+                   'to': [{'email': email}],
+                   }
+        mandrill_client.messages.send_template(template_name='general',
+                                               template_content=[],
+                                               message=message)
+
     return {'request': request, 'token': token}
 
 
