@@ -279,7 +279,7 @@ class Customer(dublincore.DublinCore, Base):
 
     @property
     def color(self):
-        return hashlib.md5(self.name).hexdigest()[:6]
+        return hashlib.md5(self.name.encode('ut8','ignore')).hexdigest()[:6]
 
 
 def new_customer_created(mapper, connection, target):
