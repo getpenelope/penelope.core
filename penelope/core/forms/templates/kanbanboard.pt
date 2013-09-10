@@ -72,7 +72,7 @@
                     <div class="header_name">
                       <button class="btn btn-mini btn-danger pull-right" title="Remove column" ng-disabled="column.tasks.length>0"
                         ng-click="removeColumn($index)">
-                        <i class="icon-remove-sign icon-white"></i>
+                        <i class="icon-trash icon-white"></i>
                       </button>
                       <a xeditable tal:condition="draggable"
                          data-ng-model="column.title"

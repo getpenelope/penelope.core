@@ -123,6 +123,11 @@ float: none; /* this is the part that makes it work */
   margin-left: 3px;
   font-weight: 600;
 }
+
+ul.kanban .header_name .btn-mini {
+  font-size: 15px;
+}
+
 /*
 ul.kanban {
   overflow-x: auto;
