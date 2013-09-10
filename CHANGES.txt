@@ -2,6 +2,7 @@
 ------------------
 
 - handle sorting gracefully [amleczko]
+- fix smtp port [amleczko]
 
 
 2.0.3 (2013-09-02)
