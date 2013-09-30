@@ -160,7 +160,6 @@ class QualityProject(Quality):
     def __call__(self, parser, namespace, values, option_string):
         super(QualityProject, self).__call__(parser, namespace, values, option_string)
         session = DBSession()
-        import pdb; pdb.set_trace()
         with open(namespace.filename, 'wb') as ofile:
             writer = csv.writer(ofile, dialect='excel')
             writer.writerow(['Project ID', 'Customer', 'Project creation year',
