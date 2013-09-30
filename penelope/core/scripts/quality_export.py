@@ -160,6 +160,7 @@ class QualityProject(Quality):
     def __call__(self, parser, namespace, values, option_string):
         super(QualityProject, self).__call__(parser, namespace, values, option_string)
         session = DBSession()
+        import pdb; pdb.set_trace()
         with open(namespace.filename, 'wb') as ofile:
             writer = csv.writer(ofile, dialect='excel')
             writer.writerow(['Project ID', 'Customer', 'Project creation year',
@@ -316,9 +317,9 @@ def main():
     parser.set_defaults(year=DEFAULT_YEAR)
 
     parser.add_argument('configuration', action='store', help='path to the wsgi configuration ini file.')
+    parser.add_argument('year', help='Report year. (default %s)' % DEFAULT_YEAR, action='store', type=int)
     #parser.add_argument('--filename', help='path to the output CSV file.')
     parser.add_argument('--google', help='google folder id.')
-    parser.add_argument('--year', help='Report year. (default %s)' % DEFAULT_YEAR, type=int)
     parser.add_argument('--project', nargs=0, action=QualityProject, help='generate project quality report.')
     parser.add_argument('--cr', nargs=0, action=QualityCR, help='generate customer request quality report.')
     parser.add_argument('--ticket', nargs=0, action=QualityTicket, help='generate ticket quality report.')
