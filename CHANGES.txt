@@ -2,6 +2,7 @@
 ------------------
 
 - switch to mandrill API [amleczko]
+- remove backlog from main menu [amleczko]
 
 
 2.0.4 (2013-09-10)

@@ -74,11 +74,6 @@
                     <tal:translate i18n:translate="label_scheduling">scheduling</tal:translate>
                   </a>
                 </li>
-                <li tal:condition="request.has_permission('view_backlog', None)">
-                  <a href="${request.application_url}/backlog">
-                    <tal:translate i18n:translate="label_backlog">backlog</tal:translate>
-                  </a>
-                </li>
                 <li>
                   <a href="${request.application_url}/admin/Project">
                     <tal:translate i18n:translate="label_projects">projects</tal:translate>
