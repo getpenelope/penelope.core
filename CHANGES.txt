@@ -1,8 +1,9 @@
-2.0.5 (unreleased)
+2.1 (unreleased)
 ------------------
 
 - switch to mandrill API [amleczko]
 - remove backlog from main menu [amleczko]
+- refactoring contracts [amleczko]
 
 
 2.0.4 (2013-09-10)

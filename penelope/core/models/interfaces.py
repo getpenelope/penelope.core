@@ -66,7 +66,7 @@ class ITicketStore(Interface):
     def get_requests_from_tickets(self, project, ticket_ids, request=None):
         """ """
 
-    def get_tickets_for_request(self, customer_request, limit=None, request=None):
+    def get_tickets_for_request(self, customer_request, limit=None):
         """ """
 
 class IUser(IPorModel, IManageView):

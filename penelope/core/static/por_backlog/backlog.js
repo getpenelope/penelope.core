@@ -4,9 +4,6 @@
 $(document).ready(function(){
     "use strict";
 
-    var placement_classes = {'0': 'important', '1': 'warning', '2': 'success'},
-        placement_descr = {'0': 'Backlog', '1': 'Grooming', '2': 'Board'};
-
     var format_duration = function(secs) {
         var days = secs / 60 / 60 / 8;
         return (Math.round(days*100)/100).toFixed(2);
@@ -54,44 +51,6 @@ $(document).ready(function(){
         }
     };
 
-    var update_placement;
-
-    var placement_onclick = function(ev) {
-        var $tr = $(this).closest('tr'),
-            cr_id = $tr.data('cr-id'),
-            current_placement = parseInt($tr.data('placement'), 10),
-            next_placement = (current_placement + 1) % 3;
-
-        $.ajax({
-            type: 'POST',
-            async: true,
-            url: '/change_cr_placement',
-            data: 'cr_id='+cr_id+'&placement='+next_placement,
-            cache: false
-        }).done(function(data, textStatus, jqHXR) {
-            $tr.data('placement', data.placement);
-            update_placement($tr);
-        }).fail(function(jqXHR) {
-            console.error('could not change CR state');
-        });
-    };
-
-    update_placement = function update_placement($tr) {
-        var placement = $tr.data('placement'),
-            $span = $('<span>').addClass('label label-' + placement_classes[placement] + ' backlog-placement-trigger').text(placement_descr[placement]);
-
-        if ($tr.data('cr-editable')) {
-            $span.click(placement_onclick);
-        }
-
-        $tr.find('td:nth-child(1)').empty().append($span);
-    };
-
-    // fill 'placement' column
-    $('[data-placement]').each(function() {
-                                    update_placement($(this));
-    });
-
     // fill duration 'estimate' column
     $('[data-duration-estimate]').each(function() {
                             var secs = parseInt($(this).data('duration-estimate'), 10),
@@ -115,11 +74,9 @@ $(document).ready(function(){
 
     // checks if a given row is selected from the main filter
     var check_filter = function($tr) {
-        var $chk_placement = $('#placement_'+$tr.data('placement')),
-            $chk_workflow = $('#workflow_'+$tr.data('workflow-state')),
+        var $chk_workflow = $('#workflow_'+$tr.data('workflow-state')),
             $chk_contract = $('#contract').val() === $tr.data('contract');
         return (
-                  (($chk_placement.length===0) || $chk_placement.is(':checked')) &&
                   (($chk_workflow.length===0) || $chk_workflow.is(':checked')) && 
                   ($chk_contract)
         );

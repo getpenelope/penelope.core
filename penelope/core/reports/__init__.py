@@ -54,6 +54,13 @@ def project_tree(context, request):
                                 }
                             for cr in p.customer_requests
                             ],
+                        'contracts': [
+                            {
+                                'id': str(co.id),
+                                'name': co.name,
+                                }
+                            for co in p.contracts
+                            ],
                         }
                     for p in c.projects if p in all_projects
                     ]

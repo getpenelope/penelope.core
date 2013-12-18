@@ -257,13 +257,10 @@ class ProjectSidebarRenderer(SidebarRenderer):
         project = self.context.project
         for cr in sorted(project.customer_requests, key=unicodelower):
             if only_active:
-                if cr.placement != cr.PLACEMENT_BOARD or cr.workflow_state != 'estimated':
+                if cr.workflow_state != 'estimated':
                     continue
-            if cr.placement == cr.PLACEMENT_BOARD:
-                icon = 'icon-cog'
-            else:
-                icon = 'icon-time'
 
+            icon = 'icon-time'
             self.crs.append(SidebarAction('cr_%s' % cr.id,
                                           content=literal(u'<i class="%s"></i> %s' % (icon, cr)),
                                           permission='view',

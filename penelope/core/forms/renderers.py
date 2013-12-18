@@ -2,7 +2,6 @@
 
 from datetime import timedelta
 from simplejson import dumps
-import xmlrpclib
 
 from webhelpers.html import HTML, literal
 from formalchemy import helpers as h
@@ -26,23 +25,6 @@ def _query_options(L):
 fields._query_options = _query_options
 
 
-def grooming_label_renderer(renderer=fields.SelectFieldRenderer):
-    class Renderer(renderer):
-        def render_readonly(self, options=None, **kwargs):
-            if self.raw_value == CustomerRequest.PLACEMENT_BACKLOG:
-                return h.literal(u'<span class="label label-important">Backlog</span>')
-            elif self.raw_value == CustomerRequest.PLACEMENT_GROOMING:
-                return h.literal(u'<span class="label label-warning">Grooming</span>')
-            elif self.raw_value == CustomerRequest.PLACEMENT_BOARD:
-                return h.literal(u'<span class="label label-success">Board</span>')
-            else:
-                return h.literal(self.raw_value)
-
-        def render(self, **kwargs):
-            return h.select(self.name, self.value, [('Backlog', '0'), ('Grooming', '1'), ('Board', '2')], **kwargs)
-
-    return Renderer
-
 class UrlRenderer(fields.TextFieldRenderer):
     def render_readonly(self, **kwargs):
         return HTML.A(self.value, href=self.value, target="_blank")
@@ -56,10 +38,7 @@ class TicketRenderer(fields.IntegerFieldRenderer):
         if not request.has_permission('view', te.project):
             return '#%s' % te.ticket
 
-        try:
-            ticket_data = ticket_store.get_ticket(request, te.project_id, te.ticket)
-        except (xmlrpclib.Fault, xmlrpclib.Error):
-            ticket_data = None
+        ticket_data = ticket_store.get_ticket(te.project_id, te.ticket)
 
         if ticket_data:
             ticket_id, dummy_time, dummy_changetime, tkt = ticket_data

@@ -10,14 +10,13 @@ from pyramid.request import Request
 from pyramid.i18n import TranslationStringFactory
 from pyramid.view import view_config
 from pyramid.security import has_permission
-from pyramid.httpexceptions import HTTPForbidden
 
 from penelope.core import fanstatic_resources, messages
 from penelope.core.interfaces import IBreadcrumbs, IPorRequest, ISidebar
 from penelope.core.lib.htmlhelpers import get_application_link
 from penelope.core.security import acl
 
-from penelope.core.models import DBSession, CustomerRequest, Project, KanbanBoard
+from penelope.core.models import DBSession, Project, KanbanBoard
 from penelope.core.models.interfaces import IProjectRelated
 
 
@@ -206,18 +205,3 @@ def view_navbar(request):
         return {'trac':trac.group('trac')}
     else:
         return {}
-
-
-@view_config(name='change_cr_placement', renderer='json', permission='view_home', request_method='POST')
-def change_cr_placement(self, request):
-    cr_id = request.POST['cr_id']
-    cr = DBSession.query(CustomerRequest).get(cr_id)
-    if not request.has_permission('edit', cr):
-        raise HTTPForbidden()
-
-    placement = int(request.POST['placement'])
-    cr.placement = placement
-    return {
-            'msg': 'CR %s: placement changed to %s' % (cr_id, cr.placement_str),
-            'placement': placement,
-            }

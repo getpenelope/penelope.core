@@ -11,7 +11,9 @@
    initial_state="created">
 
    <state name="created"></state>
-   <state name="estimated"></state>
+   <state name="estimated"
+          callback="penelope.core.forms.workflow.validate_cr_unachieving">
+   </state>
    <state name="achieved"></state>
    <state name="invoiced"></state>
 

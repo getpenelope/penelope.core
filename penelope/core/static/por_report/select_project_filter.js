@@ -53,6 +53,7 @@ $(document).ready(function (ev) {
     var $customer = $('.customer-select', this).closest('select');
     var $project = $('.project-select', this).closest('select');
     var $cr = $('.customer-request-select', this).closest('select');
+    var $contract = $('.contract-select', this).closest('select');
 
     // retrieves the customer-project-request data
     $.ajax({
@@ -64,6 +65,7 @@ $(document).ready(function (ev) {
                      var customer_value = $customer.val();
                      var projects = [];
                      var customer_requests = [];
+                     var contracts = [];
                      $.each(customers, function (i, c) {
                                           // if customer is empty, you might want to display all projects instead of none:
                                           // if (customer_value==='' || customer_value===c.id) {
@@ -74,10 +76,12 @@ $(document).ready(function (ev) {
 
                      $.each(projects, function (i, p) {
                                           customer_requests.push.apply(customer_requests, p.customer_requests);
+                                          contracts.push.apply(contracts, p.contracts);
                                       });
 
                      fill_select($project, projects);
                      fill_select($cr, customer_requests);
+                     fill_select($contract, contracts);
                  });
 
 
@@ -86,21 +90,25 @@ $(document).ready(function (ev) {
                      var project_value = $project.val();
                      var customer_value = $customer.val();
                      var customer_requests = [];
+                     var contracts = [];
                      $.each(customers, function (i, c) {
                                             $.each(c.projects, function (i, p) {
                                                 if ((project_value==='' && (customer_value==='' || customer_value===c.id)) || project_value===p.id) {
                                                     customer_requests.push.apply(customer_requests, p.customer_requests);
+                                                    contracts.push.apply(contracts, p.contracts);
                                                 }
                                             });
                                       });
 
                      fill_select($cr, customer_requests);
+                     fill_select($contract, contracts);
                  });
 
 
                  // apply filtering to pre-populated form
 
                  $customer.trigger('change');
+                 $project.trigger('change');
 
              }
     });

@@ -22,10 +22,10 @@ from penelope.core.lib.helpers import ticket_url, unicodelower, timeentry_url, R
 from penelope.core.lib.widgets import SearchButton, PorInlineForm
 from penelope.core.reports import fields
 from penelope.core.reports.favourites import render_saved_query_form
-from penelope.core.reports.queries import qry_active_projects, te_filter_by_customer_requests, NullCustomerRequest, filter_users_with_timeentries
+from penelope.core.reports.queries import qry_active_projects, te_filter_by_customer_requests, filter_users_with_timeentries, te_filter_by_contracts
 from penelope.core.reports.validators import validate_period
 
-from penelope.core.models import DBSession, Project, TimeEntry, User, CustomerRequest
+from penelope.core.models import DBSession, Project, TimeEntry, User, CustomerRequest, Contract
 from penelope.core.models.tickets import ticket_store
 from penelope.core.models.tp import timedelta_as_human_str
 
@@ -44,6 +44,7 @@ class CustomerReport(object):
 
         project_id = fields.project_id.clone()
         customer_requests = fields.customer_requests.clone()
+        contracts = fields.contracts.clone()
         date_from = fields.date_from.clone()
         date_to = fields.date_to.clone()
         users = fields.users.clone()
@@ -78,7 +79,7 @@ class CustomerReport(object):
         return value
 
 
-    def search(self, customer_id, project_id, date_from, date_to,
+    def search(self, customer_id, project_id, date_from, date_to, contracts,
                users, customer_requests, workflow_states, detail_level, render_links=True):
 
         # also search archived projects, if none are specified
@@ -105,6 +106,8 @@ class CustomerReport(object):
 
         qry = qry.filter(te_filter_by_customer_requests(customer_requests, request=self.request))
 
+        qry = qry.filter(te_filter_by_contracts(contracts))
+
         qry = qry.order_by(sa.desc(TimeEntry.date), sa.desc(TimeEntry.start), sa.desc(TimeEntry.creation_date))
 
         time_entries = self.request.filter_viewables(qry)
@@ -127,56 +130,41 @@ class CustomerReport(object):
         for project_id, ticket_ids in proj_tickets.items():
             project = DBSession.query(Project).get(project_id)
             projectsmap[project_id] = dict(ticket_store.get_requests_from_tickets(
-                                            project, tuple(ticket_ids), request=self.request))
+                                            project, tuple(ticket_ids)))
 
         tkts = {}
         for project_id, ticket_ids in proj_tickets.items():
             project = DBSession.query(Project).get(project_id)
-            for tkt in ticket_store.get_tickets_for_project(project, request=self.request):
+            for tkt in ticket_store.get_tickets_for_project(project):
                 tkts[(project_id, tkt['id'])] = tkt
 
         rows = []
 
-        cr_get = DBSession.query(CustomerRequest).get
-
         for te in time_entries:
-            if te.ticket is None:
-                rendered_request = NullCustomerRequest().name
-                ticket_type = '-'
-                ticket_summary = '-'
+            customer_request = te.customer_request
+            if render_links:
+                rendered_request = HTML.A(customer_request.name.strip(),
+                                            href="%s/admin/CustomerRequest/%s" % (
+                                                self.request.application_url,
+                                                customer_request.id
+                                                )
+                                            )
             else:
-                cr_id = projectsmap[te.project_id].get(te.ticket)
-                if not cr_id:
-                    continue
+                rendered_request = customer_request.name.strip()
 
-                customer_request = cr_get(cr_id)
-                if customer_request:
-                    if render_links:
-                        rendered_request = HTML.A(customer_request.name.strip(),
-                                                  href="%s/admin/CustomerRequest/%s" % (
-                                                      self.request.application_url,
-                                                      customer_request.id
-                                                      )
-                                                  )
-                    else:
-                        rendered_request = customer_request.name.strip()
-                else:
-                    rendered_request = NullCustomerRequest().name
+            tkt = tkts[(te.project_id, te.ticket)]
 
+            ticket_type = tkt['type']
+            ticket_summary = tkt['summary']
+            if render_links:
+                ticket_summary = HTML.A(ticket_summary,
+                                        href=ticket_url(request=self.request,
+                                                        project=te.project,
+                                                        ticket_id=te.ticket))
 
-                tkt = tkts[(te.project_id, te.ticket)]
-
-                ticket_type = tkt['type']
-                ticket_summary = tkt['summary']
-                if render_links:
-                    ticket_summary = HTML.A(ticket_summary,
-                                            href=ticket_url(request=self.request,
-                                                            project=te.project,
-                                                            ticket_id=te.ticket))
-
-                description = HTML.A(te.description,
-                                     href=timeentry_url(request=self.request,
-                                                        time_entry=te))
+            description = HTML.A(te.description,
+                                    href=timeentry_url(request=self.request,
+                                                    time_entry=te))
 
 
             entry = {
@@ -302,11 +290,12 @@ class CustomerReport(object):
         projects = self.request.filter_viewables(qry_active_projects())
 
         # select customers that have some active project
-        customers = self.request.filter_viewables(sorted(set(p.customer for p in projects), key=unicodelower))
+        customers = sorted(set(p.customer for p in projects), key=unicodelower)
 
         users = DBSession.query(User).order_by(User.fullname)
         users = filter_users_with_timeentries(users)
-        customer_requests = self.request.filter_viewables(DBSession.query(CustomerRequest).order_by(CustomerRequest.name))
+        customer_requests = DBSession.query(CustomerRequest).order_by(CustomerRequest.name)
+        contracts = DBSession.query(Contract).order_by(Contract.name)
 
         form = PorInlineForm(schema,
                              formid='report-customer',
@@ -332,12 +321,8 @@ class CustomerReport(object):
         # don't validate as it might be an archived project
 
         form['users'].widget.values = [(str(u.id), u.fullname) for u in users]
-        # XXX the following validator is broken
-        form['users'].validator = colander.OneOf([str(u.id) for u in users])
-
         form['customer_requests'].widget.values = [(str(c.id), c.name) for c in customer_requests]
-        # XXX the following validator is broken
-        form['customer_requests'].validator = colander.OneOf([str(c.id) for c in customer_requests])
+        form['contracts'].widget.values = [(str(c.id), c.name) for c in contracts]
 
         controls = self.request.GET.items()
 

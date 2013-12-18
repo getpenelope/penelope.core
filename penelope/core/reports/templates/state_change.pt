@@ -78,7 +78,7 @@
                 ${row['invoice_number']}
               </td>
               <td>
-                <span class="${'statechange-done' if row['id'] in done_contract else 'statechange-error' if row['id'] in errors else nothing}">
+                <span class="${'statechange-done' if row['id'] in done_cr else 'statechange-error' if row['id'] in errors else nothing}">
                   ${row['contract']}
                 </span>
               </td>
@@ -105,12 +105,16 @@
                 value="${ws[0]}">${ws[1]}</option>
       </select>
       <script>$('#new_state').chosen()</script>
-      <select id="new_contract" name="new_contract" class="i-can-haz-chzn-select">
-        <option value="">Choose a new contract...</option>
-        <option tal:repeat="contract all_contracts"
-                value="${contract[0]}">${contract[1]}</option>
+      <select id="new_cr" name="new_cr" class="i-can-haz-chzn-select">
+        <option value="">Choose a new customer request...</option>
+        <tal:contracts repeat="contract contracts">
+            <optgroup label="${contract.name}">
+              <option tal:repeat="cr contract.customer_requests"
+                      value="${cr.id}">${cr.name}</option>
+            </optgroup>
+        </tal:contracts>
       </select>
-      <script>$('#new_contract').chosen()</script>
+      <script>$('#new_cr').chosen()</script>
 
       <input type="text"
              name="invoice_number"

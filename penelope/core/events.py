@@ -10,10 +10,11 @@ from pyramid.i18n import TranslationStringFactory
 from pyramid.security import has_permission
 from pyramid_formalchemy import events
 from sqlalchemy.util import OrderedDict
+from sqlalchemy import or_
 from zope.interface import Interface
 
 from penelope.core import PROJECT_ID_BLACKLIST
-from penelope.core.forms.renderers import grooming_label_renderer, UrlRenderer
+from penelope.core.forms.renderers import UrlRenderer
 from penelope.core.forms.renderers import TicketRenderer
 from penelope.core.lib.fa_fields import BigTextAreaFieldRenderer
 from penelope.core.models import DBSession
@@ -283,7 +284,6 @@ def before_contract_render(context, event):
     if not fs._render_fields.keys():
         fs.configure(readonly=fs.readonly)
     del fs._render_fields['project']
-    del fs._render_fields['time_entries']
     del fs._render_fields['customer_requests']
 
 
@@ -342,8 +342,20 @@ def before_customerrequest_editrender(context, event):
     fs.description.set(renderer=RichTextFieldRenderer(use='tinymce', theme='simple'))
     fs.append(fs.name.required())
     del fs._render_fields['project']
-    q = DBSession().query(fs.contract.relation_type()).filter_by(project_id=context.project_id).order_by('name')
+
+    if context.active:
+        q = DBSession().query(fs.contract.relation_type())\
+                       .filter_by(project_id=context.project_id)\
+                       .filter(or_(fs.contract.relation_type().workflow_state=='draft',
+                                   fs.contract.relation_type().workflow_state=='active'))\
+                       .order_by('name')
+    else:
+        q = DBSession().query(fs.contract.relation_type())\
+                       .filter_by(project_id=context.project_id)\
+                       .order_by('name')
+
     fs.contract.render_opts['options'] = _query_options(q)
+
     [fs.append(fs._render_fields.pop(a)) for a in fs._render_fields if a != 'name']
 
 
@@ -353,11 +365,12 @@ def before_customerrequest_render(context, event):
     fs = event.kwargs['fs']
     if not fs._render_fields.keys():
         fs.configure(readonly=fs.readonly)
-    fs.placement.set(renderer=grooming_label_renderer())
     del fs._render_fields['estimations']
+    del fs._render_fields['time_entries']
     del fs._render_fields['uid']
     del fs._render_fields['project_id']
-    if not event.request.has_permission('contract', context):
+    safe_project = DBSession().query(fs.project.relation_type()).get(context.project_id)
+    if not event.request.has_permission('add_contract', safe_project):
         del fs._render_fields['contract']
     if fs.readonly:
         fs.append(Field('estimation_days', type=fatypes.Float))
@@ -408,8 +421,8 @@ def before_timeentry_edit_render(context, event):
     del fs._render_fields['end']
     del fs._render_fields['tickettype']
 
-    q = DBSession().query(fs.contract.relation_type()).filter_by(project_id=context.project_id).order_by('name')
-    fs.contract.render_opts['options'] = _query_options(q)
+    q = DBSession().query(fs.customer_request.relation_type()).filter_by(project_id=context.project_id).order_by('name')
+    fs.customer_request.render_opts['options'] = _query_options(q)
     #remove location required validator
     if not fs.location.value:
         fs.location.model.location = u'RedTurtle'

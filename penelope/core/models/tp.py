@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import xmlrpclib
-
 from copy import deepcopy
 from zope.interface import implements
 from sqlalchemy import Column
@@ -16,7 +14,7 @@ from sqlalchemy import event
 from sqlalchemy.orm import relationship, backref
 
 from penelope.core.models.dublincore import dublincore_insert, dublincore_update, DublinCore
-from penelope.core.models import Base, DBSession, CustomerRequest
+from penelope.core.models import Base, CustomerRequest
 from penelope.core.models import workflow, classproperty
 from penelope.core.models.tickets import ticket_store
 from penelope.core.models.interfaces import ITimeEntry, IProjectRelated
@@ -43,8 +41,8 @@ class TimeEntry(DublinCore, workflow.Workflow, Base):
     tickettype = Column(String(25))
     invoice_number = Column(String(10))
 
-    contract_id = Column(String, ForeignKey('contracts.id'), index=True, nullable=True)
-    contract = relationship('Contract', uselist=False, backref=backref('time_entries', order_by=id))
+    customer_request_id = Column(String, ForeignKey('customer_requests.id'))
+    customer_request = relationship(CustomerRequest, backref=backref('time_entries'))
 
     project_id = Column(String, ForeignKey('projects.id'), index=True, nullable=False)
     project = relationship('Project', uselist=False, backref=backref('time_entries', order_by=id))
@@ -89,6 +87,10 @@ class TimeEntry(DublinCore, workflow.Workflow, Base):
         return self.plaintext_description
 
     @property
+    def contract(self):
+        return self.customer_request.contract
+
+    @property
     def plaintext_description(self):
         return self.description or ''
 
@@ -102,7 +104,7 @@ class TimeEntry(DublinCore, workflow.Workflow, Base):
 
     def get_ticket(self, request=None):
         request = request or getattr(self, 'request', None)
-        return ticket_store.get_ticket(request, self.project_id, self.ticket)
+        return ticket_store.get_ticket(self.project_id, self.ticket)
 
     def get_ticket_summary(self, request=None):
         ticket = self.get_ticket(request)
@@ -111,17 +113,10 @@ class TimeEntry(DublinCore, workflow.Workflow, Base):
 
 
 def new_te_created(mapper, connection, target):
-    try:
-        trac_ticket = target.get_ticket()
-    except xmlrpclib.Error:
-        pass
-    else:
-        if trac_ticket:
-            target.tickettype = trac_ticket[3]['type']
-            contract_id = DBSession().query(CustomerRequest)\
-                                     .get(trac_ticket[3]['customerrequest'])\
-                                     .contract_id
-            target.contract_id = contract_id
+    trac_ticket = target.get_ticket()
+    if trac_ticket:
+        target.tickettype = trac_ticket[3]['type']
+        target.customer_request_id = trac_ticket[3]['customerrequest']
 
 
 event.listen(TimeEntry, "before_insert", new_te_created)

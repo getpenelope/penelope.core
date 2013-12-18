@@ -26,7 +26,7 @@ def timeentry_crstate_validation_errors(project_id, tickets, request):
 
     project = DBSession.query(Project).get(project_id)
 
-    customer_requests = ticket_store.get_requests_from_tickets(project, tickets, request=request)
+    customer_requests = ticket_store.get_requests_from_tickets(project, tickets)
 
     for ticket_id, cr_id in customer_requests:
         cr = DBSession.query(CustomerRequest).get(cr_id)
@@ -168,7 +168,7 @@ def get_project_by_id(request, project_id):
                                     {
                                         'id': cr.id,
                                         'name': cr.name,
-                                        'active': cr.placement == cr.PLACEMENT_BOARD
+                                        'active': True
                                     }
                                     for cr in project.customer_requests
                                     ]

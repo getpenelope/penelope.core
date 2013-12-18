@@ -2,8 +2,7 @@
 
 import sqlalchemy as sa
 
-from penelope.core.models import DBSession, Project, CustomerRequest, TimeEntry
-from penelope.core.models.tickets import ticket_store
+from penelope.core.models import DBSession, Project, TimeEntry, CustomerRequest
 
 
 class NullCustomerRequest(object):
@@ -37,14 +36,10 @@ def te_filter_by_customer_requests(customer_requests, request):
     if not customer_requests:
         return sa.text('1=1')
 
-    cr_get = DBSession.query(CustomerRequest).get
-
-    selected_tickets = []
-    for cr_id in customer_requests or []:
-        cr = cr_get(cr_id)
-        selected_tickets.extend((cr.project_id, tkt['id']) for tkt in
-                ticket_store.get_tickets_for_request(customer_request=cr, request=request))
-
-    return sa.and_(sa.sql.tuple_(TimeEntry.project_id, TimeEntry.ticket).in_(selected_tickets))
+    return TimeEntry.customer_request_id.in_(customer_requests)
 
 
+def te_filter_by_contracts(contracts):
+    # get customer requests for contracts
+    customer_requests = DBSession().query(CustomerRequest.id).filter(CustomerRequest.contract_id.in_(contracts))
+    return te_filter_by_customer_requests(customer_requests, None)

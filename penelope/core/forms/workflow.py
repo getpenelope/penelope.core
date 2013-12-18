@@ -48,3 +48,8 @@ def validate_contract_done(content, info):
     """ raise WorkflowError when contract has active CustomerRequests. """
     if [a for a in content.customer_requests if a.active]:
         raise WorkflowError(u'Contract cannot be closed - there are customer requests still open.')
+
+
+def validate_cr_unachieving(content, info):
+    if not content.contract.active:
+        raise WorkflowError(u'Workflow cannot be changed - related contract is closed.')

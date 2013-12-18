@@ -42,14 +42,6 @@
   float: left;
 }
 
-tr[data-cr-editable] .backlog-placement-trigger {
-  cursor: pointer;
-}
-
-.bgb-container .col-placement {
-  width: 6em;
-}
-
 .bgb-container .col-customer-request {
   width: auto;
 }

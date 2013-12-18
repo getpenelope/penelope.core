@@ -22,7 +22,7 @@ def add_customer(session, name):
     return model
 
 def add_customer_request(session, name, project_id):
-    model = CustomerRequest(name=name, project_id=project_id, placement=CustomerRequest.PLACEMENT_BOARD)
+    model = CustomerRequest(name=name, project_id=project_id)
     session.add(model)
     return model
 

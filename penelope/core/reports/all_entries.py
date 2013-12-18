@@ -13,12 +13,12 @@ from deform.widget import SelectWidget
 from pyramid.httpexceptions import HTTPForbidden
 from pyramid.view import view_config
 
-from penelope.core.models import DBSession, Project, TimeEntry, User, CustomerRequest
+from penelope.core.models import DBSession, Project, TimeEntry, User, CustomerRequest, Contract
 from penelope.core.models.tickets import ticket_store
 from penelope.core import fanstatic_resources
 from penelope.core.lib.helpers import ticket_url, unicodelower, total_seconds
 from penelope.core.lib.widgets import SearchButton, PorInlineForm
-from penelope.core.reports.queries import qry_active_projects, te_filter_by_customer_requests, NullCustomerRequest, filter_users_with_timeentries
+from penelope.core.reports.queries import qry_active_projects, te_filter_by_customer_requests, filter_users_with_timeentries, te_filter_by_contracts
 from penelope.core.reports.validators import validate_period
 from penelope.core.reports.favourites import render_saved_query_form
 from penelope.core.reports import fields
@@ -73,6 +73,7 @@ class AllEntriesReport(object):
         date_from = fields.date_from.clone()
         date_to = fields.date_to.clone()
         users = fields.users.clone()
+        contracts = fields.contracts.clone()
         customer_requests = fields.customer_requests.clone()
 
         groupbyfirst = SchemaNode(colander.String(),
@@ -105,7 +106,7 @@ class AllEntriesReport(object):
 
 
     def search(self, customer_id, project_id, date_from, date_to,
-               users, customer_requests, groupbyfirst):
+               users, customer_requests, groupbyfirst, contracts):
 
         # also search archived projects, if none are specified
         qry = DBSession.query(TimeEntry).join(TimeEntry.project).join(Project.customer).outerjoin(TimeEntry.author)
@@ -141,6 +142,8 @@ class AllEntriesReport(object):
 
         qry = qry.filter(te_filter_by_customer_requests(customer_requests, request=self.request))
 
+        qry = qry.filter(te_filter_by_contracts(contracts))
+
         rows = []
 
         id_tree = IDTree()
@@ -167,23 +170,13 @@ class AllEntriesReport(object):
             if not self.request.has_permission('reports_all_entries_for_project', project):
                 continue
             projectsmap[project_id] = dict(ticket_store.get_requests_from_tickets(
-                                            project, tuple(ticket_ids), request=self.request))
-
-        cr_get = DBSession.query(CustomerRequest).get
-
-        nullcr = NullCustomerRequest()
+                                            project, tuple(ticket_ids)))
 
         for te in time_entries:
-            if te.ticket is None:
-                customer_request = nullcr
-            else:
-                if not self.request.has_permission('reports_all_entries_for_project', te.project):
-                    continue
-                cr_id = projectsmap[te.project_id].get(te.ticket)
-                if not cr_id:
-                    continue
-                customer_request = cr_get(cr_id) or nullcr
+            if not self.request.has_permission('reports_all_entries_for_project', te.project):
+                continue
 
+            customer_request = te.customer_request
             entry = {
                         'customer': te.project.customer.name.strip(),
                         'project': te.project.name.strip(),
@@ -217,11 +210,12 @@ class AllEntriesReport(object):
                 ]
 
         # select customers that have some active project
-        customers = self.request.filter_viewables(sorted(set(p.customer for p in projects), key=unicodelower))
+        customers = sorted(set(p.customer for p in projects), key=unicodelower)
 
         users = DBSession.query(User).order_by(User.fullname)
         users = filter_users_with_timeentries(users)
-        customer_requests = self.request.filter_viewables(DBSession.query(CustomerRequest).order_by(CustomerRequest.name))
+        customer_requests = DBSession.query(CustomerRequest).order_by(CustomerRequest.name)
+        contracts = DBSession.query(Contract).order_by(Contract.name)
 
         form = PorInlineForm(schema,
                              formid='all_entries',
@@ -236,12 +230,8 @@ class AllEntriesReport(object):
         # don't validate as it might be an archived project
 
         form['users'].widget.values = [(str(u.id), u.fullname) for u in users]
-        # XXX the following validator is broken
-        form['users'].validator = colander.OneOf([str(u.id) for u in users])
-
         form['customer_requests'].widget.values = [(str(c.id), c.name) for c in customer_requests]
-        # XXX the following validator is broken
-        form['customer_requests'].validator = colander.OneOf([str(c.id) for c in customer_requests])
+        form['contracts'].widget.values = [(str(c.id), c.name) for c in contracts]
 
         controls = self.request.GET.items()
 

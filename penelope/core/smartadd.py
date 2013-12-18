@@ -62,7 +62,6 @@ class SmartAdd(object):
             project = DBSession.query(Project).get(parser.project_id)
             tickets = ticket_store.get_tickets_for_project(
                             project=project,
-                            request=self.request,
                             query=query,
                             not_invoiced=True,
                             limit=15)
@@ -92,8 +91,7 @@ class SmartAdd(object):
                 return [
                         t['id']
                         for t in ticket_store.get_tickets_for_project(project=project,
-                                                                      not_invoiced=True,
-                                                                      request=self.request)
+                                                                      not_invoiced=True)
                         ]
 
         parser = SmartAddParser(unicode(self.request.body, 'utf8', 'ignore'),
@@ -127,7 +125,7 @@ class SmartAdd(object):
             DBSession.add(te)
             # retrieve ticket descriptions (another trip to the store..)
             ticket_summaries.append(
-                    '#%s (%s)' % (te.ticket, ticket_store.get_ticket(self.request, te.project_id, te.ticket)[3]['summary'])
+                    '#%s (%s)' % (te.ticket, ticket_store.get_ticket(te.project_id, te.ticket)[3]['summary'])
                 )
 
         return Response(u'Added to ticket(s) %s' % ', '.join(ticket_summaries))

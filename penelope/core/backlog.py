@@ -55,7 +55,7 @@ class Backlog(object):
     def fetch_done(self, projects):
         cr_done = collections.defaultdict(lambda: datetime.timedelta(0))
         for project in projects:
-            ticket_crs = ticket_store.get_all_ticket_crs(project, self.request)
+            ticket_crs = ticket_store.get_all_ticket_crs(project)
             sql = sa.text("""
                           SELECT ticket, hours
                             FROM time_entries
@@ -99,9 +99,6 @@ class Backlog(object):
         # Permissions
         #------------
 
-        # enables backlog/grooming/board checkboxes, show customer request's placement
-        can_view_placement = True
-
         can_view_done = collections.defaultdict(bool)
         can_view_done_column = False
 
@@ -128,18 +125,15 @@ class Backlog(object):
 
             for cr in project.customer_requests:
                 if self.request.has_permission('edit', cr):
-                    # let the user change the CR placement
+                    # let the user change the CR
                     can_edit_cr[cr] = True
 
         return {
             'bgbs': bgbs,
             'unicodelower': unicodelower,
             'multiple_bgb': True,
-            'cr_placements': [('0', 'Backlog', 'important'), ('1', 'Grooming', 'warning'), ('2', 'Board', 'success')],
-            'cr_placements_active': set(['1', '2']),
             'cr_workflow_states': cr_workflow_states,
-            'cr_workflow_active': set(['created', 'estimated']),
-            'can_view_placement': can_view_placement,
+            'cr_workflow_active': set(['created', 'estimated', 'achieved', 'invoiced']),
             'can_view_percentage': can_view_percentage,
             'can_view_percentage_column': can_view_percentage_column,
             'can_view_done': can_view_done,

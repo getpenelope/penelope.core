@@ -25,9 +25,15 @@ project_id =SchemaNode(typ=colander.String(),
 
 customer_requests = SchemaNode(deform.Set(allow_empty=True),
                                widget=ChosenMultipleWidget(css_class='customer-request-select',
-                                                           placeholder=u'Select requests'),
+                                                           placeholder=u'Select customer requests'),
                                missing=colander.null,
                                title=u'')
+
+contracts = SchemaNode(deform.Set(allow_empty=True),
+                       widget=ChosenMultipleWidget(css_class='contract-select',
+                                                   placeholder=u'Select contract'),
+                       missing=colander.null,
+                       title=u'')
 
 date_from = SchemaNode(typ=colander.Date(),
                        widget=deform.widget.DateInputWidget(size=11,

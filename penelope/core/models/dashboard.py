@@ -732,12 +732,9 @@ class CustomerRequest(dublincore.DublinCore, workflow.Workflow, Base):
     __acl__.allow('role:internal_developer', 'edit')
     #contract view/edit
     __acl__.allow('role:secretary', 'contract')
+    __acl__.allow('role:project_manager', 'contract')
     #delete
     __acl__.allow('role:project_manager', 'delete')
-
-    PLACEMENT_BACKLOG = 0
-    PLACEMENT_GROOMING = 1
-    PLACEMENT_BOARD = 2
 
     id = Column(String, primary_key=True)
     uid = Column(Integer)
@@ -745,7 +742,6 @@ class CustomerRequest(dublincore.DublinCore, workflow.Workflow, Base):
     description = deferred(Column(Unicode))
     project_id = Column(String, ForeignKey('projects.id'))
     project = relationship(Project, uselist=False, backref=backref('customer_requests'))
-    placement = Column(Integer, nullable=False, server_default=str(PLACEMENT_BOARD))
     contract_id = Column(String, ForeignKey('contracts.id'))
     contract = relationship(Contract, uselist=False, backref=backref('customer_requests'))
     old_contract_name = Column(Unicode)
@@ -762,11 +758,11 @@ class CustomerRequest(dublincore.DublinCore, workflow.Workflow, Base):
 
     @hybrid_property
     def active(self):
-        return (self.workflow_state == 'estimated')
+        return (self.workflow_state == 'estimated' or self.workflow_state == 'created')
 
     def get_tickets(self, request=None):
         from penelope.core.models.tickets import ticket_store
-        return ticket_store.get_tickets_for_request(customer_request=self, request=request or self.request)
+        return ticket_store.get_tickets_for_request(customer_request=self)
 
     def add_ticket_url(self, request):
         for trac in self.project.tracs:
@@ -795,28 +791,11 @@ class CustomerRequest(dublincore.DublinCore, workflow.Workflow, Base):
         return sum([a.days for a in self.estimations], float())
 
     @property
-    def placement_str(self):
-        return {
-                self.PLACEMENT_BACKLOG: 'Backlog',
-                self.PLACEMENT_GROOMING: 'Grooming',
-                self.PLACEMENT_BOARD: 'Board',
-                }.get(self.placement, '???')
-
-    @property
-    def placement_class(self):
-        return {
-                self.PLACEMENT_BACKLOG: 'important',
-                self.PLACEMENT_GROOMING: 'warning',
-                self.PLACEMENT_BOARD: 'success',
-                }.get(self.placement, '')
-
-    @property
     def timeentries_days(self):
         from penelope.core.models.tp import TimeEntry
         from penelope.core.lib.helpers import timedelta_as_work_days
         from penelope.core.models.tickets import ticket_store
-        request = get_current_request()
-        tickets = ticket_store.get_tickets_for_request(customer_request=self, request=request)
+        tickets = ticket_store.get_tickets_for_request(customer_request=self)
         ticket_ids = [a['id'] for a in tickets]
         timeentries = DBSession().query(TimeEntry)\
                                  .filter_by(project_id = self.project_id)\
