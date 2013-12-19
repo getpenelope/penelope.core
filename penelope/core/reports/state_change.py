@@ -26,10 +26,10 @@ log = logging.getLogger(__name__)
 
 
 class StateChangeReport(object):
+
     def __init__(self, context, request):
         self.context = context
         self.request = request
-
 
     class StateChangeSchema(colander.MappingSchema):
         customer_id = fields.customer_id.clone()
@@ -42,7 +42,6 @@ class StateChangeReport(object):
         customer_requests = fields.customer_requests.clone()
         workflow_states = fields.workflow_states.clone()
         invoice_number = fields.invoice_number.clone()
-
 
     def search(self, customer_id, project_id, date_from, date_to,
                users, customer_requests, invoice_number, workflow_states, contracts):
@@ -73,9 +72,7 @@ class StateChangeReport(object):
             qry = qry.filter(TimeEntry.workflow_state.in_(workflow_states))
 
         qry = qry.filter(te_filter_by_customer_requests(customer_requests, request=self.request))
-
         qry = qry.filter(te_filter_by_contracts(contracts))
-
         qry = qry.order_by(sa.desc(TimeEntry.date), sa.desc(TimeEntry.start), sa.desc(TimeEntry.creation_date))
 
         time_entries = self.request.filter_viewables(qry)
@@ -85,14 +82,6 @@ class StateChangeReport(object):
             if te.ticket is None:
                 continue
             proj_tickets[te.project_id].add(te.ticket)
-
-        # projectsmap = {
-        #    'project_id': {
-        #         'ticket_id': 'customer_request_id',
-        #         ...
-        #    },
-        #    ...
-        # }
 
         projectsmap = {}
         for project_id, ticket_ids in proj_tickets.items():
@@ -144,9 +133,7 @@ class StateChangeReport(object):
                 'entries_tree': entries_tree,
                 }
 
-
-
-    def state_contract_change(self):
+    def state_cr_change(self):
         new_state = self.request.POST['new_state']
         new_cr = self.request.POST['new_cr']
         invoice_number = self.request.POST['invoice_number']
@@ -185,7 +172,7 @@ class StateChangeReport(object):
         done_cr = set()
         errors = {}
         if self.request.POST:
-            done_state, done_cr, errors = self.state_contract_change()
+            done_state, done_cr, errors = self.state_cr_change()
             if done_state:
                 self.request.add_message('State changed for %d time entries.' % len(done_state))
             if done_cr:
@@ -237,7 +224,7 @@ class StateChangeReport(object):
             return {
                     'form': form.render(),
                     'saved_query_form': render_saved_query_form(self.request),
-		    'qs':'',
+                    'qs':'',
                     'result_table': '',
                     }
 
@@ -247,7 +234,7 @@ class StateChangeReport(object):
             return {
                     'form': e.render(),
                     'saved_query_form': render_saved_query_form(self.request),
-		    'qs':'',
+                    'qs':'',
                     'result_table': '',
                     }
 
@@ -276,7 +263,30 @@ class StateChangeReport(object):
         return {
                 'form': form.render(appstruct=appstruct),
                 'saved_query_form': render_saved_query_form(self.request),
-		'qs': self.request.query_string,
+                'qs': self.request.query_string,
                 'result_table': result_table,
                 }
 
+
+class UpdateTimeEntries(object):
+
+    def __init__(self, context, request):
+        self.context = context
+        self.request = request
+
+    @view_config(name='update_te_cr', route_name='reports', renderer='skin', permission='reports_state_change')
+    def __call__(self):
+        te_ids = set(int(s[3:])
+                     for s, checkbox_state in self.request.POST.iteritems()
+                     if s.startswith('te_') and checkbox_state=='on')
+        tes = DBSession.query(TimeEntry).filter(TimeEntry.id.in_(te_ids))
+        new_state = self.request.POST.get('new_state', None)
+        new_cr = self.request.POST.get('new_cr', None)
+        if new_cr:
+            new_cr = DBSession.query(CustomerRequest).get(new_cr)
+
+        return {'back_url': '%s/reports/report_state_change?%s' % (self.request.application_url, self.request.query_string),
+                'post': self.request.POST.items(),
+                'tes': tes,
+                'new_state': new_state,
+                'new_cr': new_cr}

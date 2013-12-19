@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en"
+      xmlns:tal="http://xml.zope.org/namespaces/tal"
+      metal:use-macro="skin: /main_template">
+<body>
+
+    <div metal:fill-slot="container" tal:omit-tag="">
+
+      <div class="page-header">
+          <h3>Time entries update confirmation</h3>
+      </div>
+
+      <div class="row-fluid">
+        <div class="span12 well">
+        You are about to change:
+          <li tal:condition="new_state">state to <strong>${new_state}</strong></li>
+          <li tal:condition="new_cr">customer request to <strong>${new_cr.name}</strong></li>
+        <br/>for the following time entries:
+        <ol>
+        <tal:tes repeat="te tes">
+        <li><a href="/admin/TimeEntry/${te.id}">${te.description}</a> [${te.customer_request.name}] [${te.workflow_state}]</li>
+        </tal:tes>
+        </ol>
+        </div>
+      </div>
+      <div class="row-fluid">
+        <div class="span12 well">
+          <form action="${back_url}" method="POST">
+            <tal:hidden repeat="item post">
+              <input type="hidden" name="${item[0]}" value="${item[1]}">
+            </tal:hidden>
+            <button class="btn btn-small btn-success" type="submit" value="state_change" name="submit">
+               <i class="icon-white icon-ok"></i>Confirm
+            </button>
+            <a href="${back_url}" class="btn btn-small btn-warning">Go back</a>
+          </form>
+        </div>
+      </div>
+    </div>
+
+</body>
+</html>

@@ -10,8 +10,7 @@
     No time entries found
   </h3>
 
-  <form tal:condition="entries_tree"
-        action="${request.url}" method="POST">
+  <form tal:condition="entries_tree"  action="/reports/update_te_cr?${request.query_string}" method="POST">
 
     <tal:customer_request repeat="customer_request sorted(entries_tree, key=lambda x:x.name.lower())">
       <h3>
