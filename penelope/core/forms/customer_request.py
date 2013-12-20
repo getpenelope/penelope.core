@@ -232,14 +232,36 @@ class CustomerRequestModelView(ModelView):
         return self.render(**opts)
 
     def do_migrate(self):
+        from penelope.core.models.tickets import ticket_store
+
         context = self.context.get_instance()
         te_ids = self.request.POST.getall('te')
         new_cr = self.request.POST.get('new_cr')
         tes = DBSession().query(tp.TimeEntry).filter(tp.TimeEntry.id.in_(te_ids))
-        for n, te in enumerate(tes):
+        if self.request.POST.get('submit') == u'move_time_entries_and_tickets':
+            update_tickets = True
+        else:
+            update_tickets = False
+
+        n_te = 0
+        n_ticket = 0
+
+        tickets = set()
+        for te in tes:
             te.customer_request_id = new_cr
-        n += 1
-        self.request.add_message('%d time entries moved.' % n)
+            tickets.add(te.ticket)
+            n_te += 1
+
+        if update_tickets:
+            author = self.request.authenticated_user.email
+            for ticket in tickets:
+                t = ticket_store.get_raw_ticket(context.project_id, ticket)
+                t['customerrequest'] = new_cr
+                t.save_changes(comment=u'Massive move operation from Penelope.', author=author)
+                n_ticket += 1
+            self.request.add_message('%d ticket updated.' % n_ticket)
+
+        self.request.add_message('%d time entries moved.' % n_te)
         raise exc.HTTPFound(location=self.request.fa_url('CustomerRequest', context.id))
 
     def put_estimations(self):

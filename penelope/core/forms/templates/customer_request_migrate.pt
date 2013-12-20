@@ -47,10 +47,13 @@
 
           </table>
           <div class="well">
-            <button class="btn btn-small btn-success" type="submit" value="state_change" name="submit">
-                  <i class="icon-white icon-ok"></i>Confirm
-            </button>
             <a href="${back_url}" class="btn btn-small btn-warning">Go back</a>
+            <button class="btn btn-small btn-success" type="submit" value="move_time_entries" name="submit">
+                  <i class="icon-white icon-forward"></i>Move time entries
+            </button>
+            <button class="btn btn-small btn-success" type="submit" value="move_time_entries_and_tickets" name="submit">
+                  <i class="icon-white icon-forward"></i>Move time entries and tickets
+            </button>
           </div>
         </form>
         <script>

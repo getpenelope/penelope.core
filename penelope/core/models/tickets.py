@@ -28,6 +28,20 @@ class TicketStore(object):
                 except TracError:
                     return None
 
+    def get_raw_ticket(self, project_id, ticket_id):
+        from penelope.core.models.dashboard import Project
+        project = DBSession().query(Project).get(project_id)
+        if project:
+            settings = get_current_registry().settings
+            tracenvs = settings.get('penelope.trac.envs')
+            for trac in project.tracs:
+                tracenv = Environment('%s/%s' % (tracenvs, trac.trac_name))
+                tracenv.abs_href.base = trac.api_uri
+                try:
+                    return Ticket(tracenv, ticket_id)
+                except TracError:
+                    return None
+
     def get_tickets_for_project(self, project, query=None, limit=None, not_invoiced=False):
 
         def queryWithDetails(env, qstr='status!=closed'):
