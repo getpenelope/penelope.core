@@ -40,6 +40,9 @@ def te_filter_by_customer_requests(customer_requests, request):
 
 
 def te_filter_by_contracts(contracts):
+    if not contracts:
+        return sa.text('1=1')
+
     # get customer requests for contracts
     customer_requests = DBSession().query(CustomerRequest.id).filter(CustomerRequest.contract_id.in_(contracts))
     return te_filter_by_customer_requests(customer_requests, None)

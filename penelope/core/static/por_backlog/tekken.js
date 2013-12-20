@@ -101,7 +101,6 @@ google.setOnLoadCallback(function() {
     // update the tekken bar
     var update_tekken = function() {
         var totals = update_project_totals($('.bgb-project-header'));
-        console.log(totals);
         tekkendata.setValue(0, 0, totals.total_done);
         tekkendata.setValue(0, 1, totals.total_estimate);
         tekkendata.setValue(0, 2, totals.total_filler);

@@ -54,20 +54,20 @@ $(document).ready(function(){
     // fill duration 'estimate' column
     $('[data-duration-estimate]').each(function() {
                             var secs = parseInt($(this).data('duration-estimate'), 10),
-                                $duration = $(this).find('td:nth-child(4)');
+                                $duration = $(this).find('td:nth-child(3)');
                             fill_duration($duration, secs);
     });
 
     // fill duration 'done' column
     $('[data-duration-done]').each(function() {
                             var secs = parseInt($(this).data('duration-done'), 10),
-                                $duration = $(this).find('td:nth-child(5)');
+                                $duration = $(this).find('td:nth-child(4)');
                             fill_duration($duration, secs);
     });
-    // fill duration 'done' column
+    // fill duration 'percentage' column
     $('[data-duration-percentage]').each(function() {
                             var secs = parseInt($(this).data('duration-percentage'), 10),
-                                $duration = $(this).find('td:nth-child(6)');
+                                $duration = $(this).find('td:nth-child(5)');
                             fill_percentage($duration, secs);
     });
 
