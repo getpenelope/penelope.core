@@ -262,7 +262,7 @@ class CustomerRequestModelView(ModelView):
             self.request.add_message('%d ticket updated.' % n_ticket)
 
         self.request.add_message('%d time entries moved.' % n_te)
-        raise exc.HTTPFound(location=self.request.fa_url('CustomerRequest', context.id))
+        raise exc.HTTPFound(location=self.request.fa_url('CustomerRequest', context.id, 'migrate'))
 
     def put_estimations(self):
         self.request.model_class = dashboard.Estimation
