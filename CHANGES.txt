@@ -1,5 +1,5 @@
-2.1 (unreleased)
-------------------
+2.1 (2013-12-20)
+----------------
 
 - switch to mandrill API [amleczko]
 - remove backlog from main menu [amleczko]
