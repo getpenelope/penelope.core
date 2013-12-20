@@ -10,7 +10,8 @@ from fa.bootstrap import actions
 from penelope.core.forms import ModelView
 from penelope.core.forms import workflow
 from penelope.core.forms.fast_ticketing import FastTicketing
-from penelope.core.models import dashboard
+from penelope.core.lib.helpers import ticket_url
+from penelope.core.models import dashboard, tp, DBSession
 
 
 def configurate(config):
@@ -84,6 +85,23 @@ def configurate(config):
                                   renderer='penelope.core.forms:templates/customer_request_tickets.pt',
                                   view=CustomerRequestModelView)
 
+    config.formalchemy_model_view('admin',
+                                  request_method='GET',
+                                  permission='edit',
+                                  name='migrate',
+                                  attr='migrate',
+                                  model='penelope.core.models.dashboard.CustomerRequest',
+                                  renderer='penelope.core.forms:templates/customer_request_migrate.pt',
+                                  view=CustomerRequestModelView)
+
+    config.formalchemy_model_view('admin',
+                                  request_method='POST',
+                                  permission='edit',
+                                  name='migrate',
+                                  attr='do_migrate',
+                                  model='penelope.core.models.dashboard.CustomerRequest',
+                                  view=CustomerRequestModelView)
+
     #custom view for adding tickets to a customerrequest
     config.formalchemy_model_view('admin',
                                   request_method='GET',
@@ -115,7 +133,12 @@ customer_request_tabs = actions.TabsActions(actions.TabAction("show",
                                             actions.TabAction("estimations",
                                                               content="Estimations",
                                                               permission='estimations',
-                                                              attrs=dict(href="request.fa_url(request.model_name, request.model_id, 'estimations')")),)
+                                                              attrs=dict(href="request.fa_url(request.model_name, request.model_id, 'estimations')")),
+                                            actions.TabAction("migrate",
+                                                              content="Migrate",
+                                                              permission='edit',
+                                                              attrs=dict(href="request.fa_url(request.model_name, request.model_id, 'migrate')")),
+                                            )
 
 customer_request_tabs_without_estimations = actions.TabsActions(actions.TabAction("show",
                                                               content="View",
@@ -124,7 +147,12 @@ customer_request_tabs_without_estimations = actions.TabsActions(actions.TabActio
                                             actions.TabAction("tickets",
                                                               content="Tickets",
                                                               permission='view',
-                                                              attrs=dict(href="request.fa_url(request.model_name, request.model_id, 'tickets')")))
+                                                              attrs=dict(href="request.fa_url(request.model_name, request.model_id, 'tickets')")),
+                                            actions.TabAction("migrate",
+                                                              content="Migrate",
+                                                              permission='edit',
+                                                              attrs=dict(href="request.fa_url(request.model_name, request.model_id, 'migrate')")),
+                                            )
 
 add_ticket = actions.UIButton(id='add_ticket',
                               content='Add ticket',
@@ -179,7 +207,7 @@ class CustomerRequestModelView(ModelView):
         jqgrid.need()
         return self.render()
 
-    @actions.action('estimations')
+    @actions.action('show')
     def tickets(self):
         """Use iframe to render tickets """
         tracs = list(self.request.model_instance.project.tracs)
@@ -189,6 +217,30 @@ class CustomerRequestModelView(ModelView):
         customer_request_id = self.request.model_instance.id
         report_url = '%s/query?customerrequest=%s&iframe=true' % (trac_url, customer_request_id)
         return self.render(report_url=report_url)
+
+    @actions.action('show')
+    def migrate(self):
+        """Massive time entry migration form"""
+        context = self.context.get_instance()
+        project = context.project
+        opts = {}
+        opts['crs'] = [cr for cr in project.customer_requests if cr.id != context.id]
+        opts['current_customer_request'] = context
+        opts['back_url'] = '%s/admin/CustomerRequest/%s' % (self.request.application_url, context.id)
+        opts['tes'] = context.time_entries
+        opts['ticket_url'] = ticket_url
+        return self.render(**opts)
+
+    def do_migrate(self):
+        context = self.context.get_instance()
+        te_ids = self.request.POST.getall('te')
+        new_cr = self.request.POST.get('new_cr')
+        tes = DBSession().query(tp.TimeEntry).filter(tp.TimeEntry.id.in_(te_ids))
+        for n, te in enumerate(tes):
+            te.customer_request_id = new_cr
+        n += 1
+        self.request.add_message('%d time entries moved.' % n)
+        raise exc.HTTPFound(location=self.request.fa_url('CustomerRequest', context.id))
 
     def put_estimations(self):
         self.request.model_class = dashboard.Estimation

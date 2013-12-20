@@ -792,15 +792,8 @@ class CustomerRequest(dublincore.DublinCore, workflow.Workflow, Base):
 
     @property
     def timeentries_days(self):
-        from penelope.core.models.tp import TimeEntry
         from penelope.core.lib.helpers import timedelta_as_work_days
-        from penelope.core.models.tickets import ticket_store
-        tickets = ticket_store.get_tickets_for_request(customer_request=self)
-        ticket_ids = [a['id'] for a in tickets]
-        timeentries = DBSession().query(TimeEntry)\
-                                 .filter_by(project_id = self.project_id)\
-                                 .filter(TimeEntry.ticket.in_(ticket_ids))
-        hours = sum([a.hours for a in timeentries], datetime.timedelta())
+        hours = sum([a.hours for a in self.time_entries], datetime.timedelta())
         return timedelta_as_work_days(hours)
 
 

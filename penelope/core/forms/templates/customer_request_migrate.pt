@@ -1,0 +1,64 @@
+<html metal:use-macro="main.macros['master']">
+  <body>
+    <div metal:fill-slot="main">
+      <li tal:replace="structure actions.tabs(request)" />
+
+        <form method="post" action="${request.current_route_url()}">
+          <h4>Move selected items bellow from</h4>
+          <div class="row-fluid">
+            <div class="span3 well"><strong>${current_customer_request}</strong>
+              <br/>
+              ${'%.2f' % current_customer_request.estimation_days} / ${'%.2f' % current_customer_request.timeentries_days} used
+            </div>
+            <div class="span1" style="padding-top: 20px;">
+              <i class="icon-forward"></i>
+            </div>
+              <div class="span4 well" >
+                  <select id="new_cr" name="new_cr" class="i-can-haz-chzn-select" data-placeholder="Choose a new customer request...">
+                    <tal:contracts repeat="cr crs">
+                      <option value="${cr.id}">${cr.name}</option>
+                    </tal:contracts>
+                  </select>
+                  <script>$('#new_cr').chosen()</script>
+              </div>
+            </div>
+
+          Select time entries to move:
+          <table class="table-condensed table">
+            <thead>
+              <th><input type="checkbox" class="check_all"> Time entry</th>
+              <th>total time</th>
+              <th>Ticket #</th>
+            </thead>
+            <tbody>
+                <tr tal:repeat="te tes">
+                  <td>
+                    <input type="checkbox" name="te" value="${te.id}">
+                    <a href="/admin/TimeEntry/${te.id}">${te.description}</a>
+                  </td>
+                  <td>
+                    ${te.hours_str}
+                  </td>
+                  <td>
+                      <a href="${ticket_url(request, te.project, te.ticket)}">#${te.ticket}</a>
+                  </td>
+                </tr>
+            </tbody>
+
+          </table>
+          <div class="well">
+            <button class="btn btn-small btn-success" type="submit" value="state_change" name="submit">
+                  <i class="icon-white icon-ok"></i>Confirm
+            </button>
+            <a href="${back_url}" class="btn btn-small btn-warning">Go back</a>
+          </div>
+        </form>
+        <script>
+          $('input.check_all').click(function() {
+             $(this).closest('form').find('input[type=checkbox]').attr('checked', $(this).is(':checked'));
+          });
+        </script>
+
+    </div>
+  </body>
+</html>
