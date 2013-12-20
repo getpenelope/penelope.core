@@ -10,7 +10,7 @@ from fa.bootstrap import actions
 from penelope.core.forms import ModelView
 from penelope.core.forms import workflow
 from penelope.core.forms.fast_ticketing import FastTicketing
-from penelope.core.lib.helpers import ticket_url
+from penelope.core.lib.helpers import ticket_url, unicodelower
 from penelope.core.models import dashboard, tp, DBSession
 
 
@@ -224,7 +224,7 @@ class CustomerRequestModelView(ModelView):
         context = self.context.get_instance()
         project = context.project
         opts = {}
-        opts['crs'] = [cr for cr in project.customer_requests if cr.id != context.id]
+        opts['crs'] = sorted([cr for cr in project.customer_requests if cr.id != context.id], key=unicodelower)
         opts['current_customer_request'] = context
         opts['back_url'] = '%s/admin/CustomerRequest/%s' % (self.request.application_url, context.id)
         opts['tes'] = context.time_entries
