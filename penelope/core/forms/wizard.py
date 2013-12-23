@@ -258,9 +258,9 @@ class CRperContracts(colander.MappingSchema):
                                                      placeholder=u'Days'),
                               missing=None,
                               title=u'')
-          ammount = SchemaNode(typ=colander.Decimal(),
+          amount = SchemaNode(typ=colander.Decimal(),
                               widget=TextInputWidget(css_class='input-mini',
-                                                     placeholder=u'Ammount in EUR'),
+                                                     placeholder=u'amount in EUR'),
                               missing=None,
                               title=u'')
           start_date = SchemaNode(typ=colander.Date(),

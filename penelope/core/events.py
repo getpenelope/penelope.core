@@ -302,12 +302,12 @@ def before_contract_editrender(context, event):
     bind_project(context, event)
     fs = event.kwargs['fs']
     fs.contract_number.set(instructions=_(u'Something like number/year'))
-    fs.ammount.set(instructions=_(u'Contract ammount in EUR'))
+    fs.amount.set(instructions=_(u'Contract amount in EUR'))
     if not fs._render_fields.keys():
         fs.configure(readonly=fs.readonly)
     fs.description.set(renderer=RichTextFieldRenderer(use='tinymce', theme='simple'))
     fs.append(fs.name.required())
-    for field in ['name', 'contract_number', 'ammount', 'days', 'start_date', 'end_date', 'description']:
+    for field in ['name', 'contract_number', 'amount', 'days', 'start_date', 'end_date', 'description']:
         fs.append(fs._render_fields.pop(field))
 
 

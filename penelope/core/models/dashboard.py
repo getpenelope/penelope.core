@@ -677,7 +677,7 @@ class Contract(dublincore.DublinCore, workflow.Workflow, Base):
     name = Column(Unicode, nullable=False)
     description = deferred(Column(Unicode))
     days = Column(Float(precision=2), nullable=False, default=0)
-    ammount = Column(Float(precision=2))
+    amount = Column(Float(precision=2))
     contract_number = Column(Unicode)
     start_date = Column(Date)
     end_date = Column(Date)

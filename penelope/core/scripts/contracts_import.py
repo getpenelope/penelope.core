@@ -144,7 +144,7 @@ def main(argv=sys.argv):
             if not contract:
                 contract = Contract(name=opts['titolocommessa'])
             contract.days = opts['gg']
-            contract.ammount = opts['amount']
+            contract.amount = opts['amount']
             contract.contract_number = opts['nrcontratto']
             contract.workflow_state = opts['stato']
             for cr in crs:
