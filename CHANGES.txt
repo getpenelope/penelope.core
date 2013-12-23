@@ -1,4 +1,4 @@
-2.1.3 (unreleased)
+2.1.3 (2013-12-23)
 ------------------
 
 - update dashboard [amleczko]
