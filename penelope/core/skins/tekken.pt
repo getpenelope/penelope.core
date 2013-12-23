@@ -3,7 +3,7 @@
   xmlns:tal="http://xml.zope.org/namespaces/tal"
   metal:use-macro="skin: /main_template">
 
-  <head metal:fill-slot="javascript">
+  <head metal:fill-slot="javascript" tal:condition="can_view_estimate_column">
     <script type="text/javascript" src="https://www.google.com/jsapi"></script>
     <script type="text/javascript">
       google.load('visualization', '1', {packages: ['corechart']});
@@ -14,7 +14,7 @@
 
     <div metal:fill-slot="body" tal-omit-tag="" tal:define="perm_edit request.has_permission('metadata', context)">
 
-      <div id="visualization" style="width: 600px; height: 100px;"></div>
+      <div id="visualization" style="width: 600px; height: 100px;" tal:condition="can_view_estimate_column"></div>
 
       <form id="tekken-filter">
         <div class="subnav">
@@ -87,7 +87,7 @@
             <td>
               <input type="checkbox" name="cr" value="${cr.id}" tal:condition="perm_edit">
               <a href="/admin/CustomerRequest/${cr.id}">${cr.name}</a>
-              <span class="badge badge-success pull-right" title="Number of tickets">${tickets}</span>
+              <span tal:condition="can_view_estimate_column" class="badge badge-success pull-right" title="Number of tickets">${tickets}</span>
               <span tal:condition="cr.filler" class="label label-inverse pull-right">Filler</span>
             </td>
             <td class="backlog-workflow">${cr.workflow_state}</td>
