@@ -1,7 +1,10 @@
 2.1.3 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- update dashboard [amleczko]
+- add fixes for wizard project form [amleczko]
+- fix security check in tekken view [amleczko]
+- update quality reports [amleczko]
 
 
 2.1.2 (2013-12-23)

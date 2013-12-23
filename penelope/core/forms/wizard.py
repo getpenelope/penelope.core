@@ -319,7 +319,7 @@ class Wizard(object):
 
         form['milestones'].widget = SequenceWidget(min_len=1)
         form['contracts'].title = ''
-        form['contracts']['customer_requests'].widget = SequenceWidget(min_len=2)
+        form['contracts']['customer_requests'].widget = SequenceWidget(min_len=3)
 
         controls = self.request.POST.items()
         if controls != []:
@@ -332,6 +332,8 @@ class Wizard(object):
 
         appstruct = {}
         appstruct['contracts'] ={'customer_requests': []}
+        appstruct['contracts']['customer_requests'].append({'ticket': True,
+                                                            'title': u'Project management'})
         appstruct['contracts']['customer_requests'].append({'ticket': True,
                                                             'title': u'Analisi'})
         appstruct['contracts']['customer_requests'].append({'ticket': True,
@@ -416,31 +418,27 @@ class Wizard(object):
                             customer_request=customer_request)
             project.add_customer_request(customer_request)
             customer_request.contract = contract
-            if not cr['ticket']:
-                continue
-            tickets += [{'summary': cr['title'],
-                        'customerrequest': customer_request,
-                        'reporter': manager.email,
-                        'type': 'task',
-                        'priority': 'major',
-                        'milestone': 'Backlog',
-                        'owner': manager.email}]
 
-        #create project management CR and tickets
-        project_management_cr = CustomerRequest(name="Project management")
-        project_management_cr.contract = contract
-        project.add_customer_request(project_management_cr)
-        project_management_tickets = PM_TICKETS
-        for summary, description in project_management_tickets.items():
-          tickets += [{ 'summary': summary,
-                        'description': description,
-                        'customerrequest': project_management_cr,
-                        'reporter': manager.email,
-                        'type': 'task',
-                        'priority': 'major',
-                        'sensitive': '1',
-                        'milestone': 'Backlog',
-                        'owner': manager.email}]
+            if cr['title'] == 'Project management':
+                for summary, description in PM_TICKETS.items():
+                    tickets += [{ 'summary': summary,
+                                  'description': description,
+                                  'customerrequest': customer_request,
+                                  'reporter': manager.email,
+                                  'type': 'task',
+                                  'priority': 'major',
+                                  'sensitive': '1',
+                                  'milestone': 'Backlog',
+                                  'owner': manager.email}]
+
+            elif cr['ticket']:
+                tickets += [{'summary': cr['title'],
+                            'customerrequest': customer_request,
+                            'reporter': manager.email,
+                            'type': 'task',
+                            'priority': 'major',
+                            'milestone': 'Backlog',
+                            'owner': manager.email}]
 
         #create google docs/folders
         for app_definition in appstruct['google_docs']:

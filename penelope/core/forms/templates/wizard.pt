@@ -10,19 +10,12 @@
     </div>
 
     <div metal:fill-slot="main">
-      <div class="alert alert-block">
-        <button type="button" class="close" data-dismiss="alert">&times;</button>
-        <h4>Warning!</h4>
-        <p>Wizard will also create "Project Management" CR with tickets:</p>
-        <ul>
-          <li>Project management</li>
-          <li>Meeting with the customer</li>
-          <li>Dev meeting</li>
-          <li>Project documentation verification</li>
-          <li>Project management in Penelope</li>
-        </ul>
-      </div>
       <div tal:replace="structure form" />
+        <script>
+          $('div.group-customer_requests input[type="checkbox"]:first').prop('disabled',true);
+          $('div.group-customer_requests input[type="text"]:first').prop('readonly', true);
+          $('div.group-customer_requests a.close:first').css('visibility', 'hidden');
+      </script>
     </div>
     </body>
   </html>
