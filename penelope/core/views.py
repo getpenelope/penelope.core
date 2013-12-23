@@ -15,7 +15,7 @@ from penelope.core import fanstatic_resources, messages
 from penelope.core.interfaces import IBreadcrumbs, IPorRequest, ISidebar
 from penelope.core.lib.htmlhelpers import get_application_link
 from penelope.core.security import acl
-
+from penelope.core.lib.helpers import chunks, unicodelower
 from penelope.core.models import DBSession, Project, KanbanBoard
 from penelope.core.models.interfaces import IProjectRelated
 
@@ -183,7 +183,14 @@ def view_home(request):
                   .order_by(Project.customer_id).all()
 
     my_projects = request.filter_viewables(my_projects)
+
+    active_projects = set(projects.filter(Project.active))
+    active_projects = sorted(request.filter_viewables(active_projects.difference(my_projects)), key=unicodelower)
+
     listings = []
+    listing_columns = 4
+    listings.append({'title': 'Active projects',
+                     'projgroups': tuple(chunks(tuple(active_projects), listing_columns)),})
     kanbanboards = user.kanban_boards
 
     return {

@@ -39,7 +39,7 @@
     </div>
 
     <!-- projects -->
-    <div class="span11">
+    <div class="span11" tal:condition="my_projects">
       <h2>Favorite projects
         <a class="page-meta" href="${request.application_url}/admin/Project">See all projects</a>
       </h2>
@@ -83,6 +83,27 @@
         </div>
       <div tal:condition="not repeat.project.number%6" class="clearfix"></div>
       </tal:project>
+
+      <div tal:repeat="listing listings"
+        class="span11">
+        <h3 i18n:translate="">${listing['title']}</h3>
+        <p tal:condition="not listing['projgroups']">No active projects found.</p>
+        <tal:group repeat="group listing['projgroups']">
+        <div tal:condition="group"
+          class="projects-list span3">
+          <ul>
+            <tal:items repeat="item group">
+            <li tal:condition="item">
+            <a href="${request.application_url}/admin/Project/${item.id}">${item}</a>
+            </li>
+            </tal:items>
+          </ul>
+        </div>
+        </tal:group>
+      </div>
+
+
+
   </div>
 
 </body>
