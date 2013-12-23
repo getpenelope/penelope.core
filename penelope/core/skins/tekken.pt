@@ -41,6 +41,7 @@
       </form>
 
       <metal:body define-macro="report-main">
+      <form action="${request.url}" method="POST">
       <table class="bgb-container table-condensed table">
         <colgroup>
           <col class="col-customer-request" />
@@ -62,6 +63,7 @@
         <tbody class="bgb-project-header">
           <tr>
             <td colspan="2">
+              <input type="checkbox" class="check_all">
               ${bgb.project.customer.name} / ${bgb.project.name}
             </td>
             <td tal:condition="can_view_estimate_column" class="backlog-duration"><span class="total-estimate"></span></td>
@@ -83,8 +85,9 @@
             data-duration-percentage="${bgb.get_percentage(cr) if can_view_percentage[bgb.project] else nothing}"
             data-duration-done="${bgb.get_done(cr) if can_view_done[bgb.project] else nothing}">
             <td>
-              <span class="badge badge-success" title="Number of tickets">${tickets}</span>
+              <input type="checkbox" name="cr" value="${cr.id}">
               <a href="/admin/CustomerRequest/${cr.id}">${cr.name}</a>
+              <span class="badge badge-success pull-right" title="Number of tickets">${tickets}</span>
               <span tal:condition="cr.filler" class="label label-inverse pull-right">Filler</span>
             </td>
             <td class="backlog-workflow">${cr.workflow_state}</td>
@@ -109,7 +112,24 @@
           <td tal:condition="can_view_percentage_column">&nbsp;</td>
         </tfoot>
       </table>
-
+      <div class="well form-inline">
+          <select id="new_state" name="new_state" class="i-can-haz-chzn-select">
+            <option value="">Choose a new state...</option>
+            <option tal:repeat="ws cr_workflow_states"
+                    value="${ws[0]}">${ws[1]}</option>
+          </select>
+          <script>$('#new_state').chosen()</script>
+          <script>
+              $('input.check_all').click(function() {
+                $(this).closest('form').find('input[type=checkbox]').attr('checked', $(this).is(':checked'));
+              });
+          </script>
+          <button class="btn btn-small btn-primary" type="submit" value="state_change" name="submit">
+            <i class="icon-white icon-ok"></i>
+            Change
+          </button>
+      </div>
+      </form>
       </metal:body>
 
     </div>

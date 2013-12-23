@@ -6,6 +6,7 @@ import json
 from pyramid.httpexceptions import HTTPFound
 from pyramid import httpexceptions as exc
 from pyramid_skins import SkinObject
+from repoze.workflow import get_workflow, WorkflowError
 
 from fa.bootstrap import actions
 
@@ -108,6 +109,15 @@ def configurate(config):
         permission='view',
         name='customer_requests',
         attr='customer_requests',
+        model='penelope.core.models.dashboard.Project',
+        view=ProjectModelView)
+
+    #custom view for customer_requests section
+    config.formalchemy_model_view('admin',
+        request_method='POST',
+        permission='edit',
+        name='customer_requests',
+        attr='update_cr_states',
         model='penelope.core.models.dashboard.Project',
         view=ProjectModelView)
 
@@ -291,6 +301,23 @@ class ProjectModelView(ModelView):
         params['all_contracts'] = project.contracts_by_state()
         params['multiple_bgb'] = False
         return SkinObject('tekken')(**params)
+
+    def update_cr_states(self):
+        context = self.context.get_instance()
+        n_cr = 0
+
+        cr_ids = self.request.POST.getall('cr')
+        new_state = self.request.POST.get('new_state')
+        for cr in DBSession().query(dashboard.CustomerRequest).filter(dashboard.CustomerRequest.id.in_(cr_ids)):
+            try:
+                workflow = get_workflow(cr, cr.__class__.__name__)
+                workflow.transition_to_state(cr, self.request, new_state, skip_same=True)
+                n_cr += 1
+            except WorkflowError as msg:
+                self.request.add_message(msg, 'warning')
+
+        self.request.add_message('%d customer requets updated.' % n_cr)
+        raise exc.HTTPFound(location=self.request.fa_url('Project', context.id, 'customer_requests'))
 
     @actions.action('documentation')
     def documentation(self, *args, **kwargs):
