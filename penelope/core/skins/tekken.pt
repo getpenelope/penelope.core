@@ -73,7 +73,7 @@
         </tbody>
         <tbody class="bgb-project table">
           <tal:cr repeat="cr sorted(bgb.project.customer_requests, key=unicodelower)">
-          <tr tal:define="tickets len(cr.get_tickets())"
+          <tr tal:define="tickets number_of_tickets_per_cr.get(cr.id, 0)"
             class="${tickets==0 and 'error'}"
             data-cr-id="${cr.id}"
             data-cr-editable="${1 if can_edit_cr[cr] else nothing}"

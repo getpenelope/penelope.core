@@ -394,6 +394,10 @@ class Project(dublincore.DublinCore, Base):
             if ITrac.providedBy(app):
                 yield app
 
+    def get_number_of_tickets_per_cr(self):
+        from penelope.core.models.tickets import ticket_store
+        return ticket_store.get_number_of_tickets_per_cr(self)
+
     @hybrid_method
     def users_favorite(self, user):
         return (favorite_projects.c.user_id == user.id) & (favorite_projects.c.project_id == self.id)
