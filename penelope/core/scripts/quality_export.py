@@ -188,39 +188,43 @@ class QualityCR(Quality):
         session = DBSession()
         with open(namespace.filename, 'wb') as ofile:
             writer = csv.writer(ofile, dialect='excel')
-            writer.writerow(['CR ID', 'Customer', 'CR state',
-                             'Estimation in days', 'TE Duration in days',
-                             'TE sistem/install in days'])
-            for cr in session.query(CustomerRequest.id,
-                                    CustomerRequest.workflow_state,
-                                    CustomerRequest.project_id,
-                                    Project.customer_id,
-                                    Trac.trac_name).\
-                              outerjoin(Project,
-                                        CustomerRequest.project_id == Project.id).\
-                              outerjoin(Trac,
-                                        Project.id==Trac.project_id).distinct():
+            writer.writerow(['CR ID', 'Description', 'Customer', 'CR state',
+                             'Estimation in days', 'TE duration in days - current year',
+                             'TE sistem/install in days - current year',
+                             'TE duration in days - overall', 'TE sistem/install in days - overall'])
+            crs = session.query(CustomerRequest.id,
+                                CustomerRequest.name,
+                                CustomerRequest.workflow_state,
+                                CustomerRequest.project_id,
+                                Project.customer_id).\
+                   outerjoin(Project, CustomerRequest.project_id == Project.id).distinct()
 
-                tickets, Ticket, TicketCustom = tickets_for_cr(self.metadata,
-                                                 session, cr.trac_name, cr.id)
-                tids = [t.id for t in tickets]
-                if not tids:
+            for cr in crs:
+
+                all_entries = session.query(TimeEntry).filter_by(customer_request_id=cr.id)
+                if not all_entries.count():
                     continue
+
                 estimations = sum([a.days for a in \
                                 session.query(Estimation.days)\
                                        .filter_by(customer_request_id=cr.id)])
 
-                entries = session.query(TimeEntry)\
-                                 .filter_by(project_id=cr.project_id)\
-                                 .filter(TimeEntry.ticket.in_(tids))\
-                                 .filter(extract('year', TimeEntry.date) == namespace.year)
+                current_year_entries = session.query(TimeEntry)\
+                                              .filter_by(customer_request_id=cr.id)\
+                                              .filter(extract('year', TimeEntry.date) == namespace.year)
 
-                if entries.count():
-                    total_hours = timedelta_as_work_days(sum([a.hours for a in entries], timedelta()))
-                    only_dev = entries.filter(or_(TimeEntry.description.ilike('%install%'),
-                                                  TimeEntry.description.ilike('%sistem%')))
-                    only_dev_hours = timedelta_as_work_days(sum([a.hours for a in only_dev], timedelta()))
-                    writer.writerow([cr.id, cr.customer_id, cr.workflow_state, estimations, total_hours, only_dev_hours])
+                total_hours = timedelta_as_work_days(sum([a.hours for a in all_entries], timedelta()))
+                total_dev_hours = timedelta_as_work_days(sum([a.hours for a in
+                                            all_entries.filter(or_(TimeEntry.description.ilike('%install%'),
+                                                                    TimeEntry.description.ilike('%sistem%')))], timedelta()))
+                current_year_hours = timedelta_as_work_days(sum([a.hours for a in current_year_entries], timedelta()))
+                current_year_dev_hours = timedelta_as_work_days(sum([a.hours for a in
+                                                    current_year_entries.filter(or_(TimeEntry.description.ilike('%install%'),
+                                                                                    TimeEntry.description.ilike('%sistem%')))], timedelta()))
+
+                writer.writerow([cr.id, cr.name.encode('utf8'), cr.customer_id,
+                    cr.workflow_state, estimations, current_year_hours,
+                    current_year_dev_hours, total_hours, total_dev_hours])
 
 
 class QualityTicket(Quality):
