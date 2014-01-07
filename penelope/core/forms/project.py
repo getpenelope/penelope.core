@@ -106,7 +106,7 @@ def configurate(config):
     #custom view for customer_requests section
     config.formalchemy_model_view('admin',
         request_method='GET',
-        permission='view',
+        permission='list_customer_request',
         name='customer_requests',
         attr='customer_requests',
         model='penelope.core.models.dashboard.Project',
@@ -165,7 +165,7 @@ def configurate(config):
     #custom view for adding a customer request to the project
     config.formalchemy_model_view('admin',
         request_method='GET',
-        permission='new',
+        permission='add_customer_request',
         name='add_customer_request',
         attr='add_customer_request',
         renderer='penelope.core.forms:templates/new.pt',
@@ -174,7 +174,7 @@ def configurate(config):
 
     config.formalchemy_model_view('admin',
         request_method='POST',
-        permission='new',
+        permission='add_customer_request',
         name='add_customer_request',
         attr='add_customer_request',
         renderer='penelope.core.forms:templates/new.pt',

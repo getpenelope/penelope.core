@@ -990,8 +990,8 @@ class SecurityMatrixTest(IntegrationTestBase):
                                         (('owner',),              403),
                                         (('customer',),           403),
                                         (('external_developer',), 403),
-                                        (('internal_developer',), 403),
-                                        (('secretary',),          403),
+                                        (('internal_developer',), 200),
+                                        (('secretary',),          200),
                                         (('project_manager',),    200),
                                         (('administrator',),      200),
                                        ])

@@ -332,6 +332,15 @@ class Project(dublincore.DublinCore, Base):
     #groups
     __acl__.allow('role:project_manager', 'view_groups')
     __acl__.allow('role:project_manager', 'add_groups')
+    #customer_requests
+    __acl__.allow('role:project_manager', 'list_customer_request')
+    __acl__.allow('role:project_manager', 'add_customer_request')
+    __acl__.allow('role:internal_developer', 'list_customer_request')
+    __acl__.allow('role:internal_developer', 'add_customer_request')
+    __acl__.allow('role:secretary', 'list_customer_request')
+    __acl__.allow('role:secretary', 'add_customer_request')
+    __acl__.allow('role:customer', 'list_customer_request')
+    __acl__.allow('role:external_developer', 'list_customer_request')
 
     __tablename__ = 'projects'
 

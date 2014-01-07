@@ -5,7 +5,7 @@ import re
 import zope.component
 from zope.interface import Interface
 
-from webhelpers.html import HTML, literal
+from webhelpers.html import literal
 from pyramid_formalchemy.actions import Actions
 from pyramid.renderers import get_renderer
 from fa.bootstrap.actions import TabsActions, TabAction, UIButton
@@ -171,19 +171,19 @@ class ProjectSidebarRenderer(SidebarRenderer):
         #Customer request
         cr = HeaderSidebarAction('customer_requests',
                       content=u'Customer requests',
-                      permission='view',
+                      permission='list_customer_request',
                       no_link=True)
         cr.append(Button(id='add',
                       content=literal('<i class="icon-plus-sign icon-white"></i>'),
                       _class='btn btn-success btn-mini',
-                      permission='edit',
+                      permission='add_customer_request',
                       attrs=dict(href=safe_fa_url('Project', project.id, 'add_customer_request'),
                                  title="'Add customer request'")))
         self.actions.append(cr)
         self.actions.append(self.crs)
         self.actions.append(SidebarAction('list_all_cr',
                                           content=u'List all...',
-                                          permission='view',
+                                          permission='list_customer_request',
                                           attrs=dict(href=safe_fa_url('Project', project.id, 'customer_requests'))))
 
         #Contract
