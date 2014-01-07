@@ -1,4 +1,4 @@
-2.1.4 (unreleased)
+2.1.4 (2014-01-07)
 ------------------
 
 - internal develope can create customer_request [amleczko]
