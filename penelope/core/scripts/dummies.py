@@ -9,7 +9,7 @@ from pyramid.paster import setup_logging
 from pyramid.paster import bootstrap
 
 from penelope.core.models.dashboard import Trac
-from penelope.core.models.scripts import add_customer, add_customer_request, add_project, populate_time_entries, add_user, add_role
+from penelope.core.scripts import add_customer, add_customer_request, add_project, populate_time_entries, add_user, add_role
 from penelope.core.models.dbsession import DBSession
 from penelope.core.models import Base
 from penelope.core.models.dashboard import GlobalConfig
