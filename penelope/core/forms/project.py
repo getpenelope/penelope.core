@@ -300,7 +300,8 @@ class ProjectModelView(ModelView):
         params['context'] = self.request.context
         params['all_contracts'] = project.contracts_by_state()
         params['multiple_bgb'] = False
-        params['number_of_tickets_per_cr'] = project.get_number_of_tickets_per_cr()
+        tickets = project.get_number_of_tickets_per_cr()
+        params['number_of_tickets_per_cr'] = tickets and tickets or {}
         return SkinObject('tekken')(**params)
 
     def update_cr_states(self):

@@ -173,9 +173,9 @@ class QualityProject(Quality):
                                   .distinct():
 
                 writer.writerow([project.id, project.customer_id, 
-                                 project.creation_date.strftime('%Y'),
-                                 project.creation_date.strftime('%m'),
-                                 project.creation_date.strftime('%d'),
+                                 project.creation_date and project.creation_date.strftime('%Y') or '',
+                                 project.creation_date and project.creation_date.strftime('%m') or '',
+                                 project.creation_date and project.creation_date.strftime('%d') or '',
                                  project.completion_date and project.completion_date.strftime('%Y') or '',
                                  project.completion_date and project.completion_date.strftime('%m') or '',
                                  project.completion_date and project.completion_date.strftime('%d') or '',

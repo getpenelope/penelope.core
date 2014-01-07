@@ -136,6 +136,9 @@ class TicketStore(object):
 
     def get_number_of_tickets_per_cr(self, project):
         settings = get_current_registry().settings
+        if not settings:
+            return
+
         tracenvs = settings.get('penelope.trac.envs')
 
         for trac in project.tracs:
@@ -145,7 +148,7 @@ class TicketStore(object):
             cursor.execute("""SELECT c.value as cr, count(t.id) AS number FROM ticket t INNER JOIN ticket_custom c ON (t.id = c.ticket AND c.name = 'customerrequest') group by cr;""")
             tickets = cursor.fetchall()
             db.rollback()
-        return dict(tickets)
+            return dict(tickets)
 
     def get_all_ticket_crs(self, project):
         """

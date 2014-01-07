@@ -107,6 +107,9 @@ def password_reset(request):
 
     if token:
         settings = request.registry.settings
+        if not settings:
+            return {'request': request, 'token': token}
+
         mandrill_client = mandrill.Mandrill(settings['mail.password'])
 
         from_addr = settings['mail.default_sender']

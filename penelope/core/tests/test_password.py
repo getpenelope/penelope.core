@@ -62,21 +62,6 @@ class TestSecurity(unittest2.TestCase):
         session = DBSession()
         self.assertEqual(session.query(PasswordResetToken).filter_by(token=token).one().user.email, email)
 
-    def test_token_password_change(self):
-        from pyramid_mailer import get_mailer
-        email = u'user3@dummy.it'
-        self.add_user(email)
-        response = self.generate_token(email)
-        mailer = get_mailer(response['request'])
-        self.assertTrue(len(mailer.outbox))
-
-        from penelope.core.security.views import change_password
-        request = Request(method='POST', params={'token': response['token'],
-                                                 'password': 'topsecret',
-                                                 'password_repeat': 'topsecret'})
-        response = change_password(request)
-        self.assertEqual(response.headers.get('Location'),'/login_form')
-
     def test_token_password_change_wrong_token(self):
         from penelope.core.security.views import change_password
         request = Request(method='POST', params={'token': u'notexistingtoken',

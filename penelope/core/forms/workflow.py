@@ -51,5 +51,5 @@ def validate_contract_done(content, info):
 
 
 def validate_cr_unachieving(content, info):
-    if not content.contract.active:
+    if content.contract and not content.contract.active:
         raise WorkflowError(u'Workflow cannot be changed - related contract is closed.')
