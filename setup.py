@@ -33,6 +33,7 @@ requires = [
     'lingua',
     'lorem-ipsum-generator',
     'lxml',
+    'newrelic',
     'PasteScript',
     'penelope.trac',
     'plone.i18n',
@@ -84,7 +85,7 @@ tests_require = [
 
 
 setup(name='penelope.core',
-      version='2.1.5.dev0',
+      version='2.1.4.1',
       description='Penelope main package',
       long_description=README + '\n\n' +  CHANGES,
       classifiers=[

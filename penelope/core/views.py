@@ -2,6 +2,7 @@
 import itertools
 import os
 import re
+import newrelic.agent
 
 from zope.interface import implements
 from pyramid.response import Response
@@ -75,6 +76,10 @@ class PORRequest(Request):
         if self.response.status_int not in (301, 302, 304):
             del self.session[messages.STATUSMESSAGEKEY]
         return value
+
+    @decorator.reify
+    def newrelic(self):
+        return newrelic.agent
 
     @decorator.reify
     def authenticated_user(self):
