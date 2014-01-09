@@ -914,8 +914,13 @@ class Group(Principal):
     def __unicode__(self):
         return "[%s] %s" % (self.project.name, ','.join(self.roles_names))
 
+def wrap_users_before_group_delete(mapper, connection, target):
+    for user in target.users:
+        invalidate_user_calculate_matrix(user, None, None)
+
 event.listen(Group.users, "append", invalidate_users_calculate_matrix)
 event.listen(Group.users, "remove", invalidate_users_calculate_matrix)
+event.listen(Group, "before_delete", wrap_users_before_group_delete)
 
 
 class SavedQuery(dublincore.DublinCore, Base):
