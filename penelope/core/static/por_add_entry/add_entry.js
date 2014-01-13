@@ -96,6 +96,18 @@ $(document).ready(function() {
 
     var days = ['today', 'yesterday'];
 
+    var throttle = function(f, delay){
+        var timer = null;
+        return function(){
+            var context = this, args = arguments;
+            clearTimeout(timer);
+            timer = window.setTimeout(function(){
+                f.apply(context, args);
+            },
+            delay || 500);
+        };
+    };
+
     var initialize_autocomplete = function(project_items) {
         var current_jqxhr = null;
         var config = {
@@ -104,13 +116,13 @@ $(document).ready(function() {
                     cb(project_items);
                 },
             // see jasmine specs for the regexp
-            '.*@.*#(?![0-9]+[ ]+)([^#]+)$': function handle_tickets(data, cb) {
+            '.*@.*#(?![0-9]+[ ]+)([^#]+)$': throttle(function handle_tickets(data, cb) {
                     // the tickets are contextual to the project and cannot be retrieved in advance
                     if (current_jqxhr) {
                         current_jqxhr.abort();
                     }
                     current_jqxhr = $.getJSON('smartadd_tickets', data, cb);
-                },
+                }),
             '.*!([^! ]*)$': function handle_days(data, cb) {
                     // get options for the days
                     cb(days);
