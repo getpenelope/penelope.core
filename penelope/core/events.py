@@ -1,7 +1,7 @@
 
 from fa.jquery.fanstatic_resources import fa_pyramid_js
 from fa.jquery.renderers import RichTextFieldRenderer
-from formalchemy import Field, fatypes
+from formalchemy import Field, fatypes, validators
 from formalchemy.exceptions import ValidationError
 from formalchemy.fields import _query_options
 from formalchemy.fields import HiddenFieldRenderer, SelectFieldRenderer
@@ -211,6 +211,7 @@ def before_user_edit_render(context, event):
     if not has_permission('manage', context, event.request):
         del fs._render_fields['project_manager']
 
+    fs.svn_login.validators.remove(validators.required)
     fs.append(fs.fullname.required())
     fs.append(fs.email.required())
 

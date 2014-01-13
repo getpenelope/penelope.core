@@ -43,7 +43,7 @@ def dublincore_insert(mapper, connection, target):
     else:
         request = get_current_request()
 
-    if request:
+    if request and not target.author_id:
         environ = request.environ
         if environ.has_key('repoze.who.identity'):
             if environ['repoze.who.identity'].has_key('user'):
