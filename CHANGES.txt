@@ -1,4 +1,4 @@
-2.1.6 (unreleased)
+2.1.6 (2014-01-13)
 ------------------
 
 - new quality report - operator [amleczko]
