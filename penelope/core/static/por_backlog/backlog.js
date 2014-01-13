@@ -28,6 +28,45 @@ $(document).ready(function(){
         }
     };
 
+    var fill_estimated = function ($duration, secs, $me) {
+        // align visible digits at the decimal dot.
+        // this is an horrible, horrible hack.
+        var parts = format_duration(secs).split('.'),
+            part_int = parts[0],
+            part_dec = parts[1];
+
+        if (isNaN(secs)) {
+            $duration.empty();
+            return;
+        }
+
+        if (part_dec === '00') {
+            //$duration.empty().append($('<span>'+part_int+'</span>')).append($('<span class="invisible">.00</span>'));
+            var duration_text = $('<span>'+part_int+'</span>').append($('<span class="invisible">.00</span>'));
+        } else {
+            //$duration.text(part_int+'.'+part_dec);
+            var duration_text = $('<span>' + part_int+'.'+part_dec+'</span>');
+        }
+        var estimations = $('<a href="#" rel="popover" data-original-title="Estimations"></a>').append(duration_text);
+        $duration.empty().append(estimations);
+        if (secs != 0) {
+            estimations.popover({
+                                html: true,
+                                "content": function(){
+                                    var div_id =  "div-id-" + $.now();
+                                    return details_in_popup($me.find('td:nth-child(1) a').attr('href')+'/estimations.html', div_id);
+                                }});
+        }
+    };
+
+    var details_in_popup = function(link, div_id){
+        $.ajax({
+            url: link,
+            success: function(response){
+                $('#'+div_id).html(response)}});
+                return '<div id="'+ div_id +'">Loading...</div>'
+    };
+
     var format_percentage = function(value) {
         return (Math.round(value*100)/100).toFixed(2);
     };
@@ -55,7 +94,7 @@ $(document).ready(function(){
     $('[data-duration-estimate]').each(function() {
                             var secs = parseInt($(this).data('duration-estimate'), 10),
                                 $duration = $(this).find('td:nth-child(3)');
-                            fill_duration($duration, secs);
+                            fill_estimated($duration, secs, $(this));
     });
 
     // fill duration 'done' column

@@ -59,6 +59,15 @@ def configurate(config):
                                   view=CustomerRequestModelView)
 
     config.formalchemy_model_view('admin',
+                                  request_method='GET',
+                                  permission='estimations',
+                                  name='estimations.html',
+                                  attr='get_estimations_html',
+                                  renderer='penelope.core.forms:templates/estimations_simple.pt',
+                                  model='penelope.core.models.dashboard.CustomerRequest',
+                                  view=CustomerRequestModelView)
+
+    config.formalchemy_model_view('admin',
                                   request_method='POST',
                                   permission='estimations',
                                   name='estimations.json',
@@ -206,6 +215,11 @@ class CustomerRequestModelView(ModelView):
         jqgrid_i18n_en.need()
         jqgrid.need()
         return self.render()
+
+    def get_estimations_html(self):
+        items = self.request.model_instance.estimations
+        estimations =[ [item.person_type,item.days] for item in items]
+        return self.render(estimations=estimations)
 
     @actions.action('show')
     def tickets(self):

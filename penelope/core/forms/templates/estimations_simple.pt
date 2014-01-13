@@ -1,0 +1,5 @@
+<tal:estimation repeat="e estimations">
+<div>
+  <strong>${e[0]}:</strong> ${e[1]}
+</div>
+</tal:estimation>
