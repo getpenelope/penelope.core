@@ -49,8 +49,8 @@ By this link: %s/password_reset_form you can set your new Penelope password.
 RedTurtle thanks you for your collaboration.
 """)
 
-PM_TICKETS = {
- _(u'Riesami e Verifiche degli Elementi in Ingresso al progetto'):
+PM_TICKETS = [
+ (_(u'Riesami e Verifiche degli Elementi in Ingresso al progetto'),
  _(u"""Questo ticket serve sia per i RIESAMI sia per le VERIFICHE del progetto.
 Il RIESAME risponde alle domande HO TUTTI GLI ELEMENTI PER LAVORARE?
 STO LAVORANDO SECONDO I REQUISITI DEL CLIENTE? In questo ticket viene
@@ -63,24 +63,26 @@ compatibile con gli input della progettazione. POSSIBILMENTE, CI DOVREBBE
 ESSERE UN COMMENT CON L'ELENCO DEI DOCUMENTI CONSULTATI, E UN COMMENT PER
 OGNI FASE DI VERIFICA. TECNICAMENTE, QUESTO TICKET ANDREBBE CHIUSO PRIMA
 DI PROCEDERE ALLA VALIDAZIONE DEL PROGETTO."""),
+  'verification'),
 
- _(u'Validazione del progetto'):
+ (_(u'Validazione del progetto'),
  _(u"""Questo ticket serve per la VALIDAZIONE, step finale del ciclo
 produttivo, prima della consegna, ovvero la registrazione del fatto che
 HO COLLAUDATO IL PRODOTTO IN UN CASO D’USO REALE E CI METTO LA FIRMA! La
 validazione delle singole funzionalità avviene a livello di ticket. Questo
 ticket viene completato (chiuso) per registrare l'avvenuta validazione del
 progetto nel suo assieme. """),
+ 'verification'),
 
- _(u'project management'): u'',
+ (_(u'project management'), u'', 'task'),
 
- _(u'incontri con il cliente'): u'',
+ (_(u'incontri con il cliente'), u'', 'task'),
 
- _(u'Punto interno con/tra sviluppatori'): u'',
+ (_(u'Punto interno con/tra sviluppatori'), u'', 'task'),
 
- _(u'Riesame documentazione di progetto (verification)'): u'',
+ (_(u'Riesame documentazione di progetto (verification)'), u'', 'verification'),
 
- _(u'Gestione progetto su Penelope'): u''}
+ (_(u'Gestione progetto su Penelope'), u'','task')]
 
 
 class Definition(colander.Schema):
@@ -420,12 +422,12 @@ class Wizard(object):
             customer_request.contract = contract
 
             if cr['title'] == 'Project management':
-                for summary, description in PM_TICKETS.items():
+                for summary, description, ticket_type in PM_TICKETS:
                     tickets += [{ 'summary': summary,
                                   'description': description,
                                   'customerrequest': customer_request,
                                   'reporter': manager.email,
-                                  'type': 'task',
+                                  'type': ticket_type,
                                   'priority': 'major',
                                   'sensitive': '1',
                                   'milestone': 'Backlog',

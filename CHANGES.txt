@@ -5,7 +5,8 @@
 - fix problem with js select in teken listing [amleczko]
 - svn_login no longer required during user creation [amleczko]
 - fix author override in new time entry creation [amleczko]
-
+- estimations popover [amleczko]
+- automatization for wizard form [amleczko]
 
 2.1.5 (2014-01-09)
 ------------------
