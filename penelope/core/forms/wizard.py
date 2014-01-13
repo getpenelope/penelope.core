@@ -416,8 +416,9 @@ class Wizard(object):
             for key, value in person_types.items():
                 if cr[key]:
                     Estimation(person_type=value,
-                            days=cr[key],
-                            customer_request=customer_request)
+                              days=cr[key],
+                              customer_request=customer_request)
+                    customer_request.workflow_state = 'estimated'
             project.add_customer_request(customer_request)
             customer_request.contract = contract
 

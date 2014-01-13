@@ -7,6 +7,7 @@
 - fix author override in new time entry creation [amleczko]
 - estimations popover [amleczko]
 - automatization for wizard form [amleczko]
+- automatization for estimation wf_state [amleczko]
 
 2.1.5 (2014-01-09)
 ------------------

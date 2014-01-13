@@ -15,6 +15,8 @@ from plone.i18n.normalizer import idnormalizer
 from pyramid.security import ALL_PERMISSIONS
 from pyramid.security import Authenticated
 from pyramid.threadlocal import get_current_request
+from repoze.workflow import get_workflow
+from repoze.workflow import WorkflowError
 
 from sqlalchemy import Column
 from sqlalchemy import ForeignKey
@@ -858,6 +860,28 @@ class Estimation(Base):
     person_type = Column(Unicode, nullable=False)
     customer_request_id = Column(String, ForeignKey('customer_requests.id'))
     customer_request = relationship(CustomerRequest, backref=backref('estimations'))
+
+
+def check_cr_for_estimation(mapper, connection, target):
+    state = ''
+    cr = DBSession().query(CustomerRequest).get(target.customer_request_id)
+
+    if target in cr.estimations and len(cr.estimations) == 1 and cr.workflow_state != 'created': # removing last estimation
+        state = 'created'
+    elif len(cr.estimations)==0 and cr.workflow_state != 'estimated':
+        state = 'estimated'
+
+    request = get_current_request()
+    if state and request:
+        workflow = get_workflow(cr, 'CustomerRequest')
+        try:
+            workflow.transition_to_state(cr, request, state, skip_same=True)
+        except WorkflowError:
+            pass
+
+
+event.listen(Estimation, "before_insert", check_cr_for_estimation)
+event.listen(Estimation, "before_delete", check_cr_for_estimation)
 
 
 class Group(Principal):
