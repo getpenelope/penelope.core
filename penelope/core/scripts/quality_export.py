@@ -17,10 +17,11 @@ from datetime import datetime, date, timedelta
 from sqlalchemy.orm import mapper
 from sqlalchemy import engine_from_config, extract
 from sqlalchemy import MetaData, Table, and_, or_
+from sqlalchemy import func
 from sqlalchemy.ext.hybrid import hybrid_property
-from sqlalchemy.orm import relationship, backref
+from sqlalchemy.orm import relationship, backref, defer
 
-from penelope.core.models.dashboard import Project, CustomerRequest, Trac, Estimation
+from penelope.core.models.dashboard import Project, CustomerRequest, Trac, Estimation, Customer, Contract, User
 from penelope.core.models.tp import TimeEntry, timedelta_as_work_days
 from penelope.core.models.dbsession import DBSession
 from penelope.core.models import Base
@@ -307,6 +308,65 @@ class QualityRaw(Quality):
                     writer.writerow([cr.id, cr.customer_id, hours])
 
 
+class QualityOperator(Quality):
+    def __call__(self, parser, namespace, values, option_string):
+        super(QualityOperator, self).__call__(parser, namespace, values, option_string)
+        session = DBSession()
+        with open(namespace.filename, 'wb') as ofile:
+            writer = csv.writer(ofile, dialect='excel')
+
+            writer.writerow(['Customer name', 'Project name', 'CR description', 'CR total estimations (days)', 'Contract number', 'Contract amount', 'Contract days', 'User', 'Total time in CR (days)'])
+            query = session.query(
+                                  TimeEntry.customer_request_id,
+                                  TimeEntry.author_id,
+                                  func.sum(TimeEntry.hours).label('total_time'),
+                                  CustomerRequest,
+                                  Project.name.label('project'),
+                                  Customer.name.label('customer'),
+                                  Contract.amount.label('contract_amount'),
+                                  Contract.days.label('contract_days'),
+                                  Contract.contract_number,
+                                  User.fullname.label('user'),
+                                  )\
+                           .options(defer(CustomerRequest.filler),
+                                    defer(CustomerRequest.old_contract_name),
+                                    defer(CustomerRequest.workflow_state),
+                                    defer(CustomerRequest.uid),
+                                    defer(CustomerRequest.description),
+                                    defer(CustomerRequest.project_id),
+                                    defer(CustomerRequest.contract_id),
+                                   )\
+                           .join(CustomerRequest)\
+                           .join(Project)\
+                           .join(Customer)\
+                           .join(Contract, and_(TimeEntry.customer_request_id==CustomerRequest.id,
+                                                CustomerRequest.contract_id==Contract.id))\
+                           .outerjoin(User, TimeEntry.author_id==User.id)\
+                           .filter(extract('year', TimeEntry.date) == namespace.year)\
+                           .group_by(TimeEntry.customer_request_id)\
+                           .group_by(TimeEntry.author_id)\
+                           .group_by(Project.name)\
+                           .group_by(Contract.amount)\
+                           .group_by(Contract.contract_number)\
+                           .group_by(Contract.days)\
+                           .group_by(CustomerRequest.name)\
+                           .group_by(CustomerRequest.id)\
+                           .group_by(Customer.name)\
+                           .order_by(CustomerRequest.name)\
+                           .group_by(User.fullname)
+
+            for row in query:
+                writer.writerow([row.customer.encode('utf8'),
+                                 row.project.encode('utf8'),
+                                 row.CustomerRequest.name.encode('utf8'),
+                                 row.CustomerRequest.estimation_days,
+                                 row.contract_number and row.contract_number.encode('utf8') or 'N/A',
+                                 row.contract_amount or 0,
+                                 row.contract_days or 0,
+                                 row.user.encode('utf8'),
+                                 timedelta_as_work_days(row.total_time)])
+
+
 def main():
     """
     ./bin/quality_export etc/production.ini export_file.csv --report-name
@@ -321,17 +381,18 @@ def main():
 
     parser.add_argument('configuration', action='store', help='path to the wsgi configuration ini file.')
     parser.add_argument('year', help='Report year. (default %s)' % DEFAULT_YEAR, action='store', type=int)
-    #parser.add_argument('--filename', help='path to the output CSV file.')
     parser.add_argument('--google', help='google folder id.')
+
     parser.add_argument('--project', nargs=0, action=QualityProject, help='generate project quality report.')
     parser.add_argument('--cr', nargs=0, action=QualityCR, help='generate customer request quality report.')
     parser.add_argument('--ticket', nargs=0, action=QualityTicket, help='generate ticket quality report.')
     parser.add_argument('--raw', nargs=0, action=QualityRaw, help='generate raw quality report.')
+    parser.add_argument('--operator', nargs=0, action=QualityOperator, help='generate total work time for CR and operator quality report.')
     namespace = parser.parse_args()
 
     if namespace.google:
         client = create_client()
-        for report in  ['project', 'cr', 'ticket', 'raw']:
+        for report in  ['project', 'cr', 'ticket', 'raw', 'operator']:
             configuration = getattr(namespace, report)
             if configuration:
                 upload_file(client, configuration['filename'],

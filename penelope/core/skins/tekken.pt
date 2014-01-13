@@ -121,7 +121,7 @@
           <script>$('#new_state').chosen()</script>
           <script>
               $('input.check_all').click(function() {
-                $(this).closest('form').find('input[type=checkbox]').attr('checked', $(this).is(':checked'));
+                $(this).closest('form').find('input[type=checkbox]:visible').attr('checked', $(this).is(':checked'));
               });
           </script>
           <button class="btn btn-small btn-primary" type="submit" value="state_change" name="submit">
