@@ -242,11 +242,13 @@ class StateChangeReport(object):
 
         if appstruct.get('project_id'):
             contracts = DBSession().query(Project).get(appstruct['project_id']).contracts
-        else:
+        elif appstruct.get('customer_id'):
             contracts = [item for sublist in 
                                 [p.contracts for p in 
                                 DBSession().query(Customer).get(appstruct['customer_id']).projects]
                             for item in sublist]
+        else:
+            contracts = []
 
         result_table = render('penelope.core:reports/templates/state_change.pt',
                               {

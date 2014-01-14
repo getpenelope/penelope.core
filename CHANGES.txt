@@ -1,7 +1,7 @@
 2.1.7 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- add quick link to reports from tekken [amleczko]
 
 
 2.1.6 (2014-01-13)

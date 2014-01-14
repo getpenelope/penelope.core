@@ -28,6 +28,28 @@ $(document).ready(function(){
         }
     };
 
+    var fill_done = function ($duration, secs, $me) {
+        // align visible digits at the decimal dot.
+        // this is an horrible, horrible hack.
+        var parts = format_duration(secs).split('.'),
+        part_int = parts[0],
+        part_dec = parts[1];
+
+        if (isNaN(secs)) {
+            $duration.empty();
+            return;
+        }
+
+        if (part_dec === '00') {
+            var duration_text = $('<span>'+part_int+'</span>').append($('<span class="invisible">.00</span>'));
+        } else {
+            var duration_text = $('<span>' + part_int+'.'+part_dec+'</span>');
+        }
+        var report_url = "/reports/report_all_entries?_charset_=UTF-8&__formid__=all_entries&customer_id=&project_id=&__start__=customer_requests%3Asequence&customer_requests="+$me.data('crId')+"&__end__=customer_requests%3Asequence&__start__=contracts%3Asequence&__end__=contracts%3Asequence&date_from=&date_to=&__start__=users%3Asequence&__end__=users%3Asequence&groupbyfirst=project.request.user.date&submit=submit"
+        var estimations = $('<a target="_blank" href="'+report_url+'" title="Open report for that customer request"></a>').append(duration_text);
+        $duration.empty().append(estimations);
+    };
+
     var fill_estimated = function ($duration, secs, $me) {
         // align visible digits at the decimal dot.
         // this is an horrible, horrible hack.
@@ -41,18 +63,16 @@ $(document).ready(function(){
         }
 
         if (part_dec === '00') {
-            //$duration.empty().append($('<span>'+part_int+'</span>')).append($('<span class="invisible">.00</span>'));
             var duration_text = $('<span>'+part_int+'</span>').append($('<span class="invisible">.00</span>'));
         } else {
-            //$duration.text(part_int+'.'+part_dec);
             var duration_text = $('<span>' + part_int+'.'+part_dec+'</span>');
         }
         var estimations = $('<a href="#" rel="popover" data-original-title="Estimations"></a>').append(duration_text);
         $duration.empty().append(estimations);
         if (secs != 0) {
-            estimations.popover({
-                                html: true,
-                                "content": function(){
+            estimations.popover({trigger: 'hover',
+                                 html: true,
+                                 "content": function(){
                                     var div_id =  "div-id-" + $.now();
                                     return details_in_popup($me.find('td:nth-child(1) a').attr('href')+'/estimations.html', div_id);
                                 }});
@@ -101,7 +121,7 @@ $(document).ready(function(){
     $('[data-duration-done]').each(function() {
                             var secs = parseInt($(this).data('duration-done'), 10),
                                 $duration = $(this).find('td:nth-child(4)');
-                            fill_duration($duration, secs);
+                            fill_done($duration, secs, $(this));
     });
     // fill duration 'percentage' column
     $('[data-duration-percentage]').each(function() {

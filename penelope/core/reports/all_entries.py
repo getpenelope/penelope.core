@@ -240,7 +240,7 @@ class AllEntriesReport(object):
             return {
                     'form': form.render(),
                     'saved_query_form': render_saved_query_form(self.request),
-		    'qs':'',
+                    'qs':'',
                     'has_results': False
                     }
 

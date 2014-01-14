@@ -63,6 +63,9 @@ $(document).ready(function (ev) {
                  // act upon customer change
                  $customer.change(function (ev) {
                      var customer_value = $customer.val();
+                     if (customer_value===''){
+                         return
+                     };
                      var projects = [];
                      var customer_requests = [];
                      var contracts = [];
@@ -88,6 +91,9 @@ $(document).ready(function (ev) {
                  // acts upon project change
                  $project.change(function (ev) {
                      var project_value = $project.val();
+                     if (project_value===''){
+                         return
+                     };
                      var customer_value = $customer.val();
                      var customer_requests = [];
                      var contracts = [];
@@ -106,7 +112,6 @@ $(document).ready(function (ev) {
 
 
                  // apply filtering to pre-populated form
-
                  $customer.trigger('change');
                  $project.trigger('change');
 
