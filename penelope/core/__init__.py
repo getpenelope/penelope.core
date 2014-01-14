@@ -114,6 +114,8 @@ def main(global_config, **settings):
     config.add_static_view('deform_static', 'deform:static')
     config.add_route('navbar', '/navbar')
     config.add_route('favicon', '/favicon.ico')
+    config.add_route('inbound_email', '/inbound_email')
+    config.scan('penelope.core.notifications')
 
     from penelope.core.forms import include_forms
     include_forms(config)

@@ -3,8 +3,15 @@ import mandrill
 from pyramid.i18n import TranslationStringFactory
 from pyramid.threadlocal import get_current_request
 from pyramid.threadlocal import get_current_registry
+from pyramid.view import view_config
+from pyramid.response import Response
 
 _ = TranslationStringFactory('penelope')
+
+
+@view_config(route_name="inbound_email")
+def inbound_email(request):
+    return Response('OK')
 
 
 def send(template_name, message):
