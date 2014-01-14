@@ -3,6 +3,7 @@
 
 - add quick link to reports from tekken [amleczko]
 - add proper HTML title tag [amleczko]
+- refactor notifications [amleczko]
 
 
 2.1.6 (2014-01-13)

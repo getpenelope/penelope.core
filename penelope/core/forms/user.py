@@ -8,6 +8,7 @@ from fa.bootstrap import actions
 from penelope.core.interfaces import IManageView
 from penelope.core.forms import ModelView
 from penelope.core.forms.renderers import ProjectRelationRenderer
+from penelope.core.notifications import notify_user_with_welcoming_mail
 
 
 def configurate(config):
@@ -49,6 +50,21 @@ def configurate(config):
         model='penelope.core.models.dashboard.User',
         view=UserModelView)
 
+    config.formalchemy_model_view('admin',
+        request_method='GET',
+        permission='edit',
+        name='send_user_invitation',
+        attr='send_user_invitation',
+        model='penelope.core.models.dashboard.User',
+        view=UserModelView)
+
+
+send_user_invitation = actions.UIButton(id='send_user_invitation',
+    content='Send user invitation',
+    permission='edit',
+    _class='btn btn-success',
+    attrs=dict(href="request.fa_url('User', request.model_id, 'send_user_invitation')"))
+
 
 user_tabs = actions.Actions(actions.TabAction("show",
     content="View",
@@ -68,6 +84,7 @@ class UserModelView(ModelView):
     actions_categories = ('buttons', 'tabs')
 
     defaults_actions = deepcopy(actions.defaults_actions)
+    defaults_actions['show_buttons'].append(send_user_invitation)
     defaults_actions.update(show_tabs=user_tabs)
     defaults_actions.update(user_tokens_tabs=user_tabs)
 
@@ -101,3 +118,10 @@ class UserModelView(ModelView):
             user.active = False
             request.add_message(u'User deactivated.', type='success')
             raise exc.HTTPFound(location=request.fa_url('User', user.id))
+
+    def send_user_invitation(self):
+        user = self.context.get_instance()
+        notify_user_with_welcoming_mail(user.email)
+        request = self.request
+        request.add_message(u'Invitation email send.', type='success')
+        raise exc.HTTPFound(location=request.fa_url('User', user.id))

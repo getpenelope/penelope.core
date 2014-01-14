@@ -1,5 +1,4 @@
 # This Python file uses the following encoding: utf-8
-import json
 import colander
 import deform
 
@@ -11,8 +10,6 @@ from deform_bootstrap.widget import ChosenSingleWidget, ChosenMultipleWidget
 from pyramid.renderers import get_renderer
 from pyramid import httpexceptions as exc
 from pyramid.i18n import TranslationStringFactory
-from pyramid_mailer import get_mailer
-from pyramid_mailer.message import Message
 
 from penelope.core.models import Project, Group, DBSession, User, CustomerRequest
 from penelope.core.models.dashboard import ApplicationACL, Contract
@@ -20,34 +17,10 @@ from penelope.core.models.dashboard import Trac, Role, GoogleDoc, Estimation
 from penelope.core.lib.widgets import SubmitButton, ResetButton, WizardForm
 from penelope.core.fanstatic_resources import wizard as wizard_fanstatic
 from penelope.core import PROJECT_ID_BLACKLIST
+from penelope.core.notifications import notify_user_with_welcoming_mail
 
 _ = TranslationStringFactory('penelope')
 
-WELCOME_SUBJECT = _(u"Welcome to Penelope, Issue tracking system.")
-
-WELCOME_BODY = _(u"""
-Sei stato abilitato all'utilizzo di Penelope, la nostra piattaforma online di
-gestione dei progetti e dei "trouble ticket". Con Penelope potrai aprire nuovi
-ticket e seguire l'evoluzione delle tue segnalazioni. Ci raccomandiamo di
-verificare che i ticket che hai aperto abbiano la marcatura "Ticket Aperto dal
-Cliente = SI".
-
-Utilizzando questo link: %s/password_reset_form potrai definire la tua nuova
-password di accesso a Penelope.
-
-RedTurtle ti ringrazia della collaborazione.
-
-====
-You were enabled as a user of Penelope, our online projects and trouble ticket
-management platform. With penelope you will be able to open new tickets and
-follow the evolution of the issues you opened. We recommend to double check
-that the tickets you open have the "Ticked opened by customer" field set at
-"SI" (Yes).
-
-By this link: %s/password_reset_form you can set your new Penelope password.
-
-RedTurtle thanks you for your collaboration.
-""")
 
 PM_TICKETS = [
  (_(u'Riesami e Verifiche degli Elementi in Ingresso al progetto'),
@@ -350,7 +323,6 @@ class Wizard(object):
         # create new users
         recipients = []
         groups = {}
-        mailer = get_mailer(self.request)
         for newuser in appstruct['new_users']:
             user = User(fullname=newuser['fullname'], email=newuser['email'])
             if not newuser['role'] in groups:
@@ -358,24 +330,9 @@ class Wizard(object):
             groups[newuser['role']].append(user)
             if newuser['send_email_howto']:
                 recipients.append(newuser['email'])
+
         for recipient in recipients:
-            headers = {"header": u'Welcome to Penelope',
-            "message": ('You were enabled as a user of Penelope, '
-                        'our online projects and trouble ticket '
-                        'management platform. Your username is <strong>%s</strong>. '
-                        'With penelope you will be '
-                        'able to open new tickets and follow the evolution '
-                        'of the issues you opened. We recommend to double '
-                        'check that the tickets you open have the '
-                        '"Ticked opened by customer" field set at "SI" (Yes).' % recipient),
-            "link": '%s/password_reset_form' % (self.request.application_url),
-            "action": 'Activate your account NOW!'}
-            message = Message(subject=WELCOME_SUBJECT,
-                                recipients=[recipient],
-                                body='Welcome to Penelope',
-                                extra_headers={'X-MC-Template': 'general',
-                                               'X-MC-MergeVars': json.dumps(headers)})
-            mailer.send(message)
+            notify_user_with_welcoming_mail(recipient)
 
         #create project and set manager
         manager = self.request.authenticated_user
