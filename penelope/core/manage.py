@@ -16,6 +16,13 @@ class ManageContext(DefaultContext):
     "Default context factory for Manage views."
     implements(IManageView)
 
+    @property
+    def title(self):
+        view = self.request.view_name or self.request.environ['PATH_INFO'].split('/')[-1]
+        if view == 'manage':
+            view = 'index'
+        return 'Manage %s' % self.prettify_title(view)
+
 
 class ManageSidebarRenderer(SidebarRenderer):
 

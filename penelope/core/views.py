@@ -78,6 +78,10 @@ class PORRequest(Request):
         return value
 
     @decorator.reify
+    def title(self):
+        return self.root.title
+
+    @decorator.reify
     def newrelic(self):
         return newrelic.agent
 
@@ -151,6 +155,23 @@ class DefaultContext(object):
     def __init__(self, request):
         fanstatic_resources.dashboard.need()
         self.request = request
+
+    def prettify_title(self, title):
+        title = title.replace('_', ' ')
+        return title
+
+    @property
+    def title(self):
+        view = self.request.view_name or self.request.environ['PATH_INFO'].split('/')[-1]
+        if view == '':
+            title = 'Dashboard'
+        elif view == 'add_entry':
+            title = 'Smart add time entries'
+        else:
+            title = self.prettify_title(view).title()
+        if not title:
+            title = 'Penelope'
+        return title
 
 
 @view_config(context='pyramid.exceptions.NotFound', renderer='penelope.core:templates/notfound.pt')
