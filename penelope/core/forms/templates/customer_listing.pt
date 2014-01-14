@@ -8,7 +8,7 @@
 
       <div class="controls">
         <label class="checkbox inline">
-          <input type="checkbox" id="cb_filter_active" />
+          <input type="checkbox" id="cb_filter_active" checked="checked" />
           <tal:translate i18n:translate="label_active_only">Active Only</tal:translate>
         </label>
         <label class="checkbox inline">
@@ -78,12 +78,13 @@
           );
 
           $('#cb_filter_favorite').click(function() {
-                                            oTable.fnDraw();
-                                        });
+            oTable.fnDraw();
+          });
 
           $('#cb_filter_active').click(function() {
-                                            oTable.fnDraw();
-                                        });
+            oTable.fnDraw();
+          });
+          oTable.fnDraw();
         });
       </script>
 
