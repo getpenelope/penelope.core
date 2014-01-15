@@ -42,13 +42,13 @@ def searchable_tracs(request):
 
 class SearchSchema(colander.MappingSchema):
 
-    tracs = colander.SchemaNode(deform.Set(allow_empty=True),
+    tracs = colander.SchemaNode(colander.Set(),
                       widget=ChosenMultipleWidget(placeholder=u'Select tracs',
                                                   style="width:250px"),
                       missing=colander.null,
                       title=u'')
 
-    realms = colander.SchemaNode(deform.Set(allow_empty=True),
+    realms = colander.SchemaNode(colander.Set(),
                widget=ChosenMultipleWidget(placeholder=u'Select realms',
                                            style="width:250px",
                                            values=[('', ''),
@@ -58,7 +58,7 @@ class SearchSchema(colander.MappingSchema):
                missing=colander.null,
                title=u'')
 
-    authors = colander.SchemaNode(deform.Set(allow_empty=True),
+    authors = colander.SchemaNode(colander.Set(),
                     widget=ChosenMultipleWidget(placeholder=u'Select author',
                                                  style="width:250px"),
                     missing=colander.null,

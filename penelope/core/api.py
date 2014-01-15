@@ -1,8 +1,6 @@
 
 import datetime
 
-from zope.deprecation import deprecated
-
 from sqlalchemy.orm import exc as orm_exc
 from pyramid_rpc.jsonrpc import jsonrpc_method
 
@@ -34,18 +32,6 @@ def timeentry_crstate_validation_errors(project_id, tickets, request):
             return ['Customer Request is not estimated']
 
     return []
-
-
-@jsonrpc_method(endpoint='DashboardAPI')
-def get_user_by_login(request, login):
-    """
-    Search for user using his login name
-    """
-    return get_user_by_email(request, login)
-
-
-deprecated('get_user_by_login',
-           'Use of get_user_by_login is deprecated. Use get_user_by_email instead.')
 
 
 @jsonrpc_method(endpoint='DashboardAPI')

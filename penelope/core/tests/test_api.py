@@ -80,7 +80,7 @@ class TestJSONRPCProxy(unittest2.TestCase):
         self.assertTrue(2, len(resp['applications']))
 
     def test_not_found_user(self):
-        resp = self.proxy.get_user_by_login('nonexisting@dummy.it')
+        resp = self.proxy.get_user_by_email('nonexisting@dummy.it')
         self.assertEqual(resp['message'], u'No user found in db for nonexisting@dummy.it mail address')
 
         resp = self.proxy.get_user_by_email('nonexisting@dummy.it')

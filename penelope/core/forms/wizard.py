@@ -1,6 +1,5 @@
 # This Python file uses the following encoding: utf-8
 import colander
-import deform
 
 from plone.i18n.normalizer import idnormalizer
 from colander import SchemaNode
@@ -111,7 +110,7 @@ class GoogleDocsSchema(colander.SequenceSchema):
 
 class UsersSchema(colander.SequenceSchema):
     class UserSchema(colander.Schema):
-        usernames = SchemaNode(deform.Set(allow_empty=False),
+        usernames = SchemaNode(colander.Set(),
                                widget=ChosenMultipleWidget(placeholder=
                                                            u'Select people'),
                                missing=colander.required,

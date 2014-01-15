@@ -2,6 +2,7 @@
 ------------------
 
 - new fields for quality report [amleczko]
+- removes deprecated function get_user_by_login [amleczko]
 
 
 2.1.7 (2014-01-14)

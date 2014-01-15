@@ -173,7 +173,7 @@ class PrincipalSchema(colander.Schema):
             missing=colander.required,
             title=u'')
 
-    permission = colander.SchemaNode(deform.Set(allow_empty=False),
+    permission = colander.SchemaNode(colander.Set(),
             widget=deform.widget.CheckboxChoiceWidget(values=permissions),
             missing=colander.required,
             title=u'')

@@ -61,13 +61,13 @@ jquery_pivot = Group([
 deform_library = ForeignLibrary('deform', 'static')
 deform_bootstrap_library = ForeignLibrary('deform_bootstrap', 'static')
 
+deform_js = Resource(deform_library, 'scripts/deform.js', depends=[jquery])
 deform_bootstrap = Group([
         Resource(deform_bootstrap_library, 'chosen_bootstrap.css'),
-        Resource(deform_bootstrap_library, 'deform_bootstrap.js'),        
-        Resource(deform_bootstrap_library, 'jquery_chosen/chosen.css'),
-        Resource(deform_bootstrap_library, 'jquery_chosen/chosen.jquery.js', depends=[jquery]),
+        Resource(deform_bootstrap_library, 'deform_bootstrap.js', depends=[deform_js]),
+        Resource(por_library, 'jquery_chosen/chosen.min.css'),
+        Resource(por_library, 'jquery_chosen/chosen.jquery.min.js', depends=[jquery]),
         Resource(deform_library, 'scripts/jquery.form.js', depends=[jquery]),
-        Resource(deform_library, 'scripts/deform.js', depends=[jquery]),
         ])
 
 

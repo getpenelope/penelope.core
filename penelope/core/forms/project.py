@@ -209,6 +209,15 @@ def configurate(config):
         model='penelope.core.models.dashboard.Project',
         view=ProjectModelView)
 
+    config.formalchemy_model_view('admin',
+        request_method='GET',
+        permission='list_customer_request',
+        name='list_customer_requests.json',
+        renderer='json',
+        attr='list_customer_requests',
+        model='penelope.core.models.dashboard.Project',
+        view=ProjectModelView)
+
 
 class ProjectModelView(ModelView):
     actions_categories = ('buttons', 'tabs', 'subtabs')
@@ -346,7 +355,6 @@ class ProjectModelView(ModelView):
             self.request.add_message(u'Project %s has been unmarked as favorite.' % context.name, 'success')
         raise HTTPFound(self.request.fa_url('Project', context.id))
 
-
     @actions.action('listing')
     def datatable(self, **kwargs):
         result = super(ProjectModelView, self).datatable(**kwargs)
@@ -364,3 +372,7 @@ class ProjectModelView(ModelView):
         return dict(result,
                     columns=columns,
                     js_favorite_projects=json.dumps(list(favorite_projects)))
+
+    def list_customer_requests(self):
+        project = self.context.get_instance()
+        return [{'id': cr.id, 'name': str(cr)} for cr in project.customer_requests]

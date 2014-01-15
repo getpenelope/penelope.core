@@ -13,7 +13,7 @@ from fa.jquery.fanstatic_resources import fa_js
 from fa.jquery.renderers import DateFieldRenderer, default_renderers
 
 from penelope.core.lib.helpers import listwrap, ticket_url, unicodelower
-from penelope.core.models import DBSession, User, CustomerRequest
+from penelope.core.models import DBSession, User, CustomerRequest, Project, Contract, Application
 from penelope.core.models.tickets import ticket_store
 
 
@@ -57,7 +57,37 @@ class RelationRenderer(fields.SelectFieldRenderer):
     """Make relation linkable in readonly mode
        and aware of js.chosen()"""
 
+    project_related_classes = [CustomerRequest, Contract, Application]
+
+    def project_related_form(self):
+        """
+        Check if current fieldset has a project field and one project related field.
+        """
+        return [a for a in self.field.parent.render_fields.values() if a.is_relation and a.relation_type() in self.project_related_classes]
+
     def render(self, options, **kwargs):
+        optional_js = ''
+
+        prf = self.project_related_form()
+        if prf and self.field.relation_type() == Project:
+            optional_js = """\n$("#%(project_id)s").chosen().change(function(){
+                                var $project_id = $(this).val();
+                                $.getJSON('/admin/Project/'+$project_id+'/list_customer_requests.json', function(data){
+                                    var items = [];
+            """
+            prf_names = [a.renderer.name for a in prf]
+
+            for n in prf_names:
+                optional_js += "$('#%s option').remove();" % n
+                optional_js += """$.each(data, function(cr) {
+                                        items.push("<option value='" + data[cr]['id'] + "'>" + data[cr]['name'] + "</option>");
+                                  });
+                                  $('#%s').append(items.join(""));""" % n
+                optional_js += "$('#%s').trigger('chosen:updated');" % n
+
+            optional_js += "})});"
+            optional_js = optional_js % {'project_id':self.name}
+
         if callable(options):
             L = fields._normalized_options(options(self.field.parent))
             if not self.field.is_required() and not self.field.is_collection:
@@ -69,8 +99,9 @@ class RelationRenderer(fields.SelectFieldRenderer):
                 L = sorted([(k, self.stringify_value(v)) for k, v in L], key=lambda x:unicodelower(x[0]))
             else:
                 L = sorted([fields._stringify(k) for k in L], key=unicodelower)
+
         return h.select(self.name, self.value, L, class_='i-can-haz-chzn-select', **kwargs) + \
-               h.literal("<script>$('#%s').chosen()</script>" % self.name)
+               h.literal("<script>$('#%s').chosen();%s</script>" % (self.name, optional_js))
 
     def render_readonly(self, options=None, **kwargs):
         value = self.raw_value

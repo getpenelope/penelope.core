@@ -23,13 +23,13 @@ project_id =SchemaNode(typ=colander.String(),
                        missing=colander.null,
                        title=u'')
 
-customer_requests = SchemaNode(deform.Set(allow_empty=True),
+customer_requests = SchemaNode(colander.Set(),
                                widget=ChosenMultipleWidget(css_class='customer-request-select',
                                                            placeholder=u'Select customer requests'),
                                missing=colander.null,
                                title=u'')
 
-contracts = SchemaNode(deform.Set(allow_empty=True),
+contracts = SchemaNode(colander.Set(),
                        widget=ChosenMultipleWidget(css_class='contract-select',
                                                    placeholder=u'Select contract'),
                        missing=colander.null,
@@ -47,13 +47,13 @@ date_to = SchemaNode(typ=colander.Date(),
                      missing=colander.null,
                      title=u'')
 
-users = SchemaNode(deform.Set(allow_empty=True),
+users = SchemaNode(colander.Set(),
                    widget=ChosenMultipleWidget(placeholder=u'Select people'),
                    missing=colander.null,
                    title=u'')
 
 
-workflow_states = SchemaNode(deform.Set(allow_empty=True),
+workflow_states = SchemaNode(colander.Set(),
                              widget=ChosenMultipleWidget(placeholder=u'State'),
                              missing=colander.null,
                              title=u'')
