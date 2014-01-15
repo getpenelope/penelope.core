@@ -3,6 +3,8 @@
 
 - new fields for quality report [amleczko]
 - removes deprecated function get_user_by_login [amleczko]
+- upgrade to deform 0.9.9 [amleczko]
+- make project related chosen field more automatic [amleczko]
 
 
 2.1.7 (2014-01-14)
