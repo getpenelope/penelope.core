@@ -315,7 +315,9 @@ class QualityOperator(Quality):
         with open(namespace.filename, 'wb') as ofile:
             writer = csv.writer(ofile, dialect='excel')
 
-            writer.writerow(['Customer name', 'Project name', 'CR description', 'CR total estimations (days)', 'Contract number', 'Contract amount', 'Contract days', 'User', 'Total time in CR (days)'])
+            writer.writerow(['Customer name', 'Project name', 'CR description', 'CR total estimations (days)', 'CR status',
+                             'Contract number', 'Contract amount', 'Contract days', 'Contract end date', 'Contract status',
+                             'User', 'Total time in CR (days)'])
             query = session.query(
                                   TimeEntry.customer_request_id,
                                   TimeEntry.author_id,
@@ -326,11 +328,12 @@ class QualityOperator(Quality):
                                   Contract.amount.label('contract_amount'),
                                   Contract.days.label('contract_days'),
                                   Contract.contract_number,
+                                  Contract.end_date.label('contract_end_date'),
+                                  Contract.workflow_state.label('contract_workflow_state'),
                                   User.fullname.label('user'),
                                   )\
                            .options(defer(CustomerRequest.filler),
                                     defer(CustomerRequest.old_contract_name),
-                                    defer(CustomerRequest.workflow_state),
                                     defer(CustomerRequest.uid),
                                     defer(CustomerRequest.description),
                                     defer(CustomerRequest.project_id),
@@ -349,10 +352,13 @@ class QualityOperator(Quality):
                            .group_by(Contract.amount)\
                            .group_by(Contract.contract_number)\
                            .group_by(Contract.days)\
+                           .group_by(Contract.end_date)\
+                           .group_by(Contract.workflow_state)\
                            .group_by(CustomerRequest.name)\
                            .group_by(CustomerRequest.id)\
-                           .group_by(Customer.name)\
                            .order_by(CustomerRequest.name)\
+                           .order_by(CustomerRequest.workflow_state)\
+                           .group_by(Customer.name)\
                            .group_by(User.fullname)
 
             for row in query:
@@ -360,9 +366,12 @@ class QualityOperator(Quality):
                                  row.project.encode('utf8'),
                                  row.CustomerRequest.name.encode('utf8'),
                                  row.CustomerRequest.estimation_days,
+                                 row.CustomerRequest.workflow_state,
                                  row.contract_number and row.contract_number.encode('utf8') or 'N/A',
                                  row.contract_amount or 0,
                                  row.contract_days or 0,
+                                 row.contract_end_date or 'N/A',
+                                 row.contract_workflow_state,
                                  row.user.encode('utf8'),
                                  timedelta_as_work_days(row.total_time)])
 
