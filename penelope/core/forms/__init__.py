@@ -76,7 +76,7 @@ class CrudModels(Models, views.DefaultContext):
         area = self.request.model_name
         name = self.request.model_instance and str(self.request.model_instance).title() or ''
         view = self.prettify_title(self.request.view_name) or 'view'
-        title = '%s: %s %s' % (area, name, view)
+        title = '%s: %s %s' % (area, name.decode('utf8'), view)
         return title.title()
 
 
