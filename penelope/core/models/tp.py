@@ -14,7 +14,7 @@ from sqlalchemy import event
 from sqlalchemy.orm import relationship, backref
 
 from penelope.core.models.dublincore import dublincore_insert, dublincore_update, DublinCore
-from penelope.core.models import Base, CustomerRequest
+from penelope.core.models import Base, CustomerRequest, GlobalConfig, DBSession
 from penelope.core.models import workflow, classproperty
 from penelope.core.models.tickets import ticket_store
 from penelope.core.models.interfaces import ITimeEntry, IProjectRelated
@@ -110,6 +110,18 @@ class TimeEntry(DublinCore, workflow.Workflow, Base):
         ticket = self.get_ticket(request)
         if ticket:
             return ticket[3]['summary']
+
+    def get_cost(self):
+        """
+        Return cost as a total of:
+         * timeentry author cost
+         * company cost
+        """
+        author = self.author.cost_per_day(self.date)
+        author_cost = author and author.amount or 0
+        company = DBSession().query(GlobalConfig).one().cost_per_day(self.date)
+        company_cost = company and company.amount or 0
+        return (self.hours_as_work_days * author_cost) + (self.hours_as_work_days * company_cost)
 
 
 def new_te_created(mapper, connection, target):

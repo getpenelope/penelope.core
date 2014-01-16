@@ -21,7 +21,7 @@ from penelope.core.models import DBSession
 from penelope.core.models.dashboard import TRAC, SVN, Application, Customer, \
         CustomerRequest, Group, Project, User, Contract, KanbanBoard, \
         GOOGLE_DOCS, TRAC_REPORT, GENERIC_APP, BACKLOG_PRIORITY_ORDER, \
-        BACKLOG_MODIFICATION_ORDER
+        BACKLOG_MODIFICATION_ORDER, Cost
 from penelope.core.models.tp import TimeEntry
 from penelope.core.models.dublincore import DublinCore
 from penelope.core.models.interfaces import IRoleable, ITimeEntry
@@ -91,7 +91,6 @@ def before_workflow_edit_render(context, event):
     if not fs._render_fields.keys():
         fs.configure()
     del fs._render_fields['workflow_state']
-
 
 
 #Project rendering events
@@ -182,6 +181,7 @@ def before_user_listing_render(context, event):
     del fs._render_fields['mobile']
     del fs._render_fields['phone']
     del fs._render_fields['groups']
+    del fs._render_fields['costs']
     del fs._render_fields['favorite_projects']
 
 
@@ -196,6 +196,7 @@ def before_user_render(context, event):
     del fs._render_fields['salt']
     del fs._render_fields['password']
     del fs._render_fields['active']
+    del fs._render_fields['costs']
     del fs._render_fields['kanban_boards']
 
 
@@ -207,6 +208,7 @@ def before_user_edit_render(context, event):
 
     del fs._render_fields['favorite_projects']
     del fs._render_fields['groups']
+    del fs._render_fields['costs']
 
     if not has_permission('manage', context, event.request):
         del fs._render_fields['project_manager']
@@ -360,6 +362,33 @@ def before_customerrequest_editrender(context, event):
     [fs.append(fs._render_fields.pop(a)) for a in fs._render_fields if a != 'name']
 
 
+@events.subscriber([Cost, events.IBeforeRenderEvent])
+def before_cost_render(context, event):
+    fs = event.kwargs['fs']
+    if not fs._render_fields.keys():
+        fs.configure(readonly=fs.readonly)
+    if not fs.model.user_id:
+        del fs._render_fields['user']
+    del fs._render_fields['global_config']
+
+
+@events.subscriber([Cost, events.IBeforeEditRenderEvent])
+def before_cost_edit_render(context, event):
+    fs = event.kwargs['fs']
+    if not fs._render_fields.keys():
+        fs.configure(readonly=fs.readonly)
+    if event.request.model_instance.__class__ is User:
+        fs.model.user_id = event.request.model_id
+        fs.user_id.is_raw_foreign_key = False
+        fs.user_id.set(renderer=HiddenFieldRenderer)
+        fs.append(fs.user_id)
+    elif event.request.model_name == 'Company costs':
+        fs.model.global_config_id = 1
+        fs.global_config_id.is_raw_foreign_key = False
+        fs.global_config_id.set(renderer=HiddenFieldRenderer)
+        fs.append(fs.global_config_id)
+
+
 @events.subscriber([CustomerRequest, events.IBeforeRenderEvent])
 def before_customerrequest_render(context, event):
     bind_project(context, event)
@@ -376,6 +405,7 @@ def before_customerrequest_render(context, event):
     if fs.readonly:
         fs.append(Field('estimation_days', type=fatypes.Float))
         fs.estimation_days._value = context.estimation_days
+
 
 @events.subscriber([KanbanBoard, events.IBeforeRenderEvent])
 def before_kanban_render(context, event):

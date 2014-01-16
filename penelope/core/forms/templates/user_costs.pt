@@ -1,0 +1,34 @@
+<html metal:use-macro="main.macros['master']">
+  <body>
+    <div metal:fill-slot="main">
+        <ul class="nav nav-pills">
+            <li tal:replace="structure actions.tabs(request)" />
+          </ul>
+          <div style="width:30%">
+        <table class="table table-bordered">
+            <thead>
+              <tr>
+                <th i18n:translate="">Date</th>
+                <th i18n:translate="">Amount</th>
+              </tr>
+            </thead>
+            <tbody tal:repeat="item items">
+              <tr>
+                <td><a href="${request.fa_url('Cost', item.id)}">${item.date}</a></td>
+                <td>${item.amount} &#0128;</td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="pagination">
+              <ul>
+                  <span tal:replace="structure pager" />
+              </ul>
+          </div>
+          <p class="fa_field" tal:content="structure actions.buttons(request)"></p>
+          </div>
+
+
+    </div>
+  </body>
+</html>
+

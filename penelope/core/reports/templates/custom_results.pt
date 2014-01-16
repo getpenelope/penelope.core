@@ -36,6 +36,9 @@
           <tal:total condition="col[0]=='hours'">
             ${human_tot}
           </tal:total>
+          <tal:total condition="col[0]=='cost'">
+            ${'%.2f' % cost_tot} &#0128;
+          </tal:total>
         </td>
       </tr>
     </tbody>

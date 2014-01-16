@@ -19,11 +19,11 @@ class classproperty(object):
 from penelope.core.models.dashboard import Project, User, GlobalConfig, Role, OpenId,\
                                  PasswordResetToken, Application, CustomerRequest,\
                                  Estimation, Group, SavedQuery, Customer,\
-                                 Contract, KanbanBoard
+                                 Contract, KanbanBoard, Cost
 
 Project; User; GlobalConfig; PasswordResetToken; Role; SavedQuery
 Application; Customer; CustomerRequest; Group; OpenId; Estimation; Contract
-KanbanBoard
+KanbanBoard; Cost
 
 from penelope.core.models.tp import TimeEntry; TimeEntry
 from penelope.trac import events; events

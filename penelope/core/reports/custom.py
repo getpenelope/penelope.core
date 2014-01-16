@@ -66,6 +66,8 @@ class CustomerReport(object):
     def format_web(self, value):
         if isinstance(value, datetime.timedelta):
             return timedelta_as_human_str(value)
+        elif isinstance(value, float):
+            return '%.2f' % value
         return value
 
 
@@ -179,6 +181,7 @@ class CustomerReport(object):
                         'ticket_type': ticket_type,
                         'sensitive': ['no', 'yes'][tkt['sensitive']],
                         'hours': te.hours,
+                        'cost': te.get_cost(),
                     }
 
             event = AfterEntryCreatedEvent(entry, te)
@@ -198,6 +201,7 @@ class CustomerReport(object):
                     ('description', u'Descrizione attività'),
                     ('location', u'Sede'),
                     ('hours', u'Ore'),
+                    ('cost', u'Cost'),
                 ]
 
         group_by = {
@@ -356,6 +360,7 @@ class CustomerReport(object):
             delta0 = datetime.timedelta()
             delta_tot = sum((row['hours'] for row in detail['rows']), delta0)
             human_tot = timedelta_as_human_str(delta_tot)
+            cost_tot = sum((row['cost'] for row in detail['rows']), 0.0)
 
             result_table = render('penelope.core:reports/templates/custom_results.pt',
                                   {
@@ -365,6 +370,7 @@ class CustomerReport(object):
                                       'json_link': json_link,
                                       'format_web': self.format_web,
                                       'human_tot': human_tot,
+                                      'cost_tot': cost_tot,
                                   },
                                   request=self.request)
 

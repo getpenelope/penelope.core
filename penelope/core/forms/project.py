@@ -265,9 +265,9 @@ class ProjectModelView(ModelView):
         return self.new()
 
     def add_customer_request(self, *args, **kwargs):
-        self.request.model_class = dashboard.CustomerRequest
-        self.request.model_name = dashboard.CustomerRequest.__name__
-        self.request.form_action = ['Project', self.request.model_id, 'add_customer_request']
+        self.request.model_class = dashboard.customerrequest
+        self.request.model_name = dashboard.customerrequest.__name__
+        self.request.form_action = ['project', self.request.model_id, 'add_customer_request']
         return self.new()
 
     def add_contract(self, *args, **kwargs):

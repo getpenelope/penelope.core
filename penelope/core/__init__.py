@@ -71,6 +71,7 @@ def main(global_config, **settings):
 
     config.add_route('administrator', '/manage', factory='penelope.core.manage.ManageContext')
     config.add_route('manage_svn_authz', '/manage/svn_authz', factory='penelope.core.manage.ManageContext')
+    config.add_route('manage_costs', '/manage/costs', factory='penelope.core.manage.ManageContext')
     config.scan('penelope.core.manage')
 
     config.add_route('search', '/search')

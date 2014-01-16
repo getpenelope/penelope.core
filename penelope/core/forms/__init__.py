@@ -225,7 +225,7 @@ class ModelView(Base):
 
 
 
-from penelope.core.forms import project, customer, application, customer_request, timeentry, group, user, role, contract, kanbanboard
+from penelope.core.forms import project, customer, application, customer_request, timeentry, group, user, role, contract, kanbanboard, cost
 
 def include_forms(config):
     project.configurate(config)
@@ -238,6 +238,7 @@ def include_forms(config):
     role.configurate(config)
     contract.configurate(config)
     kanbanboard.configurate(config)
+    cost.configurate(config)
 
     config.override_asset(
         to_override="fa.bootstrap:templates/forms/",

@@ -75,6 +75,11 @@ class GlobalConfig(Base):
     id = Column(Integer, primary_key=True)
     active_iteration_url = Column(Unicode)
 
+    def cost_per_day(self, day):
+        for cost in self.costs:
+            if day >= cost.date:
+                return cost
+
 
 class Principal(Base):
     implements(IPorModel)
@@ -172,6 +177,11 @@ class User(Principal):
         openid = OpenId(openid=openid)
         self.openids.append(openid)
 
+    def cost_per_day(self, day):
+        for cost in self.costs:
+            if day >= cost.date:
+                return cost
+
     @property
     def email_domains(self):
         return re.compile("@([\w.]+)").findall(self.email)
@@ -238,6 +248,30 @@ class OpenId(Base):
 
     def __repr__(self):
         return "<OpenID openid=%s>" % self.openid
+
+
+class Cost(Base):
+    implements(IPorModel)
+
+    __tablename__ = 'costs'
+    __acl__ = deepcopy(CRUD_ACL)
+    id = Column(Integer, primary_key=True)
+    date = Column(Date, index=True)
+    amount = Column(Float(precision=2))
+    user_id = Column(Integer, ForeignKey('users.id'))
+    user = relationship(User, uselist=False, backref=backref('costs', order_by=date.desc()))
+    global_config_id = Column(Integer, ForeignKey('global_config.id'))
+    global_config = relationship(GlobalConfig, uselist=False, backref=backref('costs', order_by=date.desc()))
+
+    def __str__(self):
+        return self.__unicode__().encode('utf8')
+
+    def __unicode__(self):
+        name = self.user and self.user.fullname or 'Company'
+        return u"%s's cost for %s" % (name, self.date)
+
+    def __repr__(self):
+        return "<Cost user=%s>" % self.user_id
 
 
 class Customer(dublincore.DublinCore, Base):

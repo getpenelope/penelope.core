@@ -9,6 +9,7 @@ from penelope.core.interfaces import IManageView
 from penelope.core.forms import ModelView
 from penelope.core.forms.renderers import ProjectRelationRenderer
 from penelope.core.notifications import notify_user_with_welcoming_mail
+from penelope.core.models import dashboard
 
 
 def configurate(config):
@@ -52,9 +53,37 @@ def configurate(config):
 
     config.formalchemy_model_view('admin',
         request_method='GET',
+        permission='costs',
+        name='user_costs',
+        attr='user_costs',
+        renderer='penelope.core.forms:templates/user_costs.pt',
+        model='penelope.core.models.dashboard.User',
+        view=UserModelView)
+
+    config.formalchemy_model_view('admin',
+        request_method='GET',
         permission='edit',
         name='send_user_invitation',
         attr='send_user_invitation',
+        model='penelope.core.models.dashboard.User',
+        view=UserModelView)
+
+    #custom view for adding a customer request to the project
+    config.formalchemy_model_view('admin',
+        request_method='GET',
+        permission='costs',
+        name='add_cost',
+        attr='add_cost',
+        renderer='penelope.core.forms:templates/new.pt',
+        model='penelope.core.models.dashboard.User',
+        view=UserModelView)
+
+    config.formalchemy_model_view('admin',
+        request_method='POST',
+        permission='costs',
+        name='add_cost',
+        attr='add_cost',
+        renderer='penelope.core.forms:templates/new.pt',
         model='penelope.core.models.dashboard.User',
         view=UserModelView)
 
@@ -66,15 +95,28 @@ send_user_invitation = actions.UIButton(id='send_user_invitation',
     attrs=dict(href="request.fa_url('User', request.model_id, 'send_user_invitation')"))
 
 
-user_tabs = actions.Actions(actions.TabAction("show",
-    content="View",
-    permission='view',
-    attrs=dict(href="request.fa_url(request.model_name, request.model_id, '')")),
-    actions.TabAction("user_tokens",
-        content="User tokens",
-        permission='edit',
-        attrs=dict(href="request.fa_url(request.model_name, request.model_id, 'user_tokens')")), )
+user_tabs = actions.Actions(
+        actions.TabAction("show",
+            content="View",
+            permission='view',
+            attrs=dict(href="request.fa_url(request.model_name, request.model_id, '')")),
+        actions.TabAction("user_tokens",
+            content="User tokens",
+            permission='edit',
+            attrs=dict(href="request.fa_url(request.model_name, request.model_id, 'user_tokens')")),
+        actions.TabAction("costs",
+            content="User costs",
+            permission='costs',
+            attrs=dict(href="request.fa_url(request.model_name, request.model_id, 'user_costs')")),
+    )
 
+add_costs = actions.Actions(
+        actions.UIButton(id='add_cost',
+            content='Add user cost',
+            permission='costs',
+            _class='btn btn-success',
+            attrs=dict(href="request.fa_url('User', request.model_id, 'add_cost')")),
+        )
 
 class ModelListing(resources.ModelListing):
     implements(IManageView)
@@ -86,12 +128,29 @@ class UserModelView(ModelView):
     defaults_actions = deepcopy(actions.defaults_actions)
     defaults_actions['show_buttons'].append(send_user_invitation)
     defaults_actions.update(show_tabs=user_tabs)
-    defaults_actions.update(user_tokens_tabs=user_tabs)
+    defaults_actions.update(user_costs_tabs=user_tabs)
+    defaults_actions.update(user_costs_buttons=add_costs)
 
-    @actions.action('user_tokens')
+    @actions.action('show')
     def user_tokens(self, *args, **kwargs):
         context = self.context.get_instance()
         return self.render(user=context)
+
+    @actions.action('user_costs')
+    def user_costs(self, *args, **kwargs):
+        context = self.context.get_instance()
+        page = self.get_page(collection=context.costs)
+        pager = page.pager(**self.pager_args)
+        return self.render(pager=pager, items=page)
+
+    @actions.action('user_costs')
+    def add_cost(self, *args, **kwargs):
+        self.request.model_class = dashboard.Cost
+        self.request.model_name = dashboard.Cost.__name__
+        self.request.form_action = ['User', self.request.model_id, 'add_cost']
+        if self.request.method == 'POST':
+            self.request.POST.update({'next': self.request.fa_url('User', self.request.model_id, 'user_costs')})
+        return self.new()
 
     @actions.action('listing')
     def datatable(self, **kwargs):
