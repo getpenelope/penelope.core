@@ -18,9 +18,9 @@
       </div>
       <div class="row-fluid">
         <div class="span12 well">
-	  <a href="./report_all_entries?${qs}" class="btn btn-primary">All entries</a>
-	  <a href="./report_state_change?${qs}" class="btn btn-primary">Time state change</a>
-	  <a href="#" class="btn btn-primary disabled">Customer report</a>
+    <a href="./report_all_entries?${qs}" class="btn btn-primary">All entries</a>
+    <a href="./report_state_change?${qs}" class="btn btn-primary">Time state change</a>
+    <a href="#" class="btn btn-primary disabled">Customer report</a>
         </div>
       </div>
       <div class="row-fluid">

@@ -128,6 +128,9 @@ class PORRequest(Request):
         return ''
 
     def filter_viewables(self, items):
+        if len([a for a in self.authenticated_user.roles if a.name == 'administrator']) == 1:
+            # for administrator let's skip check 
+            return items
         return [item for item in items if self.filter_viewable(item)]
 
     def filter_viewable(self, item):

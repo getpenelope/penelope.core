@@ -185,12 +185,13 @@ class StateChangeReport(object):
         projects = self.request.filter_viewables(qry_active_projects())
 
         # select customers that have some active project
-        customers = sorted(set(p.customer for p in projects), key=unicodelower)
+        project_ids = [p.id for p in projects]
+        customers = set(DBSession.query(Customer.id, Customer.name).outerjoin(Project).filter(Project.id.in_(project_ids)).order_by(Customer.name))
 
         users = DBSession.query(User).order_by(User.fullname)
         users = filter_users_with_timeentries(users)
-        customer_requests = DBSession.query(CustomerRequest).order_by(CustomerRequest.name)
-        contracts = DBSession.query(Contract).order_by(Contract.name)
+        customer_requests = DBSession.query(CustomerRequest.id, CustomerRequest.name).order_by(CustomerRequest.name)
+        contracts = DBSession.query(Contract.id, Contract.name).order_by(Contract.name)
 
         form = PorInlineForm(schema,
                              formid='te_state_change',

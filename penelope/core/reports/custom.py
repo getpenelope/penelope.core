@@ -18,14 +18,14 @@ from sqlalchemy.orm import lazyload
 from webhelpers.html.builder import HTML, literal
 
 from penelope.core.events import AfterEntryCreatedEvent
-from penelope.core.lib.helpers import ticket_url, unicodelower, timeentry_url, ReversedOrder, total_seconds
+from penelope.core.lib.helpers import ticket_url, timeentry_url, ReversedOrder, total_seconds
 from penelope.core.lib.widgets import SearchButton, PorInlineForm
 from penelope.core.reports import fields
 from penelope.core.reports.favourites import render_saved_query_form
 from penelope.core.reports.queries import qry_active_projects, te_filter_by_customer_requests, filter_users_with_timeentries, te_filter_by_contracts
 from penelope.core.reports.validators import validate_period
 
-from penelope.core.models import DBSession, Project, TimeEntry, User, CustomerRequest, Contract
+from penelope.core.models import DBSession, Project, TimeEntry, User, CustomerRequest, Contract, Customer
 from penelope.core.models.tickets import ticket_store
 from penelope.core.models.tp import timedelta_as_human_str
 
@@ -67,7 +67,7 @@ class CustomerReport(object):
         if isinstance(value, datetime.timedelta):
             return timedelta_as_human_str(value)
         elif isinstance(value, float):
-            return '%.2f' % value
+            return u'%.2f €' % value
         return value
 
 
@@ -181,8 +181,10 @@ class CustomerReport(object):
                         'ticket_type': ticket_type,
                         'sensitive': ['no', 'yes'][tkt['sensitive']],
                         'hours': te.hours,
-                        'cost': te.get_cost(),
                     }
+
+            if self.request.has_permission('costs', self.context):
+                entry['cost'] = te.get_cost()
 
             event = AfterEntryCreatedEvent(entry, te)
             self.request.registry.notify(event)
@@ -201,8 +203,10 @@ class CustomerReport(object):
                     ('description', u'Descrizione attività'),
                     ('location', u'Sede'),
                     ('hours', u'Ore'),
-                    ('cost', u'Cost'),
                 ]
+
+        if self.request.has_permission('costs', self.context):
+            columns.append(('cost', u'Cost'))
 
         group_by = {
                     'project': ['customer', 'project', 'user'],
@@ -292,14 +296,13 @@ class CustomerReport(object):
     def __call__(self):
         schema = self.CustomSchema(validator=validate_period).clone()
         projects = self.request.filter_viewables(qry_active_projects())
+        project_ids = [p.id for p in projects]
 
-        # select customers that have some active project
-        customers = sorted(set(p.customer for p in projects), key=unicodelower)
-
+        customers = set(DBSession.query(Customer.id, Customer.name).outerjoin(Project).filter(Project.id.in_(project_ids)).order_by(Customer.name))
         users = DBSession.query(User).order_by(User.fullname)
         users = filter_users_with_timeentries(users)
-        customer_requests = DBSession.query(CustomerRequest).order_by(CustomerRequest.name)
-        contracts = DBSession.query(Contract).order_by(Contract.name)
+        customer_requests = DBSession.query(CustomerRequest.id, CustomerRequest.name).order_by(CustomerRequest.name)
+        contracts = DBSession.query(Contract.id, Contract.name).order_by(Contract.name)
 
         form = PorInlineForm(schema,
                              formid='report-customer',
@@ -335,7 +338,7 @@ class CustomerReport(object):
             return {
                     'form': form.render(),
                     'saved_query_form': render_saved_query_form(self.request),
-		    'qs':'',
+                    'qs':'',
                     'result_table': None
                     }
 
@@ -345,7 +348,7 @@ class CustomerReport(object):
             return {
                     'form': e.render(),
                     'saved_query_form': render_saved_query_form(self.request),
-		    'qs':'',
+                    'qs':'',
                     'result_table': None
                     }
 
@@ -360,7 +363,10 @@ class CustomerReport(object):
             delta0 = datetime.timedelta()
             delta_tot = sum((row['hours'] for row in detail['rows']), delta0)
             human_tot = timedelta_as_human_str(delta_tot)
-            cost_tot = sum((row['cost'] for row in detail['rows']), 0.0)
+            if self.request.has_permission('costs', self.context):
+                cost_tot = sum((row.get('cost',0) for row in detail['rows']), 0.0)
+            else:
+                cost_tot = 0
 
             result_table = render('penelope.core:reports/templates/custom_results.pt',
                                   {

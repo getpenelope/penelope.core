@@ -12,6 +12,7 @@ from sqlalchemy import Unicode
 from sqlalchemy import String
 from sqlalchemy import event
 from sqlalchemy.orm import relationship, backref
+from pyramid.threadlocal import get_current_request
 
 from penelope.core.models.dublincore import dublincore_insert, dublincore_update, DublinCore
 from penelope.core.models import Base, CustomerRequest, GlobalConfig, DBSession
@@ -117,10 +118,17 @@ class TimeEntry(DublinCore, workflow.Workflow, Base):
          * timeentry author cost
          * company cost
         """
-        author = self.author.cost_per_day(self.date)
-        author_cost = author and author.amount or 0
-        company = DBSession().query(GlobalConfig).one().cost_per_day(self.date)
-        company_cost = company and company.amount or 0
+        def get_author_cost():
+            author = self.author.cost_per_day(self.date)
+            return author and author.amount or 0
+
+        def get_company_cost():
+            company = DBSession().query(GlobalConfig).one().cost_per_day(self.date)
+            return company and company.amount or 0
+
+        author_cost = get_author_cost()
+        company_cost = get_company_cost()
+
         return (self.hours_as_work_days * author_cost) + (self.hours_as_work_days * company_cost)
 
 

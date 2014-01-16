@@ -13,10 +13,10 @@ from deform.widget import SelectWidget
 from pyramid.httpexceptions import HTTPForbidden
 from pyramid.view import view_config
 
-from penelope.core.models import DBSession, Project, TimeEntry, User, CustomerRequest, Contract
+from penelope.core.models import DBSession, Project, TimeEntry, User, CustomerRequest, Contract, Customer
 from penelope.core.models.tickets import ticket_store
 from penelope.core import fanstatic_resources
-from penelope.core.lib.helpers import ticket_url, unicodelower, total_seconds
+from penelope.core.lib.helpers import ticket_url, total_seconds
 from penelope.core.lib.widgets import SearchButton, PorInlineForm
 from penelope.core.reports.queries import qry_active_projects, te_filter_by_customer_requests, filter_users_with_timeentries, te_filter_by_contracts
 from penelope.core.reports.validators import validate_period
@@ -204,18 +204,21 @@ class AllEntriesReport(object):
 
         schema = self.AllEntriesSchema(validator=validate_period).clone()
 
-        projects = [
-                project for project in self.request.filter_viewables(qry_active_projects())
-                if self.request.has_permission('reports_all_entries_for_project', project)
-                ]
+        if len([a for a in self.request.authenticated_user.roles if a.name == 'administrator']) == 1:
+            projects = qry_active_projects()
+        else:
+            projects = [
+                    project for project in self.request.filter_viewables(qry_active_projects())
+                    if self.request.has_permission('reports_all_entries_for_project', project)
+                    ]
 
-        # select customers that have some active project
-        customers = sorted(set(p.customer for p in projects), key=unicodelower)
-
+        project_ids = [p.id for p in projects]
+        customers = set(DBSession.query(Customer.id, Customer.name).outerjoin(Project).filter(Project.id.in_(project_ids)).order_by(Customer.name))
         users = DBSession.query(User).order_by(User.fullname)
         users = filter_users_with_timeentries(users)
-        customer_requests = DBSession.query(CustomerRequest).order_by(CustomerRequest.name)
-        contracts = DBSession.query(Contract).order_by(Contract.name)
+        customer_requests = DBSession.query(CustomerRequest.id, CustomerRequest.name).order_by(CustomerRequest.name)
+        contracts = DBSession.query(Contract.id, Contract.name).order_by(Contract.name)
+
 
         form = PorInlineForm(schema,
                              formid='all_entries',

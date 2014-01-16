@@ -181,7 +181,6 @@ def before_user_listing_render(context, event):
     del fs._render_fields['mobile']
     del fs._render_fields['phone']
     del fs._render_fields['groups']
-    del fs._render_fields['costs']
     del fs._render_fields['favorite_projects']
 
 
@@ -208,7 +207,6 @@ def before_user_edit_render(context, event):
 
     del fs._render_fields['favorite_projects']
     del fs._render_fields['groups']
-    del fs._render_fields['costs']
 
     if not has_permission('manage', context, event.request):
         del fs._render_fields['project_manager']

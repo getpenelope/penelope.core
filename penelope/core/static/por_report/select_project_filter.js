@@ -42,7 +42,7 @@ var fill_select = function ($select, options) {
                     });
 
     // rebuild chosen
-    $select.trigger('liszt:updated');
+    $select.trigger("chosen:updated");
 };
 
 
@@ -61,7 +61,7 @@ $(document).ready(function (ev) {
              cache: false,
              success: function (customers) {
                  // act upon customer change
-                 $customer.change(function (ev) {
+                 $customer.chosen().change(function (ev) {
                      var customer_value = $customer.val();
                      if (customer_value===''){
                          return
@@ -89,7 +89,7 @@ $(document).ready(function (ev) {
 
 
                  // acts upon project change
-                 $project.change(function (ev) {
+                 $project.chosen().change(function (ev) {
                      var project_value = $project.val();
                      if (project_value===''){
                          return
