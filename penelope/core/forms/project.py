@@ -7,6 +7,10 @@ from pyramid.httpexceptions import HTTPFound
 from pyramid import httpexceptions as exc
 from pyramid_skins import SkinObject
 from repoze.workflow import get_workflow, WorkflowError
+from pyramid_formalchemy import events
+from zope.interface import alsoProvides
+import zope.component.event
+
 
 from fa.bootstrap import actions
 
@@ -218,6 +222,11 @@ def configurate(config):
         model='penelope.core.models.dashboard.Project',
         view=ProjectModelView)
 
+add_customer_request_actions = deepcopy(actions.defaults_actions['new_buttons'])
+add_customer_request_actions[0].permission = 'add_customer_request'
+add_customer_request_actions[1].permission = 'add_customer_request'
+add_customer_request_actions[2].permission = 'add_customer_request'
+
 
 class ProjectModelView(ModelView):
     actions_categories = ('buttons', 'tabs', 'subtabs')
@@ -228,6 +237,7 @@ class ProjectModelView(ModelView):
         self.defaults_actions.update(show_buttons=actions.Actions(actions.edit))
         self.defaults_actions.update(listing_buttons=actions.Actions())
         self.defaults_actions.update(documentation_buttons=actions.Actions())
+        self.defaults_actions['add_customer_request_buttons'] = add_customer_request_actions
 
     def delete(self):
         project = self.context.get_instance()
@@ -264,11 +274,22 @@ class ProjectModelView(ModelView):
         self.request.form_action = ['Project', self.request.model_id, 'add_application']
         return self.new()
 
+    @actions.action('add_customer_request')
     def add_customer_request(self, *args, **kwargs):
-        self.request.model_class = dashboard.customerrequest
-        self.request.model_name = dashboard.customerrequest.__name__
-        self.request.form_action = ['project', self.request.model_id, 'add_customer_request']
-        return self.new()
+        self.request.model_class = dashboard.CustomerRequest
+        self.request.model_name = dashboard.CustomerRequest.__name__
+        self.request.form_action = ['Project', self.request.model_id, 'add_customer_request']
+        if self.request.method == 'POST':
+            return self.create()
+
+        fs = self.get_fieldset(suffix='Add')
+        fs = fs.bind(session=self.session, request=self.request)
+
+        event = events.BeforeRenderEvent(fs.model, self.request, fs=fs)
+        alsoProvides(event, events.IBeforeNewRenderEvent)
+        zope.component.event.objectEventNotify(event)
+
+        return self.render(fs=fs, id=None)
 
     def add_contract(self, *args, **kwargs):
         self.request.model_class = dashboard.Contract

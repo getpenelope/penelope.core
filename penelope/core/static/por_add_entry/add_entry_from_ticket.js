@@ -40,7 +40,8 @@ $(document).ready(function() {
                       '    <div class="control-group">' +
                       '      <label class="control-label">{{project_label}}</label>' +
                       '      <div class="controls">' +
-                      '        <select name="project_id"><option value="{{project_id}}">{{project_name}}</option></select>' +
+                      '        <input type="hidden" value="{{project_id}}" >' +
+                      '        <input type="text" class="input-xlarge disabled" value="{{project_name}}" disabled="disabled">' +
                       '      </div>' +
                       '    </div>' +
                       '    <div class="control-group">' +
