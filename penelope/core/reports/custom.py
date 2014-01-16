@@ -184,9 +184,6 @@ class CustomerReport(object):
                         'hours': te.hours,
                     }
 
-            if self.request.has_permission('costs', self.context):
-                entry['cost'] = te.get_cost()
-
             event = AfterEntryCreatedEvent(entry, te)
             self.request.registry.notify(event)
 
@@ -205,9 +202,6 @@ class CustomerReport(object):
                     ('location', u'Sede'),
                     ('hours', u'Ore'),
                 ]
-
-        if self.request.has_permission('costs', self.context):
-            columns.append(('cost', u'Cost'))
 
         group_by = {
                     'project': ['customer', 'project', 'user'],
@@ -363,10 +357,6 @@ class CustomerReport(object):
             delta0 = datetime.timedelta()
             delta_tot = sum((row['hours'] for row in detail['rows']), delta0)
             human_tot = timedelta_as_human_str(delta_tot)
-            if self.request.has_permission('costs', self.context):
-                cost_tot = sum((row.get('cost',0) for row in detail['rows']), 0.0)
-            else:
-                cost_tot = 0
 
             result_table = render('penelope.core:reports/templates/custom_results.pt',
                                   {
@@ -376,7 +366,6 @@ class CustomerReport(object):
                                       'json_link': json_link,
                                       'format_web': self.format_web,
                                       'human_tot': human_tot,
-                                      'cost_tot': cost_tot,
                                   },
                                   request=self.request)
 

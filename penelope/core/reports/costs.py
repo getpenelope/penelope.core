@@ -12,11 +12,11 @@ from colander import SchemaNode
 from deform import ValidationFailure
 from deform.widget import SelectWidget
 from pyramid.view import view_config
+from webhelpers.html.builder import literal
 
 from penelope.core.models import DBSession, Project, TimeEntry, User, CustomerRequest, Contract, Customer
 from penelope.core.models.tickets import ticket_store
 from penelope.core import fanstatic_resources
-from penelope.core.lib.helpers import total_seconds
 from penelope.core.lib.widgets import SearchButton, PorInlineForm
 from penelope.core.reports.queries import qry_active_projects, te_filter_by_customer_requests, filter_users_with_timeentries, te_filter_by_contracts
 from penelope.core.reports.validators import validate_period
@@ -64,6 +64,12 @@ class CostsReport(object):
     def __init__(self, context, request):
         self.context = context
         self.request = request
+
+    def format_xls(self, value):
+        if isinstance(value, literal):
+            # sanitize HTML
+            return value.striptags()
+        return value
 
 
     class CostsSchema(colander.MappingSchema):
@@ -171,9 +177,9 @@ class CostsReport(object):
                         'user': te.author.fullname.strip(),
                         'date': te.date.strftime('%Y-%m-%d'),
                         'description': te.description,
-#                        'seconds': total_seconds(te.hours),
-#                        'time': 'ore',
                         'cost_total': te.get_cost(),
+                        'cost_author': te.get_cost(author_only=True),
+                        'cost_company': te.get_cost(company_only=True),
                         'cost_total_label': 'total cost',
                     }
 
@@ -220,11 +226,14 @@ class CostsReport(object):
         form['contracts'].widget.values = [(str(c.id), c.name) for c in contracts]
 
         controls = self.request.GET.items()
+        base_link = self.request.path_url.rsplit('/', 1)[0]
+        xls_link = ''.join([base_link, '/', 'costs_xls', '?', self.request.query_string])
 
         if not controls:
             # the form is empty
             return {
                     'form': form.render(),
+                    'xls_link': xls_link,
                     'qs':'',
                     'has_results': False
                     }
@@ -234,6 +243,7 @@ class CostsReport(object):
         except ValidationFailure as e:
             return {
                     'form': e.render(),
+                    'xls_link': xls_link,
                     'qs': self.request.query_string,
                     'has_results': False
                     }
@@ -273,10 +283,42 @@ class CostsReport(object):
         return {
                 'form': form.render(appstruct=appstruct),
                 'qs': self.request.query_string,
+                'xls_link': xls_link,
                 'has_results': len(sourcetable['rows'])>0,
                 'tpReport_oConf': json.dumps({
                                     'sourcetable': sourcetable,
                                     'id_tree': entries_detail['id_tree'],
                                     'groupby': entries_detail['groupby'],
                                 }),
+                }
+
+    @view_config(name='costs_xls', route_name='reports', renderer='xls_report', permission='costs')
+    def costs_xls(self):
+        schema = self.CostsSchema(validator=validate_period).clone()
+        form = PorInlineForm(schema)
+        controls = self.request.GET.items()
+        appstruct = form.validate(controls)
+
+        detail = self.search(**appstruct)
+        columns = [('project', 'Project'),
+                   ('customer', 'Customer'),
+                    ('request', 'CR'),
+                    ('description', 'Description'),
+                    ('user', 'User'),
+                    ('date', 'Date'),
+                    ('cost_author', 'Author cost'),
+                    ('cost_company', 'Company cost'),
+                    ('cost_total', 'Total cost')]
+
+        rows = [
+                [
+                    self.format_xls(row[col_key])
+                    for col_key, col_title in columns
+                    ]
+                for row in detail['rows']
+                ]
+
+        return {
+                'header': [col_title for col_key, col_title in columns],
+                'rows': rows,
                 }
