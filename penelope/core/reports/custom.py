@@ -15,6 +15,7 @@ from pyramid.renderers import render
 from pyramid.view import view_config
 from repoze.workflow import get_workflow
 from sqlalchemy.orm import lazyload
+from sqlalchemy import distinct
 from webhelpers.html.builder import HTML, literal
 
 from penelope.core.events import AfterEntryCreatedEvent
@@ -297,8 +298,7 @@ class CustomerReport(object):
         schema = self.CustomSchema(validator=validate_period).clone()
         projects = self.request.filter_viewables(qry_active_projects())
         project_ids = [p.id for p in projects]
-
-        customers = set(DBSession.query(Customer.id, Customer.name).outerjoin(Project).filter(Project.id.in_(project_ids)).order_by(Customer.name))
+        customers = DBSession.query(distinct(Customer.id), Customer.id, Customer.name).join(Project).filter(Project.id.in_(project_ids)).order_by(Customer.name)
         users = DBSession.query(User).order_by(User.fullname)
         users = filter_users_with_timeentries(users)
         customer_requests = DBSession.query(CustomerRequest.id, CustomerRequest.name).order_by(CustomerRequest.name)
@@ -333,7 +333,7 @@ class CustomerReport(object):
 
         controls = self.request.GET.items()
 
-        if not controls:
+        if not controls or len(controls)==1: # detail_level param
             # the form is empty
             return {
                     'form': form.render(),

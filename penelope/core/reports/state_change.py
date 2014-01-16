@@ -10,10 +10,11 @@ from pyramid.renderers import render
 from pyramid.view import view_config
 from repoze.workflow import get_workflow, WorkflowError
 from sqlalchemy.orm import lazyload
+from sqlalchemy import distinct
 from webhelpers.html.builder import HTML
 
 from penelope.core import fanstatic_resources
-from penelope.core.lib.helpers import ticket_url, unicodelower
+from penelope.core.lib.helpers import ticket_url
 from penelope.core.lib.widgets import SearchButton, PorInlineForm
 from penelope.core.models import DBSession, Project, TimeEntry, User, CustomerRequest, Contract, Customer
 from penelope.core.models.tickets import ticket_store
@@ -186,7 +187,7 @@ class StateChangeReport(object):
 
         # select customers that have some active project
         project_ids = [p.id for p in projects]
-        customers = set(DBSession.query(Customer.id, Customer.name).outerjoin(Project).filter(Project.id.in_(project_ids)).order_by(Customer.name))
+        customers = DBSession.query(distinct(Customer.id), Customer.id, Customer.name).join(Project).filter(Project.id.in_(project_ids)).order_by(Customer.name)
 
         users = DBSession.query(User).order_by(User.fullname)
         users = filter_users_with_timeentries(users)

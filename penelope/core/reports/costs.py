@@ -5,23 +5,21 @@ import json
 import logging
 
 import colander
-from sqlalchemy.orm import lazyload
 from sqlalchemy import distinct
+from sqlalchemy.orm import lazyload
 from colander import SchemaNode
 
 from deform import ValidationFailure
 from deform.widget import SelectWidget
-from pyramid.httpexceptions import HTTPForbidden
 from pyramid.view import view_config
 
 from penelope.core.models import DBSession, Project, TimeEntry, User, CustomerRequest, Contract, Customer
 from penelope.core.models.tickets import ticket_store
 from penelope.core import fanstatic_resources
-from penelope.core.lib.helpers import ticket_url, total_seconds
+from penelope.core.lib.helpers import total_seconds
 from penelope.core.lib.widgets import SearchButton, PorInlineForm
 from penelope.core.reports.queries import qry_active_projects, te_filter_by_customer_requests, filter_users_with_timeentries, te_filter_by_contracts
 from penelope.core.reports.validators import validate_period
-from penelope.core.reports.favourites import render_saved_query_form
 from penelope.core.reports import fields
 
 log = logging.getLogger(__name__)
@@ -62,13 +60,13 @@ class IDTree(dict):
         node.append(te_id)
 
 
-class AllEntriesReport(object):
+class CostsReport(object):
     def __init__(self, context, request):
         self.context = context
         self.request = request
 
 
-    class AllEntriesSchema(colander.MappingSchema):
+    class CostsSchema(colander.MappingSchema):
         customer_id = fields.customer_id.clone()
         project_id = fields.project_id.clone()
         date_from = fields.date_from.clone()
@@ -149,7 +147,7 @@ class AllEntriesReport(object):
 
         id_tree = IDTree()
 
-        time_entries = list(self.request.filter_viewables(qry))
+        time_entries = qry
 
         proj_tickets = collections.defaultdict(set)
         for te in time_entries:
@@ -157,25 +155,13 @@ class AllEntriesReport(object):
                 continue
             proj_tickets[te.project_id].add(te.ticket)
 
-        # projectsmap = {
-        #    'project_id': {
-        #         'ticket_id': 'customer_request_id',
-        #         ...
-        #    },
-        #    ...
-        # }
-
         projectsmap = {}
         for project_id, ticket_ids in proj_tickets.items():
             project = DBSession.query(Project).get(project_id)
-            if not self.request.has_permission('reports_all_entries_for_project', project):
-                continue
             projectsmap[project_id] = dict(ticket_store.get_requests_from_tickets(
                                             project, tuple(ticket_ids)))
 
         for te in time_entries:
-            if not self.request.has_permission('reports_all_entries_for_project', te.project):
-                continue
 
             customer_request = te.customer_request
             entry = {
@@ -185,8 +171,10 @@ class AllEntriesReport(object):
                         'user': te.author.fullname.strip(),
                         'date': te.date.strftime('%Y-%m-%d'),
                         'description': te.description,
-                        'seconds': total_seconds(te.hours),
-                        'time': 'ore',
+#                        'seconds': total_seconds(te.hours),
+#                        'time': 'ore',
+                        'cost_total': te.get_cost(),
+                        'cost_total_label': 'total cost',
                     }
 
             rows.append(entry)
@@ -199,22 +187,16 @@ class AllEntriesReport(object):
                 }
 
 
-    @view_config(name='report_all_entries', route_name='reports', renderer='skin', permission='reports_all_entries')
+    @view_config(name='report_costs', route_name='reports', renderer='skin', permission='costs')
     def __call__(self):
-        fanstatic_resources.report_all_entries.need()
+        fanstatic_resources.report_costs.need()
 
-        schema = self.AllEntriesSchema(validator=validate_period).clone()
+        schema = self.CostsSchema(validator=validate_period).clone()
 
-        if len([a for a in self.request.authenticated_user.roles if a.name == 'administrator']) == 1:
-            projects = qry_active_projects()
-        else:
-            projects = [
-                    project for project in self.request.filter_viewables(qry_active_projects())
-                    if self.request.has_permission('reports_all_entries_for_project', project)
-                    ]
-
+        projects = qry_active_projects()
         project_ids = [p.id for p in projects]
         customers = DBSession.query(distinct(Customer.id), Customer.id, Customer.name).join(Project).filter(Project.id.in_(project_ids)).order_by(Customer.name)
+
         users = DBSession.query(User).order_by(User.fullname)
         users = filter_users_with_timeentries(users)
         customer_requests = DBSession.query(CustomerRequest.id, CustomerRequest.name).order_by(CustomerRequest.name)
@@ -243,7 +225,6 @@ class AllEntriesReport(object):
             # the form is empty
             return {
                     'form': form.render(),
-                    'saved_query_form': render_saved_query_form(self.request),
                     'qs':'',
                     'has_results': False
                     }
@@ -253,7 +234,6 @@ class AllEntriesReport(object):
         except ValidationFailure as e:
             return {
                     'form': e.render(),
-                    'saved_query_form': render_saved_query_form(self.request),
                     'qs': self.request.query_string,
                     'has_results': False
                     }
@@ -269,7 +249,7 @@ class AllEntriesReport(object):
         }
 
         columns = [
-            { 'colvalue': 'time', 'groupbyrank': None, 'pivot': True, 'result': False },
+            {'colvalue': 'cost_total_label', 'groupbyrank': None, 'pivot': True, 'result': False }
         ]
 
         for idx, colname in enumerate(entries_detail['groupby']):
@@ -283,7 +263,7 @@ class AllEntriesReport(object):
                            })
 
         columns.append({'colvalue': 'description', 'coltext': 'description', 'header': 'description', 'pivot': False, 'result': False})
-        columns.append({'colvalue': 'seconds', 'groupbyrank': None, 'pivot': False, 'result': True})
+        columns.append({'colvalue': 'cost_total', 'groupbyrank': None, 'pivot': False, 'result': True})
 
         sourcetable = {
                     'rows': entries_detail['rows'],
@@ -292,7 +272,6 @@ class AllEntriesReport(object):
 
         return {
                 'form': form.render(appstruct=appstruct),
-                'saved_query_form': render_saved_query_form(self.request),
                 'qs': self.request.query_string,
                 'has_results': len(sourcetable['rows'])>0,
                 'tpReport_oConf': json.dumps({
@@ -301,48 +280,3 @@ class AllEntriesReport(object):
                                     'groupby': entries_detail['groupby'],
                                 }),
                 }
-
-
-
-    @view_config(name='all_entries_xls', route_name='reports', renderer='xls_report', permission='reports_all_entries')
-    @view_config(name='all_entries_csv', route_name='reports', renderer='csv_report', permission='reports_all_entries')
-    def all_entries_download(self):
-        schema = self.AllEntriesSchema().clone()
-        form = PorInlineForm(schema)
-        controls = self.request.GET.items()
-        appstruct = form.validate(controls)
-
-        header = ['cliente', 'progetto', 'request', 'user', 'data', 'descrizione', 'ore']
-
-        rows = [
-                (
-                    row['customer'],
-                    row['project'],
-                    row['request'],
-                    row['user'],
-                    row['date'],
-                    row['description'],
-                    row['seconds']/60.0/60.0,
-                )
-            for row in self.search(**appstruct)['rows']
-            ]
-
-        return {
-                'header': header,
-                'rows': rows
-                }
-
-
-@view_config(name='report_te_detail', route_name='reports', renderer='skin', permission='reports_all_entries')
-def report_te_detail(context, request):
-    ids = map(int, request.params['ids'].split(','))
-    qry = DBSession.query(TimeEntry).filter(TimeEntry.id.in_(ids)).order_by(TimeEntry.id)
-    projects = set(te.project for te in qry)
-    for project in projects:
-        if not request.has_permission('reports_all_entries_for_project', project):
-            return HTTPForbidden()
-    return {
-            'time_entries': qry.all(),
-            'ticket_url': ticket_url,
-            }
-

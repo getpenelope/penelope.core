@@ -47,11 +47,9 @@ spin = Resource(por_library, 'spin/spin.js')
 
 jsonrpc = Resource(por_library, 'jquery.jsonrpc/jquery.jsonrpc.js')
 
-jquery_pivot = Group([
-                        Resource(por_library, 'jquery.pivot/jquery_pivot.js', depends=[jquery]),
-                        Resource(por_library, 'jquery.pivot/jquery_pivot.css')
-                    ])
-
+jquery_pivot_css = Resource(por_library, 'jquery.pivot/jquery_pivot.css')
+jquery_pivot = Resource(por_library, 'jquery.pivot/jquery_pivot.js', depends=[jquery, jquery_pivot_css])
+jquery_pivot_costs = Resource(por_library, 'jquery.pivot/jquery_pivot_costs.js', depends=[jquery, jquery_pivot_css])
 
 
 #-------
@@ -94,11 +92,20 @@ subnav = Group([
                 Resource(por_library, 'por_subnav/subnav.css'),
                ])
 
+all_entries = Group([
+    Resource(por_library, 'por_report/all_entries.js', depends=[jquery, timepicker_it]),
+    Resource(por_library, 'por_report/all_entries.css'),
+    ])
+
 report_all_entries = Group([
-                            jquery_pivot,
-                            Resource(por_library, 'por_report/all_entries.js', depends=[jquery, timepicker_it]),
-                            Resource(por_library, 'por_report/all_entries.css'),
-                            ])
+    jquery_pivot,
+    all_entries
+    ])
+
+report_costs = Group([
+    jquery_pivot_costs,
+    all_entries
+    ])
 
 saved_queries = Resource(por_library, 'por_report/saved_queries.js', depends=[jquery])
 
