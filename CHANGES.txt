@@ -2,6 +2,7 @@
 -------------------
 
 - fix change_state problem in estimations tab [amleczko]
+- fix tekken `done` column [amleczko]
 
 
 2.1.9 (2014-01-16)
