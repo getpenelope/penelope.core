@@ -150,29 +150,6 @@ class TicketStore(object):
             db.rollback()
             return dict(tickets)
 
-    def get_all_ticket_crs(self, project):
-        """
-        returns a mapping of {ticket.id: cr_id}
-        """
-        def queryAllCustomerRequests(env):
-            db = env.get_db_cnx()
-            cursor = db.cursor()
-            cursor.execute("SELECT ticket, value FROM ticket_custom WHERE name='customerrequest'")
-            rows = cursor.fetchall() or []
-            db.rollback()
-            return rows
-
-        ret = {}
-        settings = get_current_registry().settings
-        tracenvs = settings.get('penelope.trac.envs')
-        for trac in project.tracs:
-            tracenv = Environment('%s/%s' % (tracenvs, trac.trac_name))
-            tracenv.abs_href.base = trac.api_uri
-            for ticket_id, cr_id in queryAllCustomerRequests(tracenv):
-                ret[ticket_id] = cr_id
-
-        return ret
-
     def get_requests_from_tickets(self, project, ticket_ids):
 
         def queryCustomerRequestsByTicktes(env, ticket_ids):

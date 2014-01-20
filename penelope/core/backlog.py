@@ -55,22 +55,9 @@ class Backlog(object):
     def fetch_done(self, projects):
         cr_done = collections.defaultdict(lambda: datetime.timedelta(0))
         for project in projects:
-            ticket_crs = ticket_store.get_all_ticket_crs(project)
-            sql = sa.text("""
-                          SELECT ticket, hours
-                            FROM time_entries
-                           WHERE ticket IS NOT NULL
-                                 AND project_id = :project_id
-                          """).params(project_id=project.id)
-            for ticket_id, hours in DBSession.execute(sql):
-                try:
-                    cr_id = ticket_crs[ticket_id]
-                    cr_done[cr_id] += hours
-                except KeyError:
-                    # likely a ticket with no CR
-                    pass
+            for t in project.time_entries:
+                cr_done[t.customer_request_id] += t.hours
         return cr_done
-
 
     @view_config(name='backlog', renderer='skin', permission='view_backlog', http_cache=0)
     def backlog(self, projects=None):
