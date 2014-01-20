@@ -194,8 +194,8 @@ class CustomerRequestModelView(ModelView):
             cr_actions = deepcopy(customer_request_tabs)
         wf = workflow.change_workflow(self.context)
         if wf:
-            cr_actions.append(wf)
-        self.defaults_actions.update(show_tabs = cr_actions)
+            wf_actions = cr_actions + [wf]
+        self.defaults_actions.update(show_tabs = wf_actions)
         self.defaults_actions.update(estimations_tabs = cr_actions)
         self.defaults_actions['show_buttons'].append(add_ticket)
         self.defaults_actions['show_buttons'].append(add_fast_ticketing)
