@@ -1,4 +1,4 @@
-2.1.10 (unreleased)
+2.1.10 (2014-01-20)
 -------------------
 
 - fix change_state problem in estimations tab [amleczko]
