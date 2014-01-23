@@ -1,4 +1,4 @@
-2.1.11 (unreleased)
+2.1.11 (2014-01-23)
 -------------------
 
 - fix search after moving to new deform [amleczko]
