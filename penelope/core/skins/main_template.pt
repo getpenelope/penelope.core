@@ -107,7 +107,9 @@
                 action="${request.application_url}/search">
              <div class="input-append input-prepend">
                <span tal:condition="trac | nothing" class="add-on">
+                 <input type="hidden" name="__start__" value="tracs:sequence">
                  <input type="checkbox" checked="1" class="inputSelect" name="tracs" value="${trac}"> Only this trac:
+                 <input type="hidden" name="__end__" value="tracs:sequence">
                </span>
               <input class="input-large" name="searchable" type="text" value="${request.params.get('searchable')}">
               <span class="add-on"><i class="icon-search"></i></span>

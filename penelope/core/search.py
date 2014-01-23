@@ -128,8 +128,16 @@ def search(request):
             'next': next_url,
             'form': form.render(appstruct=appstruct),
             'previous': previous_url,
-            'add_param': add_param,
+            'add_params': add_params,
             'results': results}
+
+
+def add_params(request, key, value):
+    base_query = request.params.copy()
+    base_query['__start__'] = '%s:sequence' % key
+    base_query[key] = value
+    base_query['__end__'] = '%s:sequence' % key
+    return base_query
 
 
 def add_param(request, key, value):
