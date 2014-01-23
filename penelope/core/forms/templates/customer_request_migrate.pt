@@ -8,7 +8,9 @@
           <div class="row-fluid">
             <div class="span3 well"><strong>${current_customer_request}</strong>
               <br/>
-              ${'%.2f' % current_customer_request.estimation_days} / ${'%.2f' % current_customer_request.timeentries_days} used
+              <a href="#" rel="tooltip" data-placement="bottom" data-original-title="Time entries done">${'%.2f' % current_customer_request.timeentries_days}</a> days
+              of
+              <a href="#" rel="tooltip" data-placement="bottom" data-original-title="Customer requests estimations">${'%.2f' % current_customer_request.estimation_days}</a> days.
             </div>
             <div class="span1" style="padding-top: 20px;">
               <i class="icon-forward"></i>
@@ -23,21 +25,25 @@
               </div>
             </div>
 
-          Select time entries to move:
+          Select time entries to move: <strong><span id="selected_tes" data-total="0"></span></strong>
           <table class="table-condensed table">
             <thead>
-              <th><input type="checkbox" class="check_all"> Time entry</th>
-              <th>total time</th>
-              <th>Ticket #</th>
+              <th style="width:100px"><input type="checkbox" class="check_all"> Date</th>
+              <th>Time entry</th>
+              <th style="width:80px">Time (days)</th>
+              <th>Ticket</th>
             </thead>
             <tbody>
                 <tr tal:repeat="te tes">
                   <td>
-                    <input type="checkbox" name="te" value="${te.id}">
+                    <input type="checkbox" name="te" value="${te.id}" data-time="${te.hours_as_work_days}">
+                    ${te.date}
+                  </td>
+                  <td>
                     <a href="/admin/TimeEntry/${te.id}">${te.description}</a>
                   </td>
                   <td>
-                    ${te.hours_str}
+                    ${'%.2f' % te.hours_as_work_days}
                   </td>
                   <td>
                       <a href="${ticket_url(request, te.project, te.ticket)}">#${te.ticket}</a>
@@ -57,9 +63,49 @@
           </div>
         </form>
         <script>
-          $('input.check_all').click(function() {
-             $(this).closest('form').find('input[type=checkbox]').attr('checked', $(this).is(':checked'));
+          function update_te(inputs, stat){
+            inputs.each(function(){
+              if ($(this).is(':checked')!=stat){
+                $(this).attr('checked', stat);
+                if (stat===true){
+                  t = $(this).data('time');
+                }
+                else{
+                  t = -Math.abs($(this).data('time'));
+                }
+                update_selected_tes(t);
+              }
+            });
+          };
+
+          function update_selected_tes(t){
+            $('#selected_tes').html(function(i) { 
+              val = $(this).data('total') + t;
+              $(this).data('total', val);
+              if (val<0.001){
+                return ''
+              }
+              else {
+                return (val).toFixed(2) + ' (days) selected'
+              }
+            });
+          };
+
+          $('input[name="te"]').click(function(){
+            if ($(this).is(':checked')){
+              t = $(this).data('time');
+            }
+            else {
+              t = -Math.abs($(this).data('time'));
+            };
+            update_selected_tes(t);
           });
+
+          $('input.check_all').click(function() {
+            update_te($(this).closest('form').find('input[type=checkbox]'), $(this).is(':checked'));
+           });
+
+          $("a[rel='tooltip']").tooltip();
         </script>
 
     </div>

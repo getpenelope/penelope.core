@@ -42,10 +42,10 @@ class TimeEntry(DublinCore, workflow.Workflow, Base):
     invoice_number = Column(String(10))
 
     customer_request_id = Column(String, ForeignKey('customer_requests.id'))
-    customer_request = relationship(CustomerRequest, backref=backref('time_entries'))
+    customer_request = relationship(CustomerRequest, backref=backref('time_entries', order_by=date.desc()))
 
     project_id = Column(String, ForeignKey('projects.id'), index=True, nullable=False)
-    project = relationship('Project', uselist=False, backref=backref('time_entries', order_by=id))
+    project = relationship('Project', uselist=False, backref=backref('time_entries', order_by=date.desc()))
 
     @classproperty
     def __acl__(cls):
