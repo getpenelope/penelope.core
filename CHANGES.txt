@@ -2,6 +2,7 @@
 -------------------
 
 - fix search after moving to new deform [amleczko]
+- fixes for migrate form [amleczko]
 
 
 2.1.10 (2014-01-20)
