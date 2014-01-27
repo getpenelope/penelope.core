@@ -1,4 +1,4 @@
-2.1.12 (unreleased)
+2.1.12 (2014-01-27)
 -------------------
 
 - performance fixes for my_time_entries report [amleczko]
