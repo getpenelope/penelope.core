@@ -39,6 +39,7 @@ class TimeEntry(DublinCore, workflow.Workflow, Base):
     location = Column(Unicode, nullable=False, default=u'RedTurtle')
     ticket = Column(Integer, index=True)
     tickettype = Column(String(25))
+    tickettitle = Column(Unicode)
     invoice_number = Column(String(10))
 
     customer_request_id = Column(String, ForeignKey('customer_requests.id'))
@@ -106,11 +107,6 @@ class TimeEntry(DublinCore, workflow.Workflow, Base):
         request = request or getattr(self, 'request', None)
         return ticket_store.get_ticket(self.project_id, self.ticket)
 
-    def get_ticket_summary(self, request=None):
-        ticket = self.get_ticket(request)
-        if ticket:
-            return ticket[3]['summary']
-
     def get_cost(self, author_only=False, company_only=False):
         """
         Return cost as a total of:
@@ -143,6 +139,7 @@ def new_te_created(mapper, connection, target):
     trac_ticket = target.get_ticket()
     if trac_ticket:
         target.tickettype = trac_ticket[3]['type']
+        target.tickettitle = trac_ticket[3]['summary']
         target.customer_request_id = trac_ticket[3]['customerrequest']
 
 

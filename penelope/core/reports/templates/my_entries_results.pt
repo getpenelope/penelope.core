@@ -33,7 +33,7 @@
           </th>
           <td>
             <a href="${ticket_url(request, te.project, te.ticket)}">#${te.ticket}</a> -
-            ${te.get_ticket_summary(request)}
+            ${te.tickettitle}
           </td>
           <td>
             <a href="${request.application_url}/admin/TimeEntry/${te.id}">
