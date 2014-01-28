@@ -37,25 +37,26 @@
                             Your query <code>${request.model_instance.backlog_query}</code>
                             didn't return any tickets. Please check if there is no syntax error or a simple typo.
                        </div>
+                       <input class="input-block-level" type="text" placeholder="Search backlog"
+                              ng-model="filters.name"
+                              ng-show="backlog.loaded==true && backlog.tasks.length>0">
 
                        <ul class="task_pool" ng-model="backlog.tasks" tal:attributes="draggable">
                          <li class="big_container {{task.priority && 'priority'}} media" id="{{task.id}}" 
                                 ng-repeat="task in backlog.tasks"
+                                ng-controller="BacklogController"
                                 ng-model="backlog.tasks[$index]"
+                                ng-hide="isExcludedByFilter"
                                 ng-show="task.id">
                              <div class="box_itm media-body">
                                <div class="number pull-right">#{{task.ticket}}</div>
                                <span class="project" style="{{getColor(task.project)}}" title="{{task.customer}}">{{task.project}}</span>
-                               <div class="ticket"><a ng-click="openModal(task.url)" href="javascript:void(0)">{{task.summary}}</a></div>
+                               <div class="ticket"><a target="_blank" href="{{task.url}}">{{task.summary}}</a></div>
                                <div class="pull-right users">
-                                 <a href="javascript:void(0)"  ng-click="task.involvedCollapsed = !task.involvedCollapsed" title="Click to see all involved users:">
+                                 <a href="javascript:void(0)">
                                    <img class="media-object" tooltip="{{task.owner}}"
                                       height="30" width="30" src="https://www.gravatar.com/avatar/{{gravatar(task.owner)}}">
                                  </a>
-                                 <div collapse="task.involvedCollapsed">
-                                   <img ng-repeat="email in task.involved" tooltip="{{email}}" tooltip-placement="bottom" tooltip-append-to-body="true"
-                                        height="30" width="30" alt="{{email}}" src="https://www.gravatar.com/avatar/{{gravatar(email)}}" />
-                                 </div>
                                </div>
                                <div ng-show="task.customerrequest">{{task.customerrequest}}</div>
                                <div class="clearfix"></div>

@@ -1,7 +1,7 @@
 2.1.13 (unreleased)
 -------------------
 
-- Nothing changed yet.
+- fixes to kanbanboard [amleczko]
 
 
 2.1.12 (2014-01-27)

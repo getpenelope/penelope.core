@@ -5,9 +5,12 @@ angular.module('kanban', ['ui.sortable', 'ui.bootstrap'])
 
     $scope.columns = [];
     $scope.backlog = { tasks: [],
-                       loaded: false};
+        loaded: false};
     $scope.emails = [];
     $scope.user = '';
+    $scope.filters = {
+        name: ""
+    };
 
     $scope.init = function(board_id, email){
         $scope.board_id = board_id;
@@ -87,7 +90,6 @@ angular.module('kanban', ['ui.sortable', 'ui.bootstrap'])
     };
 
     $scope.boardChanged = function() {
-        console.log('saved');
         $socketio.emit("board_changed", $scope.columns);
     };
 
@@ -108,6 +110,32 @@ angular.module('kanban', ['ui.sortable', 'ui.bootstrap'])
     };
 
   })
+
+.controller("BacklogController", function($scope) {
+
+    $scope.isExcludedByFilter = applySearchFilter();
+
+    $scope.$watch(
+        "filters.name",
+        function( newName, oldName ) {
+            if ( newName === oldName ) {
+                return;
+            }
+            applySearchFilter();
+        }
+    );
+
+    $scope.isExcludedByFilter = applySearchFilter();
+    function applySearchFilter() {
+
+        var filter = $scope.filters.name.toLowerCase();
+        var name = $scope.task.summary.toLowerCase();
+        var isSubstring = ( name.indexOf( filter ) !== -1 );
+        $scope.isExcludedByFilter = ! isSubstring;
+    }
+
+})
+
 
 .directive('xeditable', function($timeout) {
     return {
