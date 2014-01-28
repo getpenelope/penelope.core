@@ -1,4 +1,6 @@
 import transaction
+import redis
+import time
 
 from json import loads, dumps
 from pyramid.response import Response
@@ -21,6 +23,14 @@ class BoardMixin(object):
         if 'boards' not in self.session:
             self.session['boards'] = set()
 
+    @property
+    def board(self):
+        return self.session.get('board')
+
+    @property
+    def email(self):
+        return self.session.get('email')
+
     def join(self, data):
         """Lets a user join a board on a specific Namespace."""
         self.session['boards'].add(self._get_board_name(data['board_id']))
@@ -40,26 +50,34 @@ class BoardMixin(object):
     def _get_board_name(self, board):
         return self.ns_name + '_' + board
 
-    def emit_to_board(self, board, event, *args):
+    def board_channel(self):
+        """Get redis pubsub channel key for given chat room."""
+        return 'kanbanboard:boards:{n}'.format(n=self.board)
+
+    def notify_redis(self, event, data, notify_me=True):
+        r = redis.StrictRedis()
+        r.publish(self.board_channel(), dumps([event, data, notify_me]))
+
+    def emit_to_board(self, event, *args):
         """This is sent to all in the board (in this particular Namespace)"""
         pkt = dict(type="event",
                    name=event,
                    args=args,
                    endpoint=self.ns_name)
-        board_name = self._get_board_name(board)
+        board_name = self._get_board_name(self.board)
         for sessid, socket in self.socket.server.sockets.iteritems():
             if 'boards' not in socket.session:
                 continue
             if board_name in socket.session['boards']:
                 socket.send_packet(pkt)
 
-    def emit_to_board_not_me(self, board, event, *args):
+    def emit_to_board_not_me(self, event, *args):
         """This is sent to all in the board (in this particular Namespace)"""
         pkt = dict(type="event",
                    name=event,
                    args=args,
                    endpoint=self.ns_name)
-        board_name = self._get_board_name(board)
+        board_name = self._get_board_name(self.board)
         for sessid, socket in self.socket.server.sockets.iteritems():
             if 'boards' not in socket.session:
                 continue
@@ -69,39 +87,48 @@ class BoardMixin(object):
 
 class KanbanNamespace(BaseNamespace, BoardMixin):
 
-    @property
-    def board(self):
-        return self.session.get('board')
+    def listener(self):
+        r = redis.StrictRedis()
+        r = r.pubsub()
+        r.subscribe(self.board_channel())
 
-    @property
-    def email(self):
-        return self.session.get('email')
+        for m in r.listen():
+            if m['type'] == 'message':
+                data = loads(m['data'])
+                print data[0], data[2]
+                if data[2]: # notify_me
+                    self.emit_to_board(data[0], data[1])
+                else:
+                    self.emit_to_board_not_me(data[0], data[1])
 
     def on_join(self, data):
+        self.spawn(self.listener)
         self.session['board'] = data['board_id']
         self.session['email'] = data['email']
         self.join(data)
+        self.notify_redis("connected", data['email'])
 
         board = DBSession().query(KanbanBoard).get(self.board)
         try:
             boards = loads(board.json)
         except (ValueError, TypeError):
             boards = []
-        self.emit_to_board(self.board, "columns", {"value": boards})
-        self.emit_to_board(self.board, "emails", {"value": self.board_users(self.board)})
+
+        self.notify_redis("columns", {"value": boards})
+        self.notify_redis("emails", {"value": self.board_users(self.board)})
 
     def recv_disconnect(self):
         if self.board and self.email:
             self.leave(self.board, self.email)
-            self.emit_to_board(self.board, "emails", {"value": self.board_users(self.board)})
+            self.notify_redis("emails", {"value": self.board_users(self.board)})
         self.disconnect(silent=True)
 
     def on_history(self, data):
-        self.emit_to_board_not_me(self.board, "history", data)
+        self.notify_redis("history", data, notify_me=False)
 
     def on_board_changed(self, data):
         # cleanup data - make sure we will not save empty tasks
-        self.emit_to_board_not_me(self.board, "columns", {"value": data})
+        self.notify_redis("columns", {"value": data}, notify_me=False)
         for col in data:
             to_remove = []
             try:

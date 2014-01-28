@@ -1,7 +1,7 @@
 var WEB_SOCKET_SWF_LOCATION = '/fanstatic/por/por_kanban/js/WebSocketMain.swf'
 
 angular.module('kanban', ['ui.sortable', 'ui.bootstrap'])
-  .controller("KanbanCtrl", function($scope, $http, $socketio) {
+  .controller("KanbanCtrl", function($scope, $socketio, $log) {
 
     $scope.columns = [];
     $scope.backlog = { tasks: [],
@@ -19,53 +19,14 @@ angular.module('kanban', ['ui.sortable', 'ui.bootstrap'])
         $scope.user = email;
     }
 
-    $socketio.on('columns', function(data) {
-        $scope.columns = data.value;
-        $socketio.emit("get_backlog");
-    });
-
-    $socketio.on('backlog', function(data) {
-        $scope.backlog.tasks = data.value;
-        $scope.backlog.loaded = true;
-    });
-
-    $socketio.on('emails', function(data) {
-        $scope.emails = data.value;
-    });
-
     $scope.gravatar = function(email){
         return md5(email) + '?s=30';
-    }
-
-    $scope.openModal = function(url){
-        $('#ModalTicket').on('show', function () {
-            $('.modal .preloader').show();
-            $('iframe').hide();
-            $('iframe').height('200');
-            $('iframe').attr("src", url);
-            $('iframe').one('load', function() {
-                $('.modal .preloader').hide();
-                $('iframe').height('650');
-                $('iframe').show();
-            });
-        });
-        $('#ModalTicket').modal({show:true})
     }
 
     $scope.addHistory = function(info){
         $socketio.emit("history", { info: info,
                                     user: $scope.user });
     }
-    $socketio.on("history", function(data) {
-        info = '<img height="30" width="30" src="https://www.gravatar.com/avatar/'+ $scope.gravatar(data.user) +'?s=30" /> ' + data.info
-        $.pnotify({
-            title: 'Board updated',
-            text: info,
-            type: 'info',
-            addclass: "stack-topleft",
-            icon: false
-        });
-    });
 
     $scope.getColor = function(project){
         return 'background: #' + md5(project).slice(0, 6);
@@ -89,10 +50,6 @@ angular.module('kanban', ['ui.sortable', 'ui.bootstrap'])
         $scope.boardChanged();
     };
 
-    $scope.boardChanged = function() {
-        $socketio.emit("board_changed", $scope.columns);
-    };
-
     $scope.sortableOptions = {
         placeholder: "ui-state-highlight",
         connectWith: ".task_pool",
@@ -109,12 +66,49 @@ angular.module('kanban', ['ui.sortable', 'ui.bootstrap'])
         },
     };
 
+    $scope.boardChanged = function() {
+        $socketio.emit("board_changed", $scope.columns);
+    };
+
+    $socketio.on('columns', function(data) {
+        $scope.columns = data.value;
+        $socketio.emit("get_backlog");
+    });
+
+    $socketio.on('backlog', function(data) {
+        $scope.backlog.tasks = data.value;
+        $scope.backlog.loaded = true;
+    });
+
+    $socketio.on('emails', function(data) {
+        $scope.emails = data.value;
+    });
+
+    $socketio.on("history", function(data) {
+        info = '<img height="30" width="30" src="https://www.gravatar.com/avatar/'+ $scope.gravatar(data.user) +'?s=30" /> ' + data.info
+        $.pnotify({
+            title: 'Board updated',
+            text: info,
+            type: 'info',
+            addclass: "stack-topleft",
+            icon: false
+        });
+    });
+
+    $socketio.on("ticket_changed", function(data){
+        $log.log($scope.columns);
+        $log.log(data);
+    });
+
   })
+
+.controller("TaskController", function($scope, $http, $socketio) {
+
+})
 
 .controller("BacklogController", function($scope) {
 
     $scope.isExcludedByFilter = applySearchFilter();
-
     $scope.$watch(
         "filters.name",
         function( newName, oldName ) {
