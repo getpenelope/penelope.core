@@ -87,12 +87,14 @@ angular.module('kanban', ['ui.sortable', 'ui.bootstrap'])
     };
 
     $scope.boardChanged = function() {
+        console.log('saved');
         $socketio.emit("board_changed", $scope.columns);
     };
 
     $scope.sortableOptions = {
         placeholder: "ui-state-highlight",
         connectWith: ".task_pool",
+        distance: 15,
         update: function(e, ui) {
            if(ui.sender){
                $scope.addHistory('Ticket moved between columns.');

@@ -46,7 +46,7 @@
                              <div class="box_itm media-body">
                                <div class="number pull-right">#{{task.ticket}}</div>
                                <span class="project" style="{{getColor(task.project)}}" title="{{task.customer}}">{{task.project}}</span>
-                               <span class="ticket"><a ng-click="openModal(task.url)" href="javascript:void(0)">{{task.summary}}</a></span>
+                               <div class="ticket"><a ng-click="openModal(task.url)" href="javascript:void(0)">{{task.summary}}</a></div>
                                <div class="pull-right users">
                                  <a href="javascript:void(0)"  ng-click="task.involvedCollapsed = !task.involvedCollapsed" title="Click to see all involved users:">
                                    <img class="media-object" tooltip="{{task.owner}}"
@@ -91,19 +91,28 @@
                               ng-repeat="task in column.tasks track by $index"
                               ng-model="columns[$parent.$index].tasks[$index]"
                               ng-show="task.id">
-                            <div class="box_itm media-body">
-                              <div class="number pull-right">#{{task.ticket}}</div>
+                              <div class="box_itm media-body">
+                               <div class="number pull-right" tal:condition="not draggable">#{{task.ticket}}</div>
+                                <div class="btn-group pull-right" tal:condition="draggable">
+                                  <button class="btn btn-ticket dropdown-toggle" data-toggle="dropdown">
+                                    #{{task.ticket}}
+                                    <span class="caret"></span>
+                                  </button>
+                                  <ul class="dropdown-menu">
+                                    <li><a href="#" ng-click="column.tasks.splice($index,1)">
+                                      <i class="icon-trash"></i>
+                                      Remove ticket
+                                    </a></li>
+                                  </ul>
+                                </div>
+
                               <span class="project" style="{{getColor(task.project)}}" title="{{task.customer}}">{{task.project}}</span>
-                              <span class="ticket"><a target="_blank" href="{{task.url}}">{{task.summary}}</a></span>
+                              <div class="ticket"><a target="_blank" href="{{task.url}}">{{task.summary}}</a></div>
                                <div class="pull-right users">
-                                 <a href="javascript:void(0)"  ng-click="task.involvedCollapsed = !task.involvedCollapsed" title="Click to see all involved users:">
+                                 <a href="javascript:void(0)">
                                    <img class="media-object" tooltip="{{task.owner}}"
                                       height="30" width="30" src="https://www.gravatar.com/avatar/{{gravatar(task.owner)}}">
                                  </a>
-                                 <div collapse="task.involvedCollapsed">
-                                   <img ng-repeat="email in task.involved" tooltip="{{email}}" tooltip-placement="bottom" tooltip-append-to-body="true"
-                                        height="30" width="30" alt="{{email}}" src="https://www.gravatar.com/avatar/{{gravatar(email)}}" />
-                                 </div>
                                </div>
                               <div ng-show="task.customerrequest">{{task.customerrequest}}</div>
                               <div class="clearfix"></div>
