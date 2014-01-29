@@ -1,4 +1,4 @@
-2.1.14 (unreleased)
+2.1.14 (2014-01-29)
 -------------------
 
 - add redis kanbanboard support [amleczko]
