@@ -43,12 +43,12 @@
 
                        <ul class="task_pool" ng-model="backlog.tasks" tal:attributes="draggable">
                          <li class="big_container {{task.priority && 'priority'}} media" id="{{task.id}}" 
-                                ng-repeat="task in backlog.tasks"
+                                ng-repeat="task in backlog.tasks track by task.id"
                                 ng-controller="BacklogController"
                                 ng-model="backlog.tasks[$index]"
                                 ng-hide="isExcludedByFilter"
                                 ng-show="task.id">
-                             <div class="box_itm media-body">
+                                <div class="box_itm media-body">
                                <div class="number pull-right">#{{task.ticket}}</div>
                                <span class="project" style="{{getColor(task.project)}}" title="{{task.customer}}">{{task.project}}</span>
                                <div class="ticket"><a target="_blank" href="{{task.url}}">{{task.summary}}</a></div>
@@ -89,11 +89,11 @@
 
                       <ul class="task_pool" ng-model="column.tasks" tal:attributes="draggable">
                         <li class="big_container {{task.priority && 'priority'}} media" id="{{task.id}}" 
-                              ng-repeat="task in column.tasks track by $index"
+                              ng-repeat="task in column.tasks track by task.id"
                               ng-model="columns[$parent.$index].tasks[$index]"
                               ng-controller="TaskController"
                               ng-show="task.id">
-                              <div class="box_itm media-body">
+                              <div class="box_itm media-body" animate-on-change="task.modified">
                                <div class="number pull-right" tal:condition="not draggable">#{{task.ticket}}</div>
                                 <div class="btn-group pull-right" tal:condition="draggable">
                                   <button class="btn btn-ticket dropdown-toggle" data-toggle="dropdown">
@@ -101,7 +101,7 @@
                                     <span class="caret"></span>
                                   </button>
                                   <ul class="dropdown-menu">
-                                    <li><a href="#" ng-click="column.tasks.splice($index,1)">
+                                    <li><a href="#" ng-click="removeTask($index)">
                                       <i class="icon-trash"></i>
                                       Remove ticket
                                     </a></li>

@@ -1,15 +1,24 @@
 var WEB_SOCKET_SWF_LOCATION = '/fanstatic/por/por_kanban/js/WebSocketMain.swf'
 
-angular.module('kanban', ['ui.sortable', 'ui.bootstrap'])
-  .controller("KanbanCtrl", function($scope, $socketio, $log) {
+angular.module('kanban', ['ui.sortable', 'ui.bootstrap', 'ngAnimate'])
+  .controller("KanbanCtrl", function($scope, $socketio, $log, $animate) {
 
     $scope.columns = [];
-    $scope.backlog = { tasks: [],
-        loaded: false};
+    $scope.filters = {name: ""};
+    $scope.backlog = {tasks: [], loaded: false};
     $scope.emails = [];
     $scope.user = '';
-    $scope.filters = {
-        name: ""
+    $scope.tickets = [];
+
+    $scope.hash_tickets = function() {
+        $scope.tickets = [];
+        for (var i=0; i < $scope.columns.length; i++) {
+            for (var j=0; j < $scope.columns[i].tasks.length; j++){
+                if ($scope.columns[i].tasks[j] != undefined){
+                    $scope.tickets.push($scope.columns[i].tasks[j]['id']);
+                }
+            }
+        }
     };
 
     $scope.init = function(board_id, email){
@@ -17,16 +26,16 @@ angular.module('kanban', ['ui.sortable', 'ui.bootstrap'])
         $socketio.emit("join", { board_id: board_id, 
                                  email: email });
         $scope.user = email;
-    }
+    };
 
     $scope.gravatar = function(email){
         return md5(email) + '?s=30';
-    }
+    };
 
     $scope.addHistory = function(info){
         $socketio.emit("history", { info: info,
                                     user: $scope.user });
-    }
+    };
 
     $scope.getColor = function(project){
         return 'background: #' + md5(project).slice(0, 6);
@@ -34,7 +43,7 @@ angular.module('kanban', ['ui.sortable', 'ui.bootstrap'])
 
     $scope.getUserImages = function(emails){
         return '<img height="30" width="30" src="https://www.gravatar.com/avatar/'+ $scope.gravatar(emails[0])+'?s=30" />'
-    }
+    };
 
     $scope.addColumn = function() {
         $scope.columns.push({'title': 'New column ' + $scope.columns.length,
@@ -58,6 +67,7 @@ angular.module('kanban', ['ui.sortable', 'ui.bootstrap'])
            if(ui.sender){
                $scope.addHistory('Ticket moved between columns.');
                $scope.boardChanged();
+               $scope.hash_tickets();
            }
            else{
                $scope.addHistory('Ticket order changed.');
@@ -72,6 +82,7 @@ angular.module('kanban', ['ui.sortable', 'ui.bootstrap'])
 
     $socketio.on('columns', function(data) {
         $scope.columns = data.value;
+        $scope.hash_tickets();
         $socketio.emit("get_backlog");
     });
 
@@ -95,14 +106,36 @@ angular.module('kanban', ['ui.sortable', 'ui.bootstrap'])
         });
     });
 
+    function update_ticket(ticket, data){
+        for (var i=0; i < $scope.columns.length; i++) {
+            for (var j=0; j < $scope.columns[i].tasks.length; j++){
+                if ($scope.columns[i].tasks[j]['id'] == ticket){
+                    angular.extend($scope.columns[i].tasks[j], data);
+                }
+            }
+        };
+        $scope.boardChanged();
+    };
+
     $socketio.on("ticket_changed", function(data){
-        $log.log($scope.columns);
-        $log.log(data);
+        var tickets = Object.keys(data);
+        for (var i=0; i < tickets.length; i++) {
+            if ($scope.tickets.indexOf(tickets[i]) > -1){
+                data[tickets[i]]['modified'] = new Date().getTime();
+                update_ticket(tickets[i], data[tickets[i]]);
+            }
+        }
     });
 
   })
 
 .controller("TaskController", function($scope, $http, $socketio) {
+
+    $scope.removeTask = function(index){
+        $scope.column.tasks.splice(index,1);
+        $scope.hash_tickets();
+        $scope.boardChanged();
+    };
 
 })
 
@@ -126,8 +159,20 @@ angular.module('kanban', ['ui.sortable', 'ui.bootstrap'])
         var name = $scope.task.summary.toLowerCase();
         var isSubstring = ( name.indexOf( filter ) !== -1 );
         $scope.isExcludedByFilter = ! isSubstring;
-    }
+    };
 
+})
+
+.directive('animateOnChange', function($animate, $log) {
+    return function(scope, elem, attr) {
+        scope.$watch(attr.animateOnChange, function(nv,ov) {
+            if (nv!=ov) {
+                $animate.addClass(elem, 'newtask', function() {
+                    $animate.removeClass(elem, 'newtask');
+                });
+            }
+        })
+    }
 })
 
 

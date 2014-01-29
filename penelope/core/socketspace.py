@@ -1,6 +1,5 @@
 import transaction
 import redis
-import time
 
 from json import loads, dumps
 from pyramid.response import Response
@@ -56,15 +55,22 @@ class BoardMixin(object):
 
     def notify_redis(self, event, data, notify_me=True):
         r = redis.StrictRedis()
-        r.publish(self.board_channel(), dumps([event, data, notify_me]))
+        msg = {'event': event,
+               'sessid': self.socket.sessid,
+               'data': data,
+               'notify_me': notify_me}
+        r.publish(self.board_channel(), dumps(msg))
 
-    def emit_to_board(self, event, *args):
+    def _emit_to_board_(self, event, *args):
         """This is sent to all in the board (in this particular Namespace)"""
         pkt = dict(type="event",
                    name=event,
                    args=args,
                    endpoint=self.ns_name)
-        board_name = self._get_board_name(self.board)
+        return pkt, self._get_board_name(self.board)
+
+    def emit_to_board(self, event, *args):
+        pkt, board_name = self._emit_to_board_(event, *args)
         for sessid, socket in self.socket.server.sockets.iteritems():
             if 'boards' not in socket.session:
                 continue
@@ -72,12 +78,7 @@ class BoardMixin(object):
                 socket.send_packet(pkt)
 
     def emit_to_board_not_me(self, event, *args):
-        """This is sent to all in the board (in this particular Namespace)"""
-        pkt = dict(type="event",
-                   name=event,
-                   args=args,
-                   endpoint=self.ns_name)
-        board_name = self._get_board_name(self.board)
+        pkt, board_name = self._emit_to_board_(event, *args)
         for sessid, socket in self.socket.server.sockets.iteritems():
             if 'boards' not in socket.session:
                 continue
@@ -90,16 +91,19 @@ class KanbanNamespace(BaseNamespace, BoardMixin):
     def listener(self):
         r = redis.StrictRedis()
         r = r.pubsub()
-        r.subscribe(self.board_channel())
+        r.subscribe([self.board_channel(), '*'])
 
         for m in r.listen():
             if m['type'] == 'message':
-                data = loads(m['data'])
-                print data[0], data[2]
-                if data[2]: # notify_me
-                    self.emit_to_board(data[0], data[1])
+                msg = loads(m['data'])
+                sessid = msg.get('sessid', None)
+                notify_me = msg.get('notify_me', True)
+                if notify_me:
+                    self.emit_to_board(msg['event'], msg['data'])
+                elif not notify_me and self.socket.sessid == sessid:
+                    self.emit_to_board_not_me(msg['event'], msg['data'])
                 else:
-                    self.emit_to_board_not_me(data[0], data[1])
+                    continue # we don't want to notify myself
 
     def on_join(self, data):
         self.spawn(self.listener)
@@ -129,6 +133,7 @@ class KanbanNamespace(BaseNamespace, BoardMixin):
     def on_board_changed(self, data):
         # cleanup data - make sure we will not save empty tasks
         self.notify_redis("columns", {"value": data}, notify_me=False)
+
         for col in data:
             to_remove = []
             try:
@@ -147,7 +152,6 @@ class KanbanNamespace(BaseNamespace, BoardMixin):
             to_remove.reverse()
             for n in to_remove:
                 col['tasks'].pop(n)
-
         with transaction.manager:
             board = DBSession().query(KanbanBoard).get(self.board)
             board.json = dumps(data)
@@ -158,12 +162,12 @@ class KanbanNamespace(BaseNamespace, BoardMixin):
             boards = loads(board.json)
         except (ValueError, TypeError):
             boards = []
-        existing_tickets = [[b['id'] for b in a['tasks'] if b.get('id')] for a in boards]
+        existing_tickets = [[b['id'] for b in a['tasks'] if b and b.get('id')] for a in boards]
         existing_tickets = [item for sublist in existing_tickets for item in sublist]
         crs = dict(DBSession().query(CustomerRequest.id, CustomerRequest.name))
 
         backlog_tickets = [t for t in self.find_tickets(board) \
-                                   if '%s_%s' % (t.trac_name, t.id) \
+                                   if '%s#%s' % (t.trac_name, t.id) \
                                                       not in existing_tickets]
 
         if board.backlog_order == BACKLOG_PRIORITY_ORDER:
@@ -181,7 +185,7 @@ class KanbanNamespace(BaseNamespace, BoardMixin):
         tasks = []
 
         for n, ticket in enumerate(backlog_tickets):
-            ticket_id = '%s_%s' % (ticket.trac_name, ticket.id)
+            ticket_id = '%s#%s' % (ticket.trac_name, ticket.id)
             try:
                 involved = set(ticket.involved.split(','))
             except AttributeError:

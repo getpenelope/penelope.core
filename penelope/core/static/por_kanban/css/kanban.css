@@ -160,3 +160,14 @@ ul.kanban .header_name .btn-mini {
   font-size: 15px;
 }
 
+
+.newtask {
+  background-color: #d3d3d3;
+}
+.newtask-add, .newtask-remove {
+  transition: all 1s;
+  -webkit-transition: all 1s ease-in-out;
+}
+.newtask-add-active {
+  background-color: #d3d3d3;
+}
