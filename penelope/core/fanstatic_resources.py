@@ -141,6 +141,7 @@ datatables = Group([
                    ])
 
 angular = Resource(por_library, 'por_kanban/js/angular.min.js', depends=[jqueryui])
+angular_animation = Resource(por_library, 'por_kanban/js/angular-animate.min.js', depends=[angular])
 
 angular_dd = Resource(por_library,
                       'por_kanban/js/angular-dragdrop.js',
@@ -168,7 +169,7 @@ pnotify = Group([
                    ])
 
 kanban = Group([
-                Resource(por_library, 'por_kanban/js/kanban.js', depends=[bootstrap_js, angular_sortable, socketio, angular, bootstrap_editable, js_md5, angular_bootstrap_ui, pnotify]),
+                Resource(por_library, 'por_kanban/js/kanban.js', depends=[bootstrap_js, angular_sortable, socketio, angular_animation, bootstrap_editable, js_md5, angular_bootstrap_ui, pnotify]),
                 Resource(por_library, 'por_kanban/css/kanban.css', depends=[bootstrap]),
     ])
 
