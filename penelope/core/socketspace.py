@@ -205,7 +205,7 @@ class KanbanNamespace(BaseNamespace, BoardMixin):
                           'owner': ticket.owner,
                           'involved': list(involved),
                           'customerrequest': crs.get(ticket.customerrequest,''),
-                          'priority': ticket.priority in ['critical', 'blocker'] and 'true' or None,
+                          'priority': ticket.priority,
                           'summary': ticket.summary})
         self.emit("backlog", {"value": tasks})
 

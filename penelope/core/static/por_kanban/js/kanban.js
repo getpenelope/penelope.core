@@ -37,6 +37,18 @@ angular.module('kanban', ['ui.sortable', 'ui.bootstrap', 'ngAnimate'])
                                     user: $scope.user });
     };
 
+    $scope.getPriorityClass = function(task) {
+        if (task.priority === true){
+            return 'priority'
+        }
+        else if (["blocker", "critical"].indexOf(task.priority) > -1){
+            return 'priority'
+        }
+        else {
+            return ''
+        }
+    };
+
     $scope.getColor = function(project){
         return 'background: #' + md5(project).slice(0, 6);
     };

@@ -42,7 +42,7 @@
                               ng-show="backlog.loaded==true && backlog.tasks.length>0">
 
                        <ul class="task_pool" ng-model="backlog.tasks" tal:attributes="draggable">
-                         <li class="big_container {{task.priority && 'priority'}} media" id="{{task.id}}" 
+                         <li class="big_container {{getPriorityClass(task)}} media" id="{{task.id}}" 
                                 ng-repeat="task in backlog.tasks track by task.id"
                                 ng-controller="BacklogController"
                                 ng-model="backlog.tasks[$index]"
@@ -88,7 +88,7 @@
                       </div>
 
                       <ul class="task_pool" ng-model="column.tasks" tal:attributes="draggable">
-                        <li class="big_container {{task.priority && 'priority'}} media" id="{{task.id}}" 
+                        <li class="big_container {{getPriorityClass(task)}} media" id="{{task.id}}" 
                               ng-repeat="task in column.tasks track by task.id"
                               ng-model="columns[$parent.$index].tasks[$index]"
                               ng-controller="TaskController"
