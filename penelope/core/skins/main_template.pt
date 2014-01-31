@@ -134,6 +134,31 @@
                 </li>
               </ul>
             </li>
+            <li tal:condition="request.isAuthenticated()" ng-app="feedly" ng-controller="FeedlyController" id="notification_ng_app">
+            <div class="notifications notification-icon btn-group pull-right" ng-init="init('${request.authenticated_user.id}')">
+                  <a id="notification-icon" class="btn btn-inverse dropdown-toggle" data-toggle="dropdown" href="#" ng-show="activities" ng-click="mark_all_seen()">
+                    <i class="icon-info-sign"></i>
+                    <span class="notification-counter" id="notification-counter" ng-show="unseen_activities">{{unseen_activities}}</span>
+                  </a>
+                  <ul id="notification-items" class="dropdown-menu">
+                    <li id="" class="notification-item" ng-class="{unseen:activity.unseen}" style="position: relative;" ng-repeat="activity in activities">
+                          <a href="${request.application_url}{{activity.absolute_path}}" target="_blank">
+                          <div>
+                            <div class="avatar pull-left">
+                              <img tooltip="{{activity.created_by}}" height="45" width="45" src="https://www.gravatar.com/avatar/{{gravatar(activity.created_by)}}">
+                            </div>
+                            <div class="message">{{activity.message}}
+                            </div>
+                            <div class="timestamp">{{activity.created_at}}
+                            </div>
+                            <div style="clear: both;"></div>
+                          </div>
+                        </a>
+                    </li>
+                  </ul>
+                </div>
+
+            </li>
           </ul>
         </div>
       </div>

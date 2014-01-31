@@ -1,7 +1,7 @@
 2.1.15 (unreleased)
 -------------------
 
-- Nothing changed yet.
+- include feedly notifications [amleczko]
 
 
 2.1.14 (2014-01-29)

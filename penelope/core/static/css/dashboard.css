@@ -271,5 +271,89 @@ div#results dd{
     width: 100px;
     z-index: 10;
 }
+.notifications .dropdown-menu {
+}
+.notifications .dropdown-menu a {
+  padding: 8px 12px 8px 8px;
+}
+.notifications .dropdown-menu .divider {
+  margin: 1px;
+}
+#notification-items {
+  width: 300px;
+}
+#notification-spinner {
+  text-align: center;
+  padding: 8px 0px 11px;
+}
+.notifications .notification-item {
+  position: relative;
+}
 
+.notification-item.unseen {
+  background-color: #ddd;
+}
 
+.notifications .notification-item a {
+  min-height: 50px;
+}
+.notifications .notification-item.unread {
+  background: rgba(200,200,200,0.2);
+}
+.notifications .notification-item .avatar {
+  width: 50px; 
+  height: 50px; 
+  float: left; 
+  margin-right: 8px; 
+}
+.notifications .notification-item .message {
+  margin-left: 58px;
+  white-space: normal;
+  line-height: 16px;
+}
+.notifications .notification-item .timestamp {
+  font-size: 11px;
+  color: #999;
+}
+.notifications .notification-item .deletelink {
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  color: #999;
+  padding: 0px;
+  display: inherit;
+  min-height: initial;
+  text-align: center;
+  padding: 2px 4px 5px 5px;
+  line-height: 10px;
+}
+
+.notifications .notification-empty {
+  padding: 8px 0px 11px;
+}
+.notifications .notification-empty ,
+.notifications .notification-button {
+  text-align: center;
+}
+.notifications .notification-button a {
+  padding: 5px 0px;
+}
+.notifications .notification-counter {
+  color: white;
+  font-size: 9px;
+  font-weight: bold;
+  position: absolute;
+  top: -5px;
+  right:-6px;
+  z-index: 101;
+  background-color: #F03D25;
+  border: 1px solid #D83722;
+  border-bottom: 1px solid #C0311E;
+  border-top: 1px solid #E23923;
+  -webkit-border-radius: 2px;
+  -webkit-box-shadow: 0 1px 0 rgba(0, 39, 121, .77);
+  display: block;
+  padding: 0px 2px 0px 1px;
+  height: 14px;
+  line-height: 14px;
+}

@@ -11,6 +11,7 @@ from penelope.core.models.dashboard import KanbanBoard, \
         BACKLOG_PRIORITY_ORDER, BACKLOG_MODIFICATION_ORDER
 from penelope.core.models.dashboard import Trac, Project, CustomerRequest
 from penelope.core.models import DBSession
+from penelope.core.activity_stream import FeedlyNamespace
 
 
 class BoardMixin(object):
@@ -278,5 +279,6 @@ class KanbanNamespace(BaseNamespace, BoardMixin):
 
 @view_config(route_name="socketio")
 def socketio(request):
-    socketio_manage(request.environ, {"/kanban": KanbanNamespace}, request=request)
+    socketio_manage(request.environ, {"/kanban": KanbanNamespace,
+                                      "/feedly": FeedlyNamespace }, request=request)
     return Response('')

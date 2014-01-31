@@ -1091,3 +1091,21 @@ class KanbanACL(Base):
 
     def __unicode__(self):
         return '(%s, %s, %s)' % (self.principal, self.board_id, self.permission_name)
+
+
+class Activity(Base):
+
+    __tablename__ = 'activities'
+    id = Column(Integer, primary_key=True)
+    message = Column(Unicode)
+    absolute_path = Column(String)
+    created_by = Column(String)
+    created_at = Column(Date, index=True)
+    seen_at = Column(Date, index=True)
+    read_at = Column(Date, index=True)
+    user_id = Column(Integer, ForeignKey('users.id'))
+    user = relationship(User, uselist=False, backref=backref('activities', order_by=created_at.desc()))
+
+    @property
+    def unseen(self):
+        return self.seen_at == None

@@ -82,8 +82,6 @@ dashboard_home = Group([
                         ])
 
 font_awesome = Resource(por_library, 'por_home/css/font-awesome.css', minified='por_home/css/font-awesome.min.css', depends=[bootstrap_responsive_css])
-dashboard_js = Resource(por_library, 'js/dashboard.js', depends=[bootstrap_js, jqueryui, timepicker_it])
-dashboard_css = Resource(por_library, 'css/dashboard.css', depends=[bootstrap_responsive_css, respond, font_awesome])
 
 project_filter = Resource(por_library, 'por_report/select_project_filter.js')
 
@@ -173,4 +171,6 @@ kanban = Group([
                 Resource(por_library, 'por_kanban/css/kanban.css', depends=[bootstrap]),
     ])
 
+dashboard_js = Resource(por_library, 'js/dashboard.js', depends=[bootstrap_js, jqueryui, timepicker_it, socketio, angular, js_md5])
+dashboard_css = Resource(por_library, 'css/dashboard.css', depends=[bootstrap_responsive_css, respond, font_awesome])
 dashboard = Group([jquery, deform_bootstrap, jqueryui, jqueryui_i18n, overcast, bootstrap, dashboard_js, dashboard_css, subnav])
