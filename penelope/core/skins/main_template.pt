@@ -134,7 +134,7 @@
                 </li>
               </ul>
             </li>
-            <li tal:condition="request.isAuthenticated()" ng-app="feedly" ng-controller="FeedlyController" id="notification_ng_app">
+            <li tal:condition="request.isAuthenticated() and 'KanbanBoard' not in request.url" ng-app="feedly" ng-controller="FeedlyController" id="notification_ng_app">
             <div class="notifications notification-icon btn-group pull-right" ng-init="init('${request.authenticated_user.id}')">
                   <a id="notification-icon" class="btn btn-inverse dropdown-toggle" data-toggle="dropdown" href="#" ng-show="activities" ng-click="mark_all_seen()">
                     <i class="icon-info-sign"></i>
