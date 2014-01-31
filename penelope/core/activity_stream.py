@@ -3,6 +3,7 @@ import redis
 import pretty
 
 from datetime import datetime
+from time import sleep
 from socketio.namespace import BaseNamespace
 from penelope.core.models.dashboard import Activity
 from penelope.core.models.dbsession import DBSession
@@ -17,6 +18,7 @@ class FeedlyNamespace(BaseNamespace):
 
         for m in r.listen():
             if m['type'] == 'message':
+                sleep(1) # wait for the commit; to be fixed
                 count_unseen, activities = self._get_activities_()
                 self.emit("activities", {'count_unseen':count_unseen,
                                          'activities': activities})
@@ -36,6 +38,7 @@ class FeedlyNamespace(BaseNamespace):
                              'created_by': activity.created_by,
                              'created_at': pretty.date(activity.created_at)})
 
+        transaction.commit()
         return count_unseen, response
 
     def on_join(self, data):
