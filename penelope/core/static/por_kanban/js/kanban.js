@@ -1,8 +1,7 @@
-var WEB_SOCKET_SWF_LOCATION = '/fanstatic/por/por_kanban/js/WebSocketMain.swf'
+/*jslint undef: true */
+/*global $, deform, document */
 
-angular.module('kanban', ['ui.sortable', 'ui.bootstrap', 'ngAnimate'])
-  .controller("KanbanCtrl", function($scope, $socketio, $log, $animate) {
-
+$penelope.controller("KanbanCtrl", function($scope, $socket_kanban, $log, $animate) {
     $scope.columns = [];
     $scope.filters = {name: ""};
     $scope.backlog = {tasks: [], loaded: false};
@@ -23,7 +22,7 @@ angular.module('kanban', ['ui.sortable', 'ui.bootstrap', 'ngAnimate'])
 
     $scope.init = function(board_id, email){
         $scope.board_id = board_id;
-        $socketio.emit("join", { board_id: board_id, 
+        $socket_kanban.emit("join", { board_id: board_id, 
                                  email: email });
         $scope.user = email;
     };
@@ -33,7 +32,7 @@ angular.module('kanban', ['ui.sortable', 'ui.bootstrap', 'ngAnimate'])
     };
 
     $scope.addHistory = function(info){
-        $socketio.emit("history", { info: info,
+        $socket_kanban.emit("history", { info: info,
                                     user: $scope.user });
     };
 
@@ -89,25 +88,25 @@ angular.module('kanban', ['ui.sortable', 'ui.bootstrap', 'ngAnimate'])
     };
 
     $scope.boardChanged = function() {
-        $socketio.emit("board_changed", $scope.columns);
+        $socket_kanban.emit("board_changed", $scope.columns);
     };
 
-    $socketio.on('columns', function(data) {
+    $socket_kanban.on('columns', function(data) {
         $scope.columns = data.value;
         $scope.hash_tickets();
-        $socketio.emit("get_backlog");
+        $socket_kanban.emit("get_backlog");
     });
 
-    $socketio.on('backlog', function(data) {
+    $socket_kanban.on('backlog', function(data) {
         $scope.backlog.tasks = data.value;
         $scope.backlog.loaded = true;
     });
 
-    $socketio.on('emails', function(data) {
+    $socket_kanban.on('emails', function(data) {
         $scope.emails = data.value;
     });
 
-    $socketio.on("history", function(data) {
+    $socket_kanban.on("history", function(data) {
         info = '<img height="30" width="30" src="https://www.gravatar.com/avatar/'+ $scope.gravatar(data.user) +'?s=30" /> ' + data.info
         $.pnotify({
             title: 'Board updated',
@@ -129,7 +128,7 @@ angular.module('kanban', ['ui.sortable', 'ui.bootstrap', 'ngAnimate'])
         $scope.boardChanged();
     };
 
-    $socketio.on("ticket_changed", function(data){
+    $socket_kanban.on("ticket_changed", function(data){
         var tickets = Object.keys(data);
         for (var i=0; i < tickets.length; i++) {
             if ($scope.tickets.indexOf(tickets[i]) > -1){
@@ -141,18 +140,15 @@ angular.module('kanban', ['ui.sortable', 'ui.bootstrap', 'ngAnimate'])
 
   })
 
-.controller("TaskController", function($scope, $http, $socketio) {
-
+$penelope.controller("TaskController", function($scope, $http, $socket_kanban) {
     $scope.removeTask = function(index){
         $scope.column.tasks.splice(index,1);
         $scope.hash_tickets();
         $scope.boardChanged();
     };
-
 })
 
-.controller("BacklogController", function($scope) {
-
+$penelope.controller("BacklogController", function($scope) {
     $scope.isExcludedByFilter = applySearchFilter();
     $scope.$watch(
         "filters.name",
@@ -163,7 +159,6 @@ angular.module('kanban', ['ui.sortable', 'ui.bootstrap', 'ngAnimate'])
             applySearchFilter();
         }
     );
-
     $scope.isExcludedByFilter = applySearchFilter();
     function applySearchFilter() {
 
@@ -175,20 +170,7 @@ angular.module('kanban', ['ui.sortable', 'ui.bootstrap', 'ngAnimate'])
 
 })
 
-.directive('animateOnChange', function($animate, $log) {
-    return function(scope, elem, attr) {
-        scope.$watch(attr.animateOnChange, function(nv,ov) {
-            if (nv!=ov) {
-                $animate.addClass(elem, 'newtask', function() {
-                    $animate.removeClass(elem, 'newtask');
-                });
-            }
-        })
-    }
-})
-
-
-.directive('xeditable', function($timeout) {
+$penelope.directive('xeditable', function($timeout) {
     return {
         restrict: "A",
         require: "ngModel",
@@ -219,7 +201,7 @@ angular.module('kanban', ['ui.sortable', 'ui.bootstrap', 'ngAnimate'])
     }
 })
 
-.factory("$socketio", function($rootScope) {
+$penelope.factory("$socket_kanban", function($rootScope) {
   var socket = io.connect('/kanban');
   return {
     on: function (eventName, callback) {

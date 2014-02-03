@@ -166,11 +166,12 @@ pnotify = Group([
                             depends=[jqueryui])
                    ])
 
+penelope_angular_js = Resource(por_library, 'js/penelope_angular.js', depends=[socketio, angular, js_md5, angular_animation, angular_bootstrap_ui, angular_sortable, bootstrap_editable])
 kanban = Group([
-                Resource(por_library, 'por_kanban/js/kanban.js', depends=[bootstrap_js, angular_sortable, socketio, angular_animation, bootstrap_editable, js_md5, angular_bootstrap_ui, pnotify]),
+                Resource(por_library, 'por_kanban/js/kanban.js', depends=[bootstrap_js, penelope_angular_js, pnotify]),
                 Resource(por_library, 'por_kanban/css/kanban.css', depends=[bootstrap]),
     ])
 
-dashboard_js = Resource(por_library, 'js/dashboard.js', depends=[bootstrap_js, jqueryui, timepicker_it, socketio, angular, js_md5])
+dashboard_js = Resource(por_library, 'js/dashboard.js', depends=[bootstrap_js, jqueryui, timepicker_it, penelope_angular_js])
 dashboard_css = Resource(por_library, 'css/dashboard.css', depends=[bootstrap_responsive_css, respond, font_awesome])
 dashboard = Group([jquery, deform_bootstrap, jqueryui, jqueryui_i18n, overcast, bootstrap, dashboard_js, dashboard_css, subnav])

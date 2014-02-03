@@ -1,6 +1,6 @@
 <html metal:use-macro="main.macros['master']">
   <body metal:fill-slot="body">
-    <div ng-app="kanban" ng-controller="KanbanCtrl">
+    <div ng-controller="KanbanCtrl">
         <div class="page-header">
             <div class="pull-right" tal:content="structure actions.buttons(request)"></div>
             <div class="pull-right online-users" ng-show="emails">

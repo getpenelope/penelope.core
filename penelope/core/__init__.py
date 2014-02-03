@@ -8,7 +8,7 @@ from zope.component import getGlobalSiteManager
 from pyramid.authentication import RepozeWho1AuthenticationPolicy
 from pyramid.authorization import ACLAuthorizationPolicy
 from pyramid_skins.renderer import renderer_factory
-#import gevent_psycopg2; gevent_psycopg2.monkey_patch()
+import gevent_psycopg2; gevent_psycopg2.monkey_patch()
 
 PROJECT_ID_BLACKLIST = ('portale', 'project', 'support', 'assistenza')
 
