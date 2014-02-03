@@ -1,4 +1,4 @@
-2.1.16 (unreleased)
+2.1.16 (2014-02-03)
 -------------------
 
 - simplify angularjs integration [amleczko]
