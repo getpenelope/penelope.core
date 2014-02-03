@@ -104,6 +104,7 @@ class MyEntriesReport(object):
         limit = 1000
         projects = qry_active_projects().all()
         form = PorInlineForm(schema,
+                             action=self.request.current_route_url(),
                              formid='my_entries',
                              method='GET',
                              buttons=[

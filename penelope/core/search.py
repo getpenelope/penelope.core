@@ -77,6 +77,7 @@ def search(request):
     schema = SearchSchema().bind(request=request)
     form = PorInlineForm(
                 schema,
+                action=request.current_route_url(),
                 formid='search',
                 method='GET',
                 buttons=[SearchButton(title=u'Search'),]

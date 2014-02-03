@@ -203,6 +203,7 @@ class SecurityForm(object):
         security_fanstatic.need()
 
         form = WizardForm(schema,
+                action=self.request.current_route_url(),
                 formid='wizard',
                 method='POST',
                 buttons=[

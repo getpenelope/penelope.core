@@ -195,6 +195,7 @@ class StateChangeReport(object):
         contracts = DBSession.query(Contract.id, Contract.name).order_by(Contract.name)
 
         form = PorInlineForm(schema,
+                             action=self.request.current_route_url(),
                              formid='te_state_change',
                              method='GET',
                              buttons=[

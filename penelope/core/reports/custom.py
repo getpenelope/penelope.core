@@ -251,7 +251,8 @@ class CustomerReport(object):
     @view_config(name='custom_json', route_name='reports', renderer='json', permission='reports_custom')
     def custom_json(self):
         schema = self.CustomSchema(validator=validate_period).clone()
-        form = PorInlineForm(schema)
+        form = PorInlineForm(schema,
+                             action=self.request.current_route_url())
         controls = self.request.GET.items()
         appstruct = form.validate(controls)
         detail = self.search(render_links=False, **appstruct)
@@ -265,7 +266,8 @@ class CustomerReport(object):
     @view_config(name='custom_xls', route_name='reports', renderer='xls_report', permission='reports_custom')
     def custom_xls(self):
         schema = self.CustomSchema(validator=validate_period).clone()
-        form = PorInlineForm(schema)
+        form = PorInlineForm(schema,
+                             action=self.request.current_route_url())
         controls = self.request.GET.items()
         appstruct = form.validate(controls)
 
@@ -299,6 +301,7 @@ class CustomerReport(object):
         contracts = DBSession.query(Contract.id, Contract.name).order_by(Contract.name)
 
         form = PorInlineForm(schema,
+                             action=self.request.current_route_url(),
                              formid='report-customer',
                              method='GET',
                              buttons=[

@@ -222,6 +222,7 @@ class AllEntriesReport(object):
 
 
         form = PorInlineForm(schema,
+                             action=self.request.current_route_url(),
                              formid='all_entries',
                              method='GET',
                              buttons=[

@@ -208,8 +208,8 @@ class CostsReport(object):
         customer_requests = DBSession.query(CustomerRequest.id, CustomerRequest.name).order_by(CustomerRequest.name)
         contracts = DBSession.query(Contract.id, Contract.name).order_by(Contract.name)
 
-
         form = PorInlineForm(schema,
+                             action=self.request.current_route_url(),
                              formid='all_entries',
                              method='GET',
                              buttons=[

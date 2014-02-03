@@ -1,4 +1,5 @@
 from sqlalchemy import engine_from_config
+from sqlalchemy.pool import NullPool
 from sqlalchemy.ext.declarative import declarative_base
 from penelope.core.models.dbsession import DBSession
 
@@ -36,6 +37,6 @@ def includeme(config):
 
 def initialize_sql(config=None, engine=None):
     if not engine:
-        engine = engine_from_config(config.registry.settings, 'sa.dashboard.')
+        engine = engine_from_config(config.registry.settings, 'sa.dashboard.', poolclass=NullPool)
     DBSession.configure(bind=engine)
     Base.metadata.bind = engine

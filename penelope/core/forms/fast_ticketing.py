@@ -62,6 +62,7 @@ class FastTicketing(object):
         schema = FastTicketingSchema().clone()
         fastticketing_fanstatic.need()
         form = WizardForm(schema,
+                          action=self.request.current_route_url(),
                           formid='fastticketing',
                           method='POST',
                           buttons=[
