@@ -33,23 +33,25 @@ class ForeignLibrary(Library):
 
 por_library = Library('por', 'static')
 
-# mediaquery polyfills for IE
-respond = Resource(por_library, 'respond/respond.src.js', minified='respond/respond.min.js')
-
-# bricklayer for having columns in CSS
-masonry = Resource(por_library, 'masonry/jquery.masonry.js', minified='masonry/jquery.masonry.min.js', depends=[jquery])
-
-# JS templates
-mustache = Resource(por_library, 'mustache/mustache.js', minified='mustache/mustache.min.js')
-
-# spinner for ajax operations
-spin = Resource(por_library, 'spin/spin.js')
-
-jsonrpc = Resource(por_library, 'jquery.jsonrpc/jquery.jsonrpc.js')
-
+angular = Resource(por_library, 'angular/angular.js', depends=[jqueryui], minified='angular/angular.min.js')
+angular_animation = Resource(por_library, 'angular/angular-animate.min.js', depends=[angular])
+angular_dd = Resource(por_library, 'angular/angular-dragdrop.js', minified='angular/angular-dragdrop.min.js', depends=[jqueryui, angular])
+angular_bootstrap_ui = Resource(por_library, 'angular/ui-bootstrap-tpls-0.5.0.min.js', depends=[bootstrap_js, angular])
+angular_sortable = Resource(por_library, 'angular/sortable.js', depends=[jqueryui, angular])
+font_awesome = Resource(por_library, 'font_awesome/css/font-awesome.css', minified='font_awesome/css/font-awesome.min.css', depends=[bootstrap_responsive_css])
+js_md5 = Resource(por_library, 'md5/md5.js', minified='md5/md5.min.js',)
 jquery_pivot_css = Resource(por_library, 'jquery.pivot/jquery_pivot.css')
-jquery_pivot = Resource(por_library, 'jquery.pivot/jquery_pivot.js', depends=[jquery, jquery_pivot_css])
 jquery_pivot_costs = Resource(por_library, 'jquery.pivot/jquery_pivot_costs.js', depends=[jquery, jquery_pivot_css])
+jquery_pivot = Resource(por_library, 'jquery.pivot/jquery_pivot.js', depends=[jquery, jquery_pivot_css])
+jquery_pnotify_default_css = Resource(por_library, 'jquery.pnotify/jquery.pnotify.default.css')
+jquery_pnotify_icons_css = Resource(por_library, 'jquery.pnotify/jquery.pnotify.default.icons.css')
+jquery_pnotify_js = Resource(por_library, 'jquery.pnotify/jquery.pnotify.js', minified='jquery.pnotify/jquery.pnotify.min.js', depends=[jqueryui])
+pnotify = Group([jquery_pnotify_default_css, jquery_pnotify_icons_css, jquery_pnotify_js])
+jsonrpc = Resource(por_library, 'jquery.jsonrpc/jquery.jsonrpc.js')
+mustache = Resource(por_library, 'js.mustache/mustache.js', minified='js.mustache/mustache.min.js')
+respond = Resource(por_library, 'js.respond/respond.src.js', minified='js.respond/respond.min.js')
+spark = Resource(por_library, 'jquery.sparkline/jquery.sparkline.min.js', depends=[jquery,])
+spin = Resource(por_library, 'js.spin/spin.js')
 
 
 #-------
@@ -63,25 +65,15 @@ deform_js = Resource(deform_library, 'scripts/deform.js', depends=[jquery])
 deform_bootstrap = Group([
         Resource(deform_bootstrap_library, 'chosen_bootstrap.css'),
         Resource(deform_bootstrap_library, 'deform_bootstrap.js', depends=[deform_js]),
-        Resource(por_library, 'jquery_chosen/chosen.min.css'),
-        Resource(por_library, 'jquery_chosen/chosen.jquery.min.js', depends=[jquery]),
+        Resource(por_library, 'jquery.chosen/chosen.min.css'),
+        Resource(por_library, 'jquery.chosen/chosen.jquery.min.js', depends=[jquery]),
         Resource(deform_library, 'scripts/jquery.form.js', depends=[jquery]),
         ])
 
 
-#----------
-# Our stuff
-#----------
-
-spark = Resource(por_library, 'por_home/js/jquery.sparkline.min.js', depends=[jquery,])
-dashboard_home = Group([
-                        Resource(por_library, 'por_home/js/home.js', depends=[spark]),
-                        Resource(por_library, 'por_home/css/home.css'),
-                        Resource(por_library, 'por_home/js/outstanding_tickets.js', depends=[jquery, mustache, spin]),
-                        Resource(por_library, 'por_home/css/penelope.min.css'),
-                        ])
-
-font_awesome = Resource(por_library, 'por_home/css/font-awesome.css', minified='por_home/css/font-awesome.min.css', depends=[bootstrap_responsive_css])
+###########
+# REPORTS #
+###########
 
 project_filter = Resource(por_library, 'por_report/select_project_filter.js')
 
@@ -111,6 +103,17 @@ report_te_state_change = Group([
                                 Resource(por_library, 'por_report/te_state_change.js', depends=[jquery, timepicker_it]),
                                 Resource(por_library, 'por_report/te_state_change.css'),
                                 ])
+#----------
+# Our stuff
+#----------
+
+dashboard_home = Group([
+                        Resource(por_library, 'por_home/js/home.js', depends=[spark]),
+                        Resource(por_library, 'por_home/css/home.css'),
+                        Resource(por_library, 'por_home/js/outstanding_tickets.js', depends=[jquery, mustache, spin]),
+                        Resource(por_library, 'por_home/css/penelope.min.css'),
+                        ])
+
 
 add_entry_from_ticket = Group([
                                 Resource(por_library, 'por_add_entry/add_entry_from_ticket.js', depends=[jquery, mustache, timepicker_it, jsonrpc]),
@@ -138,40 +141,13 @@ datatables = Group([
                     Resource(por_library, 'por_datatables/css/paging.css'),
                    ])
 
-angular = Resource(por_library, 'por_kanban/js/angular.min.js', depends=[jqueryui])
-angular_animation = Resource(por_library, 'por_kanban/js/angular-animate.min.js', depends=[angular])
 
-angular_dd = Resource(por_library,
-                      'por_kanban/js/angular-dragdrop.js',
-                      minified='por_kanban/js/angular-dragdrop.min.js',
-                      depends=[jqueryui, angular])
-
-angular_bootstrap_ui = Resource(por_library,
-                      'por_kanban/js/ui-bootstrap-tpls-0.5.0.min.js',
-                      depends=[bootstrap_js, angular])
-
-angular_sortable = Resource(por_library,
-                      'por_kanban/js/sortable.js',
-                      depends=[jqueryui, angular])
-
-js_md5 = Resource(por_library,
-                  'por_kanban/js/md5.js',
-                  minified='por_kanban/js/md5.min.js',)
-
-pnotify = Group([ 
-                   Resource(por_library, 'por_kanban/css/jquery.pnotify.default.css'),
-                   Resource(por_library, 'por_kanban/css/jquery.pnotify.default.icons.css'),
-                   Resource(por_library, 'por_kanban/js/jquery.pnotify.js',
-                            minified='por_kanban/js/jquery.pnotify.min.js',
-                            depends=[jqueryui])
-                   ])
-
-penelope_angular_js = Resource(por_library, 'js/penelope_angular.js', depends=[socketio, angular, js_md5, angular_animation, angular_bootstrap_ui, angular_sortable, bootstrap_editable])
+penelope_angular_js = Resource(por_library, 'penelope/js/penelope_angular.js', depends=[socketio, angular, js_md5, angular_animation, angular_bootstrap_ui, angular_sortable, bootstrap_editable])
 kanban = Group([
                 Resource(por_library, 'por_kanban/js/kanban.js', depends=[bootstrap_js, penelope_angular_js, pnotify]),
                 Resource(por_library, 'por_kanban/css/kanban.css', depends=[bootstrap]),
     ])
 
-dashboard_js = Resource(por_library, 'js/dashboard.js', depends=[bootstrap_js, jqueryui, timepicker_it, penelope_angular_js])
-dashboard_css = Resource(por_library, 'css/dashboard.css', depends=[bootstrap_responsive_css, respond, font_awesome])
+dashboard_js = Resource(por_library, 'penelope/js/dashboard.js', depends=[bootstrap_js, jqueryui, timepicker_it, penelope_angular_js])
+dashboard_css = Resource(por_library, 'penelope/css/dashboard.css', depends=[bootstrap_responsive_css, respond, font_awesome])
 dashboard = Group([jquery, deform_bootstrap, jqueryui, jqueryui_i18n, overcast, bootstrap, dashboard_js, dashboard_css, subnav])

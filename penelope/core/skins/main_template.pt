@@ -200,7 +200,7 @@
       <footer class="footer">
         <ul>
           <li tal:define="href settings.get('penelope.core.logo.href', 'http://www.redturtle.it');
-                          src settings.get('penelope.core.logo.img_src', request.static_url('penelope.core:static/images/logo-redturtle.png'));
+                          src settings.get('penelope.core.logo.img_src', request.static_url('penelope.core:static/penelope/images/logo-redturtle.png'));
                           label settings.get('penelope.core.logo.label', 'RedTurtle Technology')">
             <a href="${href}">
               <img src="${src}" tal:attributes="alt label; title label"/>
