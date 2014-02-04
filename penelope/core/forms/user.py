@@ -223,8 +223,30 @@ class UserModelView(ModelView):
 
         user = self.context.get_instance()
         now = datetime.now().date()
-        now = datetime(2013,4,20)
         week_ago = now - timedelta(weeks=1)
+
+        def find_tickets():
+            all_tracs = DBSession.query(dashboard.Trac).join(dashboard.Project).filter(dashboard.Project.active)
+            if all_tracs.count() == 0:
+                return []
+            query = """SELECT DISTINCT '%(trac)s' AS trac_name,
+                                       TO_CHAR(to_timestamp(ticket.changetime/1000000),'YYYY-MM-DD') as modification,
+                                       COUNT(DISTINCT ticket.id)
+                                       FROM "trac_%(trac)s".ticket AS ticket
+                                       LEFT OUTER JOIN "trac_%(trac)s".ticket_change AS change ON ticket.id=change.ticket
+                                       WHERE change.author = '%(owner)s' AND to_timestamp(ticket.changetime/1000000) >= current_date - interval '6 days'
+                                       GROUP BY modification
+                                    """
+
+            queries = []
+            for trac in all_tracs:
+                queries.append(query % {'trac': trac.trac_name,
+                                        'owner': user.email})
+            sql = '\nUNION '.join(queries)
+            sql += ';'
+
+            tracs =  DBSession().execute(sql).fetchall()
+            return tracs
 
         colors = ["#637b85", "#2c9c69", "#dbba34", "#c62f29", "#F7464A",]
         project_hours = collections.defaultdict(float)
@@ -245,22 +267,47 @@ class UserModelView(ModelView):
         last_week_hours = [{'value': p[1], 'color':colors[n]} for n,p in enumerate(project_hours)]
         last_week_hours_legend = [{'label': p[0], 'value': p[1]} for p in project_hours]
 
-        dayofweek_hours = dayofweek_hours.items()
-        dayofweek_hours.sort()
+        tickets = find_tickets()
+
+        w1 = set([a for a in dayofweek_hours.keys()])
+        w2 = set([datetime.strptime(a[1], '%Y-%m-%d').date() for a in tickets])
+        daysofweek = list(w1.union(w2))
+        daysofweek.sort()
+
+        project_tickets = collections.defaultdict(int)
+        dayofweek_tickets = collections.defaultdict(int)
+        for t in tickets:
+            dayofweek_tickets[datetime.strptime(t[1], '%Y-%m-%d').date()] += t[2]
+            project_tickets[t[0]] += t[2]
+
+        project_tickets = project_tickets.items()
+        project_tickets = project_tickets[:5]
+        last_week_tickets = [{'value': p[1], 'color':colors[n]} for n,p in enumerate(project_tickets)]
+        last_week_tickets_legend = [{'label': p[0], 'value': p[1]} for p in project_tickets]
 
         last_week_dow = {
-                'labels' : [a[0].strftime('%A') for a in dayofweek_hours],
+                'labels' : [a.strftime('%A') for a in daysofweek],
                 'datasets' : [
                     {
                         'fillColor' : "rgba(151,187,205,0.5)",
                         'strokeColor' : "rgba(151,187,205,1)",
                         'pointColor' : "rgba(151,187,205,1)",
                         'pointStrokeColor' : "#fff",
-                        'data' : [a[1] for a in dayofweek_hours]
+                        'data' : [dayofweek_hours.get(a,0) for a in daysofweek]
+                        },
+                    {
+                        'fillColor' : "rgba(220,220,220,0.5)",
+                        'strokeColor' : "rgba(220,220,220,1)",
+                        'pointColor' : "rgba(220,220,220,1)",
+                        'pointStrokeColor' : "#fff",
+                        'data' : [dayofweek_tickets.get(a,0) for a in daysofweek]
                         },
                     ]
                 }
 
+
         return {'last_week_hours': last_week_hours,
                 'last_week_hours_legend': last_week_hours_legend,
+                'last_week_tickets': last_week_tickets,
+                'last_week_tickets_legend': last_week_tickets_legend,
                 'last_week_dow': last_week_dow}

@@ -16,8 +16,17 @@
           </div>
         </div>
         <div class="span5 widget" style="width:500px">
-          <h3>Last week hours</h3>
+          <h3>Last week hours vs. tickets</h3>
           <canvas linechart options="options" data="last_week_dow" width="500"></canvas>
+        </div>
+        <div class="span3 widget" style="width:300px">
+          <h3>Last week tickets</h3>
+          <canvas doughnutchart options="options" data="last_week_tickets" width="300"></canvas>
+          <div class="chart-legend">
+            <ul>
+              <li ng-repeat="legend in last_week_tickets_legend" class="legend{{$index}}">{{legend.label}}</li>
+            </ul>
+          </div>
         </div>
       </div>
     </div>
