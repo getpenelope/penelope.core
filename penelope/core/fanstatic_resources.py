@@ -2,14 +2,15 @@
 
 import pkg_resources
 
+from fa.bootstrap.fanstatic_resources import bootstrap
 from fanstatic import Group, Library, Resource
+from js.bootstrap import bootstrap_js, bootstrap_responsive_css
+from js.chart import chart_js
 from js.jquery import jquery
+from js.jquery_datatables import jquery_datatables_js    # jquery_datatables_css only contains a style for the demo table.
+from js.jquery_timepicker_addon import timepicker_it
 from js.jqueryui import jqueryui, jqueryui_i18n
 from js.jqueryui import overcast
-from js.jquery_timepicker_addon import timepicker_it
-from js.jquery_datatables import jquery_datatables_js    # jquery_datatables_css only contains a style for the demo table.
-from js.bootstrap import bootstrap_js, bootstrap_responsive_css
-from fa.bootstrap.fanstatic_resources import bootstrap
 from js.socketio import socketio
 from js.xeditable import bootstrap_editable
 
@@ -38,6 +39,7 @@ angular_animation = Resource(por_library, 'angular/angular-animate.min.js', depe
 angular_dd = Resource(por_library, 'angular/angular-dragdrop.js', minified='angular/angular-dragdrop.min.js', depends=[jqueryui, angular])
 angular_bootstrap_ui = Resource(por_library, 'angular/ui-bootstrap-tpls-0.5.0.min.js', depends=[bootstrap_js, angular])
 angular_sortable = Resource(por_library, 'angular/sortable.js', depends=[jqueryui, angular])
+angles = Resource(por_library, 'angular/angles.js', depends=[angular, chart_js])
 font_awesome = Resource(por_library, 'font_awesome/css/font-awesome.css', minified='font_awesome/css/font-awesome.min.css', depends=[bootstrap_responsive_css])
 js_md5 = Resource(por_library, 'md5/md5.js', minified='md5/md5.min.js',)
 jquery_pivot_css = Resource(por_library, 'jquery.pivot/jquery_pivot.css')
@@ -141,8 +143,13 @@ datatables = Group([
                     Resource(por_library, 'por_datatables/css/paging.css'),
                    ])
 
+penelope_angular_js = Resource(por_library, 'penelope/js/penelope_angular.js',
+        depends=[socketio, angular, js_md5, angular_animation, angular_bootstrap_ui, angular_sortable, bootstrap_editable, angles])
 
-penelope_angular_js = Resource(por_library, 'penelope/js/penelope_angular.js', depends=[socketio, angular, js_md5, angular_animation, angular_bootstrap_ui, angular_sortable, bootstrap_editable])
+
+user_stats_css = Resource(por_library, 'por_userstats/userstats.css')
+user_stats = Resource(por_library, 'por_userstats/userstats.js', depends=[penelope_angular_js, user_stats_css])
+
 kanban = Group([
                 Resource(por_library, 'por_kanban/js/kanban.js', depends=[bootstrap_js, penelope_angular_js, pnotify]),
                 Resource(por_library, 'por_kanban/css/kanban.css', depends=[bootstrap]),

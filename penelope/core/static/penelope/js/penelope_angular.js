@@ -2,7 +2,7 @@
 /*global $, deform, document */
 
 var WEB_SOCKET_SWF_LOCATION = '/fanstatic/por/por_kanban/js/WebSocketMain.swf'
-var $penelope = angular.module('penelope', ['ui.sortable', 'ui.bootstrap', 'ngAnimate']);
+var $penelope = angular.module('penelope', ['ui.sortable', 'ui.bootstrap', 'ngAnimate', 'angles']);
 
 $penelope.controller("FeedlyController", function($scope, $socket_feedly, $log) {
     $scope.activities = [];

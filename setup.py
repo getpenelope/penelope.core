@@ -23,6 +23,7 @@ requires = [
     'gevent-socketio',
     'gevent-psycopg2',
     'gspread',
+    'js.chart',
     'js.jqgrid',
     'js.jquery_datatables==1.8.2',
     'js.jquery_timepicker_addon',

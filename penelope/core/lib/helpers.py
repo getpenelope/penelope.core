@@ -12,6 +12,10 @@ def timedelta_as_work_days(td):
     return (td.days*24.0 + td.seconds/SECS_IN_HR) / WORK_HOURS_IN_DAY
 
 
+def timedelta_as_work_hours(td):
+    return (td.days*24.0 + td.seconds/SECS_IN_HR)
+
+
 def timedelta_as_human_str(td, seconds=False):
     """
     Formats a timedelta for human consumption. Also used by some reports.
