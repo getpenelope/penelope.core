@@ -1,4 +1,4 @@
-2.1.18 (unreleased)
+2.1.18 (2014-02-04)
 -------------------
 
 - add user stats [amleczko]
