@@ -197,6 +197,7 @@ def before_user_render(context, event):
     del fs._render_fields['active']
     del fs._render_fields['costs']
     del fs._render_fields['kanban_boards']
+    del fs._render_fields['activities']
 
 
 @events.subscriber([User, events.IBeforeEditRenderEvent])

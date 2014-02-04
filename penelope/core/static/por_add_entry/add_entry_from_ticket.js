@@ -128,7 +128,7 @@ $(document).ready(function() {
                             autoSize: true,
                             showOn: 'both',
                             buttonText: '',
-                            buttonImage: '/static/images/date.png',   // XXX get absolute application url here
+                            buttonImage: '/static/penelope/images/date.png',   // XXX get absolute application url here
                             buttonImageOnly: true
                             });
 
