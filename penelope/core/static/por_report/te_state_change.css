@@ -69,12 +69,12 @@ form#te_state_change div[data-deform-name="users"]:before {
 
 #report-state-change .statechange-done {
   padding-left: 1.5em;
-  background: url(/static/images/green_check_16x13.png) center left no-repeat;     /* XXX application url? */
+  background: url(/static/penelope/images/green_check_16x13.png) center left no-repeat;     /* XXX application url? */
 }
 
 #report-state-change .statechange-error {
   padding-left: 1.5em;
-  background: url(/static/images/red_denied_16x16.png) center left no-repeat;     /* XXX application url? */
+  background: url(/static/penelope/images/red_denied_16x16.png) center left no-repeat;     /* XXX application url? */
 }
 
 

@@ -112,7 +112,7 @@ report_te_state_change = Group([
 dashboard_home = Group([
                         Resource(por_library, 'por_home/js/home.js', depends=[spark]),
                         Resource(por_library, 'por_home/css/home.css'),
-                        Resource(por_library, 'por_home/js/outstanding_tickets.js', depends=[jquery, mustache, spin]),
+#                        Resource(por_library, 'por_home/js/outstanding_tickets.js', depends=[jquery, mustache, spin]),
                         Resource(por_library, 'por_home/css/penelope.min.css'),
                         ])
 
