@@ -83,25 +83,30 @@ class FastTicketing(object):
 
         controls = self.request.POST.items()
         if controls != []:
-          try:
-              appstruct = form.validate(controls)
-              self.handle_save(appstruct)
-          except ValidationFailure as e:
-              result['form'] = e.render()
-              return result
+            try:
+                appstruct = form.validate(controls)
+                self.handle_save(form, appstruct)
+            except ValidationFailure as e:
+                result['form'] = e.render()
+                return result
 
         result['form'] = form.render()
         return result
 
-    def handle_save(self, appstruct):
-      customerrequest = self.context.get_instance()
-      user = self.request.authenticated_user
+    def handle_save(self, form, appstruct):
+        try:
+            customerrequest = self.context.get_instance()
+            customerrequest_id = customerrequest.id
+            user = self.request.authenticated_user
+            ticket_store.add_tickets(project = self.request.model_instance.project, 
+                    customerrequest = customerrequest,
+                    tickets = appstruct['tickets'],
+                    reporter = user,
+                    notify=True)
 
-      ticket_store.add_tickets(project = self.request.model_instance.project, 
-                               customerrequest = customerrequest,
-                               tickets = appstruct['tickets'],
-                               reporter = user,
-                               notify=True)
+        except Exception, e:
+            self.request.add_message(u'There was an exception: %s' % e, type='danger')
+            raise ValidationFailure(form, appstruct, None)
 
-      raise exc.HTTPFound(location=self.request.fa_url('CustomerRequest',
-                                                         customerrequest.id))
+        raise exc.HTTPFound(location=self.request.fa_url('CustomerRequest',
+            customerrequest_id))
