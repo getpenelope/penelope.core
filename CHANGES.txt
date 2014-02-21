@@ -1,4 +1,4 @@
-2.1.21 (unreleased)
+2.1.21 (2014-02-21)
 -------------------
 
 - fix bug in fastticketing [amleczko]
