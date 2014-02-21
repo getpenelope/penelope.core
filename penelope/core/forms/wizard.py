@@ -1,4 +1,5 @@
 # This Python file uses the following encoding: utf-8
+import transaction
 import colander
 
 from plone.i18n.normalizer import idnormalizer
@@ -383,7 +384,7 @@ class Wizard(object):
                 for summary, description, ticket_type in PM_TICKETS:
                     tickets += [{ 'summary': summary,
                                   'description': description,
-                                  'customerrequest': customer_request,
+                                  'customerrequest': customer_request.id,
                                   'reporter': manager.email,
                                   'type': ticket_type,
                                   'priority': 'major',
@@ -393,7 +394,7 @@ class Wizard(object):
 
             elif cr['ticket']:
                 tickets += [{'summary': cr['title'],
-                            'customerrequest': customer_request,
+                            'customerrequest': customer_request.id,
                             'reporter': manager.email,
                             'type': 'task',
                             'priority': 'major',
@@ -420,8 +421,20 @@ class Wizard(object):
             trac.project_name = appstruct['project']['trac_name']
         else:
             trac.project_name = appstruct['project']['project_name']
-        project.add_application(trac)
 
         customer.add_project(project)
+        customer_id = customer.id
+        project_name = project.name
+        trac.api_uri = 'trac://' # this will prevent firing event
+        project.add_application(trac)
+        t = transaction.get()
+        t.commit()
+
+        transaction.begin()
+        from penelope.trac.populate import add_trac_to_project
+        project = DBSession().query(Project).filter_by(name=project_name).one()
+        for trac in project.tracs:
+            add_trac_to_project(trac)
+
         raise exc.HTTPFound(location=self.request.fa_url('Customer',
-                                                         customer.id))
+                                                         customer_id))

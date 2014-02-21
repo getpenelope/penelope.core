@@ -2,6 +2,7 @@
 -------------------
 
 - fix bug in fastticketing [amleczko]
+- fix bug in wizard [amleczko]
 
 
 2.1.20 (2014-02-05)
