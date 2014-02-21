@@ -2,7 +2,6 @@
 import itertools
 import os
 import re
-import newrelic.agent
 
 from zope.interface import implements
 from pyramid.response import Response
@@ -80,10 +79,6 @@ class PORRequest(Request):
     @decorator.reify
     def title(self):
         return self.root.title
-
-    @decorator.reify
-    def newrelic(self):
-        return newrelic.agent
 
     @decorator.reify
     def authenticated_user(self):
@@ -192,7 +187,7 @@ def group_by_customer(projects):
 @view_config(permission='view_home', route_name="favicon")
 def favicon(request):
     here = os.path.dirname(__file__)
-    icon = open(os.path.join(here, 'static', 'images', 'favicon.png'))
+    icon = open(os.path.join(here, 'static', 'penelope', 'images', 'favicon.png'))
     return Response(content_type='image/x-icon', app_iter=icon)
 
 

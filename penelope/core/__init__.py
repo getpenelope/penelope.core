@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import os.path
-import newrelic.agent
 
 from pyramid.config import Configurator
 from pyramid_beaker import session_factory_from_settings, set_cache_regions_from_settings
@@ -121,16 +120,4 @@ def main(global_config, **settings):
     from penelope.core.forms import include_forms
     include_forms(config)
 
-    application = config.make_wsgi_app()
-
-    newrelic_conf = '%s/newrelic.ini' % global_config['here']
-    # newrelic.ini should be placed in your ${buildout:directory}/etc folder
-    # where the production.ini lives.
-
-    if os.path.isfile(newrelic_conf):
-        print 'newrelic: ON'
-        newrelic.agent.initialize(newrelic_conf, 'production')
-        return newrelic.agent.wsgi_application()(application)
-    else:
-        print 'newrelic: OFF'
-        return application
+    return config.make_wsgi_app()

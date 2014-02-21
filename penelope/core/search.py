@@ -31,8 +31,10 @@ def searchable_tracs(request):
 
     queries = []
     for trac in viewable_tracs:
+        project_name = trac.project.name.replace("'", r"\'")
+        customer_name = trac.project.customer.name.replace("'", r"\'")
         queries.append(query % {'trac': trac.trac_name,
-                                'project': '%s [%s]' % (trac.project.name, trac.project.customer.name),
+                                'project': '%s [%s]' % (project_name, customer_name),
                                 'user': request.authenticated_user.email})
     sql = '\nUNION '.join(queries)
     sql += ';'

@@ -259,9 +259,11 @@ class KanbanNamespace(BaseNamespace):
         #WHERE %(where)s AND tp.username in ('internal_developer', '%(user)s')
         queries = []
         for trac in all_tracs:
+            project_name = trac.project.name.replace("'", r"\'")
+            customer_name = trac.project.customer.name.replace("'", r"\'")
             queries.append(query % {'trac': trac.trac_name,
-                                    'project': trac.project.name,
-                                    'customer': trac.project.customer.name,
+                                    'project': project_name,
+                                    'customer': customer_name,
                                     'where': where})
         sql = '\nUNION '.join(queries)
         sql += ';'
