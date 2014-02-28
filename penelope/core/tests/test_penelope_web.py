@@ -44,8 +44,8 @@ class CssifyTest(unittest.TestCase):
         result = connection.getresponse()
         return result.status == 200
 
-    def test_supported_cssify(self):
-        self.driver.get(self.url)
+#    def test_supported_cssify(self):
+#        self.driver.get(self.url)
 #        xpath = self.driver.find_element_by_id('xpath')
 #        xpath.send_keys(path)
 #        xpath.submit()
