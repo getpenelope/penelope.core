@@ -1,7 +1,13 @@
 import datetime
 import lipsum
 import random
+import transaction
+import base64
+import os
 
+from sqlalchemy import engine_from_config
+
+from penelope.core.models.dashboard import GlobalConfig
 from penelope.core.models.dashboard import User, Customer, CustomerRequest, Project, Role
 from penelope.core.models.tp import TimeEntry
 
@@ -77,3 +83,32 @@ def populate_time_entries(session, users, projects, all_tickets):
 
                 te.author_id = author.id
             date += datetime.timedelta(days=1)
+
+
+def populate_dummies(settings=None):
+    from penelope.core.models.dbsession import DBSession
+    from penelope.core.models import Base
+
+    if settings:
+        engine = engine_from_config(settings, 'sa.dashboard.')
+        DBSession.configure(bind=engine)
+        Base.metadata.bind = engine
+
+    Base.metadata.create_all()
+
+    with transaction.manager:
+        session = DBSession()
+        users = [
+            add_user(session, u'admin@example.com', fullname='Administrator', password='admin@example.com'),
+        ]
+
+        role_admin = add_role(session, 'administrator')
+        role_admin.users.append(users[0])
+
+        add_role(session, 'external_developer')
+        add_role(session, 'internal_developer')
+        add_role(session, 'secretary')
+        add_role(session, 'customer')
+        add_role(session, 'project_manager')
+
+        session.add(GlobalConfig(id=1))

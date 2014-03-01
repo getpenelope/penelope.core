@@ -85,8 +85,7 @@ tests_require = [
     'pytest-xdist',
     'wsgi_intercept',
     'zope.testbrowser',
-    'selenium',
-    'nose'
+    'pyramid_robot'
     ]
 
 
