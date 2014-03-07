@@ -6,6 +6,9 @@ SELENIUM_IMPLICIT_WAIT = os.environ.get('SELENIUM_IMPLICIT_WAIT', '0.1s')
 SELENIUM_TIMEOUT = os.environ.get('SELENIUM_IMPLICIT_WAIT', '20s')
 USERNAME = 'admin@example.com'
 PASSWORD = 'admin@example.com'
+BUILD_NUMBER = os.environ.get('BUILD_NUMBER', 'manual')
+SELENIUM_VERSION = '2.39.0'
+
 
 APP_HOST = os.environ.get('APP_HOST', "localhost")
 APP_URL = os.environ.get('APP_URL', "http://%s:%s" % (APP_HOST, PORT))

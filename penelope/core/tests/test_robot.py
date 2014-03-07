@@ -1,15 +1,10 @@
 import os
 import robotsuite
 import unittest
-#import beaker
 
-#from sqlalchemy import engine_from_config
-#from sqlalchemy.pool import NullPool
 from webtest import http
 from paste.deploy import loadapp
 from pyramid_robot.layer import Layer, layered
-
-#from penelope.core import main
 
 
 class myPyramidLayer(Layer):
