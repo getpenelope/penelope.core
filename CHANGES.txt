@@ -1,4 +1,4 @@
-2.1.23 (unreleased)
+2.1.23 (2014-03-10)
 -------------------
 
 - add filters to time entries migrate [amleczko]
