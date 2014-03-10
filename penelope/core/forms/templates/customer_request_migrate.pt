@@ -21,21 +21,34 @@
                       <option value="${cr.id}">${cr.name}</option>
                     </tal:contracts>
                   </select>
-                  <script>$('#new_cr').chosen()</script>
               </div>
             </div>
 
-          Select time entries to move: <strong><span id="selected_tes" data-total="0"></span></strong>
+          Select time entries to move and filter them by: <strong><span id="selected_tes" data-total="0"></span></strong>
+          <div class="row-fluid">
+            <div class="span5 well">
+              <strong>Date from:</strong> <input type="text" name="date_from" value="" autocomplete="off" id="filter_date_from" size="11" placeholder="from"><br/>
+              <strong>Date to:</strong> <input type="text" name="date_to" value="" autocomplete="off" id="filter_date_to" size="11" placeholder="to"><br/>
+              <strong>Ticket:</strong> <select id="filter_tickets" data-placeholder="Choose a ticket" style="width:150px;" multiple="" tabindex="3">
+                <option value=""></option>
+                <tal:contracts repeat="t tickets">
+                <option value="#${t}">#${t}</option>
+                </tal:contracts>
+              </select>
+            </div>
+          </div>
+
           <table class="table-condensed table">
             <thead>
-              <th style="width:100px"><input type="checkbox" class="check_all"> Date</th>
+              <th style="width:150px"><input type="checkbox" class="check_all"> Date
+              </th>
               <th>Time entry</th>
               <th style="width:80px">Time (days)</th>
               <th>Ticket</th>
             </thead>
-            <tbody>
+            <tbody id="fbody">
                 <tr tal:repeat="te tes">
-                  <td>
+                  <td class="date_column" data-filter="${te.date}">
                     <input type="checkbox" name="te" value="${te.id}" data-time="${te.hours_as_work_days}">
                     ${te.date}
                   </td>
@@ -45,7 +58,7 @@
                   <td>
                     ${'%.2f' % te.hours_as_work_days}
                   </td>
-                  <td>
+                  <td class="ticket_column" data-filter="#${te.ticket}">
                       <a href="${ticket_url(request, te.project, te.ticket)}">#${te.ticket}</a>
                   </td>
                 </tr>
@@ -62,52 +75,6 @@
             </button>
           </div>
         </form>
-        <script>
-          function update_te(inputs, stat){
-            inputs.each(function(){
-              if ($(this).is(':checked')!=stat){
-                $(this).attr('checked', stat);
-                if (stat===true){
-                  t = $(this).data('time');
-                }
-                else{
-                  t = -Math.abs($(this).data('time'));
-                }
-                update_selected_tes(t);
-              }
-            });
-          };
-
-          function update_selected_tes(t){
-            $('#selected_tes').html(function(i) { 
-              val = $(this).data('total') + t;
-              $(this).data('total', val);
-              if (val<0.001){
-                return ''
-              }
-              else {
-                return (val).toFixed(2) + ' (days) selected'
-              }
-            });
-          };
-
-          $('input[name="te"]').click(function(){
-            if ($(this).is(':checked')){
-              t = $(this).data('time');
-            }
-            else {
-              t = -Math.abs($(this).data('time'));
-            };
-            update_selected_tes(t);
-          });
-
-          $('input.check_all').click(function() {
-            update_te($(this).closest('form').find('input[type=checkbox]'), $(this).is(':checked'));
-           });
-
-          $("a[rel='tooltip']").tooltip();
-        </script>
-
     </div>
   </body>
 </html>

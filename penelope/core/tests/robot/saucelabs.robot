@@ -1,5 +1,6 @@
 *** Settings ***
 Library  String
+Library  penelope.core.tests.robot.saucelabs.SauceLabs
 Variables  penelope/core/tests/robot/variables.py
 Library  Selenium2Library  timeout=${SELENIUM_TIMEOUT}  implicit_wait=${SELENIUM_IMPLICIT_WAIT}
 

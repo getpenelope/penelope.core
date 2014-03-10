@@ -2,7 +2,7 @@
 Resource   saucelabs.robot
 
 Test Setup        Open SauceLabs test browser
-Test Teardown     Report test status    Close All Browsers
+Test Teardown     Run keywords  Report test status   Close All Browsers
 
 *** Test Cases ***
 

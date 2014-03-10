@@ -124,6 +124,8 @@ add_entry_from_ticket = Group([
 
 wizard = Group([ Resource(por_library, 'por_wizard/wizard.css') ])
 fastticketing = Group([ Resource(por_library, 'por_fastticketing/fastticketing.css') ])
+migrate_cr = Group([
+                    Resource(por_library, 'por_migrate_cr/migrate.js', depends=[deform_bootstrap])])
 
 add_entry = Group([
                     Resource(por_library, 'por_add_entry/add_entry.js', depends=[jquery]),

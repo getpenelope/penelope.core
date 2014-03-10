@@ -9,6 +9,7 @@ from fa.bootstrap import actions
 
 from penelope.core.forms import ModelView
 from penelope.core.forms import workflow
+from penelope.core.fanstatic_resources import migrate_cr
 from penelope.core.forms.fast_ticketing import FastTicketing
 from penelope.core.lib.helpers import ticket_url, unicodelower
 from penelope.core.models import dashboard, tp, DBSession
@@ -235,6 +236,7 @@ class CustomerRequestModelView(ModelView):
     @actions.action('show')
     def migrate(self):
         """Massive time entry migration form"""
+        migrate_cr.need()
         context = self.context.get_instance()
         project = context.project
         opts = {}
@@ -243,12 +245,19 @@ class CustomerRequestModelView(ModelView):
         opts['back_url'] = '%s/admin/CustomerRequest/%s' % (self.request.application_url, context.id)
         opts['tes'] = context.time_entries
         opts['ticket_url'] = ticket_url
+        dates = [t.date for t in context.time_entries]
+        dates.sort()
+        opts['dates'] = set(dates)
+        tickets = [int(t.ticket) for t in context.time_entries]
+        tickets.sort()
+        opts['tickets'] = set(tickets)
         return self.render(**opts)
 
     def do_migrate(self):
         from penelope.core.models.tickets import ticket_store
 
         context = self.context.get_instance()
+        cr_id = context.id
         te_ids = self.request.POST.getall('te')
         new_cr = self.request.POST.get('new_cr')
         tes = DBSession().query(tp.TimeEntry).filter(tp.TimeEntry.id.in_(te_ids))
@@ -276,7 +285,7 @@ class CustomerRequestModelView(ModelView):
             self.request.add_message('%d ticket updated.' % n_ticket)
 
         self.request.add_message('%d time entries moved.' % n_te)
-        raise exc.HTTPFound(location=self.request.fa_url('CustomerRequest', context.id, 'migrate'))
+        raise exc.HTTPFound(location=self.request.fa_url('CustomerRequest', cr_id, 'migrate'))
 
     def put_estimations(self):
         self.request.model_class = dashboard.Estimation
