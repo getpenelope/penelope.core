@@ -1,7 +1,7 @@
 2.1.24 (unreleased)
 -------------------
 
-- Nothing changed yet.
+- make sure contract field is visible and required [amleczko]
 
 
 2.1.23 (2014-03-10)

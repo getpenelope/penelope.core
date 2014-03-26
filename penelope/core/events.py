@@ -357,6 +357,7 @@ def before_customerrequest_editrender(context, event):
                        .order_by('name')
 
     fs.contract.render_opts['options'] = _query_options(q)
+    fs.append(fs.contract.required())
 
     [fs.append(fs._render_fields.pop(a)) for a in fs._render_fields if a != 'name']
 
