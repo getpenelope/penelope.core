@@ -410,17 +410,14 @@ class Wizard(object):
                                      permission_name='view')
                 acl.project = app
             project.add_application(app)
+        milestones = appstruct['milestones']
 
         #create trac
         trac = Trac(name="Trac for %s" % appstruct['project']['project_name'])
-        trac.settings = self.request.registry.settings # an ugly patch to pass 
-                                                       # the missing settings 
-        trac.milestones = appstruct['milestones']
-        trac.tickets = tickets
         if appstruct['project']['trac_name']:
-            trac.project_name = appstruct['project']['trac_name']
+            trac_project_name = appstruct['project']['trac_name']
         else:
-            trac.project_name = appstruct['project']['project_name']
+            trac_project_name = appstruct['project']['project_name']
 
         customer.add_project(project)
         customer_id = customer.id
@@ -434,7 +431,11 @@ class Wizard(object):
         from penelope.trac.populate import add_trac_to_project
         project = DBSession().query(Project).filter_by(name=project_name).one()
         for trac in project.tracs:
-            add_trac_to_project(trac)
-
+            add_trac_to_project(trac,
+                                milestones=milestones, tickets=tickets,
+                                project_name=trac_project_name)
+        DBSession().merge(trac)
+        t = transaction.get()
+        t.commit()
         raise exc.HTTPFound(location=self.request.fa_url('Customer',
                                                          customer_id))

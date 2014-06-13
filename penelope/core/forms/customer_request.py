@@ -258,8 +258,10 @@ class CustomerRequestModelView(ModelView):
 
         context = self.context.get_instance()
         cr_id = context.id
+        pr_id = context.project_id
         te_ids = self.request.POST.getall('te')
         new_cr = self.request.POST.get('new_cr')
+        author = self.request.authenticated_user.email
         tes = DBSession().query(tp.TimeEntry).filter(tp.TimeEntry.id.in_(te_ids))
         if self.request.POST.get('submit') == u'move_time_entries_and_tickets':
             update_tickets = True
@@ -276,9 +278,8 @@ class CustomerRequestModelView(ModelView):
             n_te += 1
 
         if update_tickets:
-            author = self.request.authenticated_user.email
             for ticket in tickets:
-                t = ticket_store.get_raw_ticket(context.project_id, ticket)
+                t = ticket_store.get_raw_ticket(pr_id, ticket)
                 t['customerrequest'] = new_cr
                 t.save_changes(comment=u'Massive move operation from Penelope.', author=author)
                 n_ticket += 1
