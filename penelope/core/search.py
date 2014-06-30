@@ -56,6 +56,7 @@ class SearchSchema(colander.MappingSchema):
                                            values=[('', ''),
                                                    ('ticket', 'Ticket'),
                                                    ('wiki', 'Wiki'),
+                                                   ('TimeEntry', 'Time entry'),
                                                    ('changeset','Changeset')]),
                missing=colander.null,
                title=u'')
@@ -247,7 +248,7 @@ class FullTextSearch(object):
         si = SolrInterface(self.solr_endpoint)
 
         searchquery = si.Q(*[si.Q(s) for s in self.searchable])
-        query = si.query(searchquery).field_limit(score=True)
+        query = si.query(searchquery)#.field_limit(score=True)
 
         realm_query = self._build_realm_filter(si)
         if realm_query:
