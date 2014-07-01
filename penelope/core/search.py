@@ -331,8 +331,20 @@ class FullTextSearchObject(object):
         text = ''.join(result)
         return bleach.clean(text, ['span'], ['class'], strip=True)
 
+    def icon(self):
+        if self.realm == 'TimeEntry':
+            return 'icon-time'
+        elif self.realm == 'ticket':
+            return 'icon-list-alt'
+        elif self.realm == 'changeset':
+            return 'icon-random'
+        elif self.realm == 'wiki':
+            return 'icon-book'
+
     def href(self):
         if self.realm == 'changeset':
             return "trac/%s/%s/%s/%s" % (self.project, self.realm, self.id, self.parent_id)
+        elif self.realm == 'TimeEntry':
+            return "admin/TimeEntry/%s" % self.id
         else:
             return "trac/%s/%s/%s" % (self.project, self.realm, self.id)

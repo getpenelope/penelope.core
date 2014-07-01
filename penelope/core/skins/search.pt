@@ -14,8 +14,12 @@
         </ul>
         <div id="results">
           <div tal:repeat="doc docs" tal:omit-tag="">
-            <dt tal:attributes="class doc.closed and 'ticketclosed'"><a href="${request.application_url}/${doc.href()}"
-              tal:content="structure doc.title"></a></dt>
+            <dt tal:attributes="class doc.closed and 'ticketclosed'">
+                <i class="${doc.icon()}"></i>
+                <a class="search_result_link" href="${request.application_url}/${doc.href()}">
+                    <span tal:replace="structure doc.title"/>
+                </a>
+            </dt>
             <dd tal:content="structure doc.oneline"></dd>
             <dd>By <a href="${request.current_route_url(_query=add_params(request,'authors',doc.author))}">${doc.author}</a>
               in <a href="${request.current_route_url(_query=add_params(request,'tracs',doc.project))}">${doc.project}</a>
