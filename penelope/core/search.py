@@ -274,6 +274,7 @@ class FullTextSearch(object):
 
         # boosting - super hacky but sunburnt is not support bq
         options = query.options()
+        options['defType'] = 'dismax' # make sure we use dismax parser
         options['bq'] = ['realm:ticket^999','status:new^100', 'status:assigned^100',
                          'status:reopened^999', 'status:reviewing^100',
                          'status:accepted^100','(*:* -xxx)^999']
