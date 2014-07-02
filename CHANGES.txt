@@ -1,7 +1,7 @@
 2.1.28 (unreleased)
 -------------------
 
-- Nothing changed yet.
+- searchable milestones [amleczko]
 
 
 2.1.27 (2014-07-01)

@@ -56,6 +56,7 @@ class SearchSchema(colander.MappingSchema):
                                            values=[('', ''),
                                                    ('ticket', 'Ticket'),
                                                    ('wiki', 'Wiki'),
+                                                   ('milestone', 'Milestone'),
                                                    ('TimeEntry', 'Time entry'),
                                                    ('changeset','Changeset')]),
                missing=colander.null,
@@ -341,6 +342,9 @@ class FullTextSearchObject(object):
             return 'icon-random'
         elif self.realm == 'wiki':
             return 'icon-book'
+        elif self.realm == 'milestone':
+            return 'icon-calendar'
+
 
     def href(self):
         if self.realm == 'changeset':
