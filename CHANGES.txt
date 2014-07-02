@@ -1,7 +1,7 @@
 2.1.29 (unreleased)
 -------------------
 
-- Nothing changed yet.
+- new quality report: we vs. customer [amleczko]
 
 
 2.1.28 (2014-07-02)

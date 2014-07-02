@@ -11,7 +11,6 @@ import gdata.docs.data
 import gdata.docs.service
 import gdata.sample_util
 
-
 from pyramid.paster import get_appsettings, setup_logging
 from datetime import datetime, date, timedelta
 from sqlalchemy.orm import mapper
@@ -21,6 +20,7 @@ from sqlalchemy import func
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import relationship, backref, defer
 
+from trac.util.datefmt import from_utimestamp
 from penelope.core.models.dashboard import Project, CustomerRequest, Trac, Estimation, Customer, Contract, User
 from penelope.core.models.tp import TimeEntry, timedelta_as_work_days
 from penelope.core.models.dbsession import DBSession
@@ -308,6 +308,59 @@ class QualityRaw(Quality):
                     writer.writerow([cr.id, cr.customer_id, hours])
 
 
+class QualityOurCustomerTime(Quality):
+    def __call__(self, parser, namespace, values, option_string):
+        super(QualityOurCustomerTime, self).__call__(parser, namespace, values, option_string)
+        session = DBSession()
+
+        def is_rt_user(email):
+            return email and 'redturtle' in email or False
+
+        def elapsed_time_in_minutes(start, end):
+            elapsed_time = from_utimestamp(end) - from_utimestamp(start)
+            return elapsed_time.total_seconds() // 3600
+
+        query = """SELECT '{0}' AS trac,
+                          '{2}' AS project,
+                          '{3}' AS customer,
+                          id,
+                          time,
+                          changetime,
+                          owner,
+                          type,
+                          customerrequest.value AS cr_id
+                    FROM "trac_{0}".ticket AS ticket
+                    LEFT OUTER JOIN "trac_{0}".ticket_custom AS customerrequest ON ticket.id=customerrequest.ticket AND customerrequest.name='customerrequest'
+                        WHERE status='closed'
+                        AND EXTRACT('year' FROM to_timestamp(changetime / 1000000)) = {1}"""
+        queries = []
+        for trac in session.query(Trac):
+            queries.append(query.format(trac.trac_name, namespace.year, trac.project.name, trac.project.customer.name))
+        sql = '\nUNION '.join(queries)
+        sql += ';'
+
+        with open(namespace.filename, 'wb') as ofile:
+            writer = csv.writer(ofile, dialect='excel')
+
+            writer.writerow(['Customer', 'Project', 'CR ID', 'Ticket #', 'Ticket type', 'Owner', 'Is RedTurtle user', 'Elapsed time (in normal hours)'])
+
+            for ticket in session.execute(sql).fetchall():
+                history = session.execute("""SELECT time, oldvalue, newvalue 
+                                                FROM "trac_{0}".ticket_change
+                                                    WHERE ticket={1} AND field='owner'
+                                                    ORDER BY time""".format(ticket.trac, ticket.id)).fetchall()
+                if not history:
+                    writer.writerow([ticket.customer, ticket.project, ticket.cr_id, ticket.id, ticket.type, ticket.owner, is_rt_user(ticket.owner), elapsed_time_in_minutes(ticket.time, ticket.changetime)])
+                else:
+                    first_history = history.pop(0)
+                    last_change = first_history.time
+                    writer.writerow([ticket.customer, ticket.project, ticket.cr_id, ticket.id, ticket.type, first_history.oldvalue, is_rt_user(first_history.oldvalue), elapsed_time_in_minutes(ticket.time, last_change)])
+
+                    for h in history:
+                        writer.writerow([ticket.customer, ticket.project, ticket.cr_id, ticket.id, ticket.type, h.oldvalue, is_rt_user(h.oldvalue), elapsed_time_in_minutes(last_change, h.time)])
+                        last_change = h.time
+
+
 class QualityOperator(Quality):
     def __call__(self, parser, namespace, values, option_string):
         super(QualityOperator, self).__call__(parser, namespace, values, option_string)
@@ -396,12 +449,13 @@ def main():
     parser.add_argument('--cr', nargs=0, action=QualityCR, help='generate customer request quality report.')
     parser.add_argument('--ticket', nargs=0, action=QualityTicket, help='generate ticket quality report.')
     parser.add_argument('--raw', nargs=0, action=QualityRaw, help='generate raw quality report.')
+    parser.add_argument('--we_vs_customer', nargs=0, action=QualityOurCustomerTime, help='generate we vs customer time quality report.')
     parser.add_argument('--operator', nargs=0, action=QualityOperator, help='generate total work time for CR and operator quality report.')
     namespace = parser.parse_args()
 
     if namespace.google:
         client = create_client()
-        for report in  ['project', 'cr', 'ticket', 'raw', 'operator']:
+        for report in  ['project', 'cr', 'ticket', 'raw', 'operator', 'we_vs_customer']:
             configuration = getattr(namespace, report)
             if configuration:
                 upload_file(client, configuration['filename'],
