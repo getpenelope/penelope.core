@@ -245,7 +245,8 @@ class CRperContracts(colander.MappingSchema):
                               missing=None,
                               title=u'End date')
 
-    customer_requests = CustomerRequests(missing=None)
+    customer_requests = CustomerRequests(missing=None,
+            description=u'Following CRs and related tickets will be created only if you assign a budget to it. CRs without a budget will be skipped.')
     contract = Contract(name='',)
 
 
@@ -377,8 +378,15 @@ class Wizard(object):
                               days=cr[key],
                               customer_request=customer_request)
                     customer_request.workflow_state = 'estimated'
+
+            if not customer_request.estimations:
+                # skip CR creation if there are no estimations/budget assigned
+                continue
+
             project.add_customer_request(customer_request)
             customer_request.contract = contract
+
+            DBSession().flush() # get customer_request.id
 
             if cr['title'] == 'Project management':
                 for summary, description, ticket_type in PM_TICKETS:

@@ -335,7 +335,7 @@ class QualityOurCustomerTime(Quality):
                         AND EXTRACT('year' FROM to_timestamp(changetime / 1000000)) = {1}"""
         queries = []
         for trac in session.query(Trac):
-            queries.append(query.format(trac.trac_name, namespace.year, trac.project.name, trac.project.customer.name))
+            queries.append(query.format(trac.trac_name, namespace.year, trac.project.name.replace("'","''"), trac.project.customer.name.replace("'","''")))
         sql = '\nUNION '.join(queries)
         sql += ';'
 
