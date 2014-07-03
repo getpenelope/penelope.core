@@ -4,6 +4,7 @@
 - fix add time entry modal dialog [amleczko]
 - fix report index [amleczko]
 - show all projects in report, not only active [amleczko]
+- fix json export from reports [amleczko]
 
 
 2.1.30 (2014-07-03)

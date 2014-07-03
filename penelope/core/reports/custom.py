@@ -259,7 +259,8 @@ class CustomerReport(object):
         result = []
         for row in detail['rows']:
             row['hours'] = timedelta_as_human_str(row['hours'])
-            del row['description']
+            if 'description' in row:
+                del row['description']
             result.append(row)
         return result
 
