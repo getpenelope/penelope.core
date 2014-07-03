@@ -4,6 +4,10 @@
 $(document).ready(function() {
     "use strict";
 
+    if ($('#trac-ticket-title a').attr('href') === undefined){
+        return;
+    }
+
     var $breadcrumbs = $('#trac-before-subnav .breadcrumb li'),
 
         // customer name / project name
