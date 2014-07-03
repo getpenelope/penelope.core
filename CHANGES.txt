@@ -1,4 +1,4 @@
-2.1.30 (unreleased)
+2.1.30 (2014-07-03)
 -------------------
 
 - fix project wizard form to avoid creation empty tickets [amleczko]
