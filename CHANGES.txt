@@ -3,69 +3,24 @@
 
 - fix add time entry modal dialog [amleczko]
 - fix report index [amleczko]
+- show all projects in report, not only active [amleczko]
 
 
 2.1.30 (2014-07-03)
 -------------------
 
 - fix project wizard form to avoid creation empty tickets [amleczko]
-
-
-2.1.29 (2014-07-02)
--------------------
-
 - new quality report: we vs. customer [amleczko]
-
-
-2.1.28 (2014-07-02)
--------------------
-
 - searchable milestones [amleczko]
-
-
-2.1.27 (2014-07-01)
--------------------
-
 - use dismax parser [amleczko]
-
-
-2.1.26 (2014-07-01)
--------------------
-
 - integrate sql search in solr [amleczko]
-
-
-2.1.25 (2014-06-13)
--------------------
-
 - fix transaction handling when working with trac [amleczko]
-
-
-2.1.24 (2014-03-26)
--------------------
-
 - make sure contract field is visible and required [amleczko]
-
-
-2.1.23 (2014-03-10)
--------------------
-
 - add filters to time entries migrate [amleczko]
-
-
-2.1.22 (2014-02-26)
--------------------
-
 - fix bug with multi schema select [amleczko]
 - cleanup newrelic [amleczko]
-
-
-2.1.21 (2014-02-21)
--------------------
-
 - fix bug in fastticketing [amleczko]
 - fix bug in wizard [amleczko]
-
 
 2.1.20 (2014-02-05)
 -------------------

@@ -15,9 +15,9 @@ class NullCustomerRequest(object):
 
 def qry_active_projects():
     return DBSession.query(Project)\
-            .filter(Project.activated==True)\
             .filter(Project.customer_id!=None)\
             .order_by(Project.name)
+#            .filter(Project.activated==True)\
 
 
 def filter_users_with_timeentries(users):
