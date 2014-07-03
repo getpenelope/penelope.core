@@ -17,7 +17,7 @@
       <h5>Per persona</h5>
       <ul>
         <li tal:repeat="user users">
-          <a href="${request.application_url}/reports/report_all_entries?users=${user.id}">${user.fullname}</a>
+          <a href="${request.application_url}/reports/report_all_entries?__start__=users%3Asequence&users=${user.id}&__end__=users%3Asequence">${user.fullname}</a>
         </li>
       </ul>
     </div>
