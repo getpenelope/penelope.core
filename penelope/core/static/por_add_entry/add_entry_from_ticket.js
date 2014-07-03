@@ -10,7 +10,7 @@ $(document).ready(function() {
         project_fullname = $breadcrumbs.slice(1, 3).text().replace(/[\/\s]+/, ''),
 
         // ['http', '', 'localhost', '8081', 'trac', 'penelope', 'ticket', '48']
-        ticket_parts = window.location.href.split('/'),
+        ticket_parts = $('#trac-ticket-title a').attr('href').split('/'),
 
         // ticket number inside the project, throw away hashes and the rest of the query
         ticket_number = ticket_parts[ticket_parts.length-1].match(/\d+/),
@@ -154,7 +154,6 @@ $(document).ready(function() {
             $duration_label.text('daily total:');
             $duration_value.text(duration);
         };
-
         $.jsonRPC.request('time_entry_total_duration', {
                             params: [$date_field.val()],
                             success: function(jsonp) {
@@ -180,12 +179,20 @@ $(document).ready(function() {
 
 
     $('#add-entry-from-ticket-submit').click(function(ev) {
+
         var entry_ticket = ticket_number,
+            $button = $(this),
             entry_date = $date_field.val(),
             entry_description = $dialog.find('textarea[name=description]').val(),
             entry_location = $dialog.find('input[name=location]').val(),
             entry_project = project_id,
             entry_hours = $dialog.find('input[name=duration]').val();
+
+        if ($button.attr('disabled') === 'disabled'){
+            ev.preventDefault();
+            return
+        }
+        $button.attr('disabled', 'disabled');
 
         var feedback_error = function(message) {
             // displays the feedback inside the modal
@@ -197,8 +204,8 @@ $(document).ready(function() {
                     .appendTo($error_container.empty())
                     .delay(4000)
                     .fadeOut(0);
+            $button.removeAttr('disabled');
         };
-
 
         var feedback_ok = function(message) {
             // closes the modal, and temporarily replaces the subnav content with a positive feedback
@@ -217,8 +224,8 @@ $(document).ready(function() {
             $alert.appendTo($nav);
             $dialog.modal('toggle');
             setTimeout(function() { $alert.remove(); $navcontent.show(); }, 3000);
+            $button.removeAttr('disabled');
         };
-
 
         $.jsonRPC.request('create_new_simple_time_entry', {
                             params: [entry_ticket, entry_date, entry_hours, entry_description, entry_location, entry_project],
