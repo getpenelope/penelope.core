@@ -316,12 +316,14 @@ class QualityOurCustomerTime(Quality):
         def is_rt_user(email):
             return email and 'redturtle' in email or False
 
+        def round_to(n, precission):
+            correction = 0.5 if n >= 0 else -0.5
+            return int(n/precission+correction)*precission
+
         def elapsed_time_in_minutes(start, end):
-            elapsed_time = from_utimestamp(end) - from_utimestamp(start)
-            hours = round(elapsed_time.total_seconds() / 3600.0)
-            if hours < 0.5:
-                hours = 0
-            return hours
+            td = from_utimestamp(end) - from_utimestamp(start)
+            total_seconds = (td.microseconds + (td.seconds + td.days * 24 * 3600) * 10**6) / 10**6
+            return round_to((total_seconds / 3600.0), 0.5)
 
         query = """SELECT '{0}' AS trac,
                           '{2}' AS project,
