@@ -1,4 +1,4 @@
-2.1.32 (unreleased)
+2.1.32 (2014-07-07)
 -------------------
 
 - quality report round down to 1 decimal [amleczko]
