@@ -318,7 +318,10 @@ class QualityOurCustomerTime(Quality):
 
         def elapsed_time_in_minutes(start, end):
             elapsed_time = from_utimestamp(end) - from_utimestamp(start)
-            return elapsed_time.total_seconds() // 3600
+            hours = round(elapsed_time.total_seconds() / 3600.0)
+            if hours < 0.5:
+                hours = 0
+            return hours
 
         query = """SELECT '{0}' AS trac,
                           '{2}' AS project,

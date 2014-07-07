@@ -1,7 +1,7 @@
 2.1.32 (unreleased)
 -------------------
 
-- Nothing changed yet.
+- quality report round down to 1 decimal [amleczko]
 
 
 2.1.31 (2014-07-03)
