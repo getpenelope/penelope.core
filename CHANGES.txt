@@ -1,7 +1,8 @@
 2.1.33 (unreleased)
 -------------------
 
-- Nothing changed yet.
+- new report for last 1000 hours [amleczko]
+- small fixes to previous reports [amleczko]
 
 
 2.1.32 (2014-07-07)

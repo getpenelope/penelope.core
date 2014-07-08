@@ -308,6 +308,78 @@ class QualityRaw(Quality):
                     writer.writerow([cr.id, cr.customer_id, hours])
 
 
+class QualityOurCustomerTimeLast1000Hours(Quality):
+    def __call__(self, parser, namespace, values, option_string):
+        super(QualityOurCustomerTimeLast1000Hours, self).__call__(parser, namespace, values, option_string)
+        session = DBSession()
+
+        def is_rt_user(email):
+            return email and 'redturtle' in email or False
+
+        def round_to(n, precission):
+            correction = 0.5 if n >= 0 else -0.5
+            return int(n/precission+correction)*precission
+
+        def elapsed_time_in_minutes(start, end):
+            td = from_utimestamp(end) - from_utimestamp(start)
+            total_seconds = (td.microseconds + (td.seconds + td.days * 24 * 3600) * 10**6) / 10**6
+            return round_to((total_seconds / 3600.0), 0.5)
+
+        def url(ticket):
+            return "https://penelope.redturtle.it/trac/{0.trac}/ticket/{0.id}".format(ticket)
+
+        namespace.we_vs_customer_new['custom_report_name'] = 'we_vs_customer_new since: {0}'.format((datetime.now() - timedelta(hours=1000)).strftime('%Y-%m-%d %H:%M'))
+
+        query = """SELECT '{0}' AS trac,
+                          '{1}' AS project,
+                          '{2}' AS customer,
+                          id,
+                          time,
+                          changetime,
+                          owner,
+                          reporter,
+                          summary,
+                          type,
+                          customerrequest.value AS cr_id
+                    FROM "trac_{0}".ticket AS ticket
+                    LEFT OUTER JOIN "trac_{0}".ticket_custom AS customerrequest ON ticket.id=customerrequest.ticket AND customerrequest.name='customerrequest'
+                        WHERE status!='closed'
+                        AND to_timestamp(changetime / 1000000) > CURRENT_TIMESTAMP - INTERVAL '1000 hours'"""
+
+        crs = dict(session.query(CustomerRequest.id, CustomerRequest.name).all())
+        queries = []
+        for trac in session.query(Trac):
+            queries.append(query.format(trac.trac_name, trac.project.name.replace("'","''"), trac.project.customer.name.replace("'","''")))
+        sql = '\nUNION '.join(queries)
+        sql += ';'
+
+        with open(namespace.filename, 'wb') as ofile:
+            writer = csv.writer(ofile, dialect='excel')
+
+            writer.writerow(['Customer', 'Project', 'CR ID', 'CR name', 'Ticket #', 'Ticket created', 'Ticket summary', 'Ticket type', 'Ticket URL', 'Owner', 'Is RedTurtle user', 'Elapsed time (in normal hours)'])
+
+            for ticket in session.execute(sql).fetchall():
+                reporter = ticket.reporter
+                created = from_utimestamp(ticket.time).strftime('%Y-%m-%d %H:%M')
+                owner = ticket.owner or reporter
+                history = session.execute("""SELECT time, oldvalue, newvalue 
+                                                FROM "trac_{0}".ticket_change
+                                                    WHERE ticket={1} AND field='owner'
+                                                    ORDER BY time""".format(ticket.trac, ticket.id)).fetchall()
+                if not history:
+                    writer.writerow([ticket.customer, ticket.project, ticket.cr_id, crs.get(ticket.cr_id), ticket.id, created, ticket.summary, ticket.type, url(ticket), owner, is_rt_user(owner), elapsed_time_in_minutes(ticket.time, ticket.changetime)])
+                else:
+                    first_history = history.pop(0)
+                    owner = first_history.oldvalue or reporter
+                    last_change = first_history.time
+                    writer.writerow([ticket.customer, ticket.project, ticket.cr_id, crs.get(ticket.cr_id), ticket.id, created, ticket.summary, ticket.type, url(ticket), owner, is_rt_user(owner), elapsed_time_in_minutes(ticket.time, last_change)])
+
+                    for h in history:
+                        owner = h.oldvalue or reporter
+                        writer.writerow([ticket.customer, ticket.project, ticket.cr_id, crs.get(ticket.cr_id), ticket.id, created, ticket.summary, ticket.type, url(ticket), owner, is_rt_user(owner), elapsed_time_in_minutes(last_change, h.time)])
+                        last_change = h.time
+
+
 class QualityOurCustomerTime(Quality):
     def __call__(self, parser, namespace, values, option_string):
         super(QualityOurCustomerTime, self).__call__(parser, namespace, values, option_string)
@@ -325,6 +397,9 @@ class QualityOurCustomerTime(Quality):
             total_seconds = (td.microseconds + (td.seconds + td.days * 24 * 3600) * 10**6) / 10**6
             return round_to((total_seconds / 3600.0), 0.5)
 
+        def url(ticket):
+            return "https://penelope.redturtle.it/trac/{0.trac}/ticket/{0.id}".format(ticket)
+
         query = """SELECT '{0}' AS trac,
                           '{2}' AS project,
                           '{3}' AS customer,
@@ -332,12 +407,16 @@ class QualityOurCustomerTime(Quality):
                           time,
                           changetime,
                           owner,
+                          reporter,
+                          summary,
                           type,
                           customerrequest.value AS cr_id
                     FROM "trac_{0}".ticket AS ticket
                     LEFT OUTER JOIN "trac_{0}".ticket_custom AS customerrequest ON ticket.id=customerrequest.ticket AND customerrequest.name='customerrequest'
                         WHERE status='closed'
                         AND EXTRACT('year' FROM to_timestamp(changetime / 1000000)) = {1}"""
+
+        crs = dict(session.query(CustomerRequest.id, CustomerRequest.name).all())
         queries = []
         for trac in session.query(Trac):
             queries.append(query.format(trac.trac_name, namespace.year, trac.project.name.replace("'","''"), trac.project.customer.name.replace("'","''")))
@@ -347,22 +426,26 @@ class QualityOurCustomerTime(Quality):
         with open(namespace.filename, 'wb') as ofile:
             writer = csv.writer(ofile, dialect='excel')
 
-            writer.writerow(['Customer', 'Project', 'CR ID', 'Ticket #', 'Ticket type', 'Owner', 'Is RedTurtle user', 'Elapsed time (in normal hours)'])
+            writer.writerow(['Customer', 'Project', 'CR ID', 'CR name', 'Ticket #', 'Ticket summary', 'Ticket type', 'Ticket URL', 'Owner', 'Is RedTurtle user', 'Elapsed time (in normal hours)'])
 
             for ticket in session.execute(sql).fetchall():
+                reporter = ticket.reporter
+                owner = ticket.owner or reporter
                 history = session.execute("""SELECT time, oldvalue, newvalue 
                                                 FROM "trac_{0}".ticket_change
                                                     WHERE ticket={1} AND field='owner'
                                                     ORDER BY time""".format(ticket.trac, ticket.id)).fetchall()
                 if not history:
-                    writer.writerow([ticket.customer, ticket.project, ticket.cr_id, ticket.id, ticket.type, ticket.owner, is_rt_user(ticket.owner), elapsed_time_in_minutes(ticket.time, ticket.changetime)])
+                    writer.writerow([ticket.customer, ticket.project, ticket.cr_id, crs.get(ticket.cr_id), ticket.id, ticket.summary, ticket.type, url(ticket), owner, is_rt_user(owner), elapsed_time_in_minutes(ticket.time, ticket.changetime)])
                 else:
                     first_history = history.pop(0)
+                    owner = first_history.oldvalue or reporter
                     last_change = first_history.time
-                    writer.writerow([ticket.customer, ticket.project, ticket.cr_id, ticket.id, ticket.type, first_history.oldvalue, is_rt_user(first_history.oldvalue), elapsed_time_in_minutes(ticket.time, last_change)])
+                    writer.writerow([ticket.customer, ticket.project, ticket.cr_id, crs.get(ticket.cr_id), ticket.id, ticket.summary, ticket.type, url(ticket), owner, is_rt_user(owner), elapsed_time_in_minutes(ticket.time, last_change)])
 
                     for h in history:
-                        writer.writerow([ticket.customer, ticket.project, ticket.cr_id, ticket.id, ticket.type, h.oldvalue, is_rt_user(h.oldvalue), elapsed_time_in_minutes(last_change, h.time)])
+                        owner = h.oldvalue or reporter
+                        writer.writerow([ticket.customer, ticket.project, ticket.cr_id, crs.get(ticket.cr_id), ticket.id, ticket.summary, ticket.type, url(ticket), owner, is_rt_user(owner), elapsed_time_in_minutes(last_change, h.time)])
                         last_change = h.time
 
 
@@ -454,16 +537,17 @@ def main():
     parser.add_argument('--cr', nargs=0, action=QualityCR, help='generate customer request quality report.')
     parser.add_argument('--ticket', nargs=0, action=QualityTicket, help='generate ticket quality report.')
     parser.add_argument('--raw', nargs=0, action=QualityRaw, help='generate raw quality report.')
-    parser.add_argument('--we_vs_customer', nargs=0, action=QualityOurCustomerTime, help='generate we vs customer time quality report.')
+    parser.add_argument('--we_vs_customer_closed', nargs=0, action=QualityOurCustomerTime, help='generate we vs customer time quality report.')
+    parser.add_argument('--we_vs_customer_new', nargs=0, action=QualityOurCustomerTimeLast1000Hours, help='generate we vs customer time quality report.')
     parser.add_argument('--operator', nargs=0, action=QualityOperator, help='generate total work time for CR and operator quality report.')
     namespace = parser.parse_args()
 
     if namespace.google:
         client = create_client()
-        for report in  ['project', 'cr', 'ticket', 'raw', 'operator', 'we_vs_customer']:
+        for report in  ['project', 'cr', 'ticket', 'raw', 'operator', 'we_vs_customer_closed', 'we_vs_customer_new']:
             configuration = getattr(namespace, report)
             if configuration:
                 upload_file(client, configuration['filename'],
-                            'Report: %s' % report,
+                            'Report: %s' % configuration.get('custom_report_name', report),
                             namespace.google)
                 os.unlink(configuration['filename'])
