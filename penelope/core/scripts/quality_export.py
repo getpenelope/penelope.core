@@ -344,7 +344,7 @@ class QualityOurCustomerTimeLast1000Hours(Quality):
                     FROM "trac_{0}".ticket AS ticket
                     LEFT OUTER JOIN "trac_{0}".ticket_custom AS customerrequest ON ticket.id=customerrequest.ticket AND customerrequest.name='customerrequest'
                         WHERE status!='closed'
-                        AND to_timestamp(changetime / 1000000) > CURRENT_TIMESTAMP - INTERVAL '1000 hours'"""
+                        AND to_timestamp(time / 1000000) > CURRENT_TIMESTAMP - INTERVAL '1000 hours'"""
 
         crs = dict(session.query(CustomerRequest.id, CustomerRequest.name).all())
         queries = []
