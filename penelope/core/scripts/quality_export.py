@@ -308,9 +308,9 @@ class QualityRaw(Quality):
                     writer.writerow([cr.id, cr.customer_id, hours])
 
 
-class QualityOurCustomerTimeLast1000Hours(Quality):
+class QualityOurCustomerTimeOpened(Quality):
     def __call__(self, parser, namespace, values, option_string):
-        super(QualityOurCustomerTimeLast1000Hours, self).__call__(parser, namespace, values, option_string)
+        super(QualityOurCustomerTimeOpened, self).__call__(parser, namespace, values, option_string)
         session = DBSession()
 
         def is_rt_user(email):
@@ -328,7 +328,7 @@ class QualityOurCustomerTimeLast1000Hours(Quality):
         def url(ticket):
             return "https://penelope.redturtle.it/trac/{0.trac}/ticket/{0.id}".format(ticket)
 
-        namespace.we_vs_customer_new['custom_report_name'] = 'we_vs_customer_new since: {0}'.format((datetime.now() - timedelta(hours=1000)).strftime('%Y-%m-%d %H:%M'))
+        namespace.we_vs_customer_new['custom_report_name'] = 'we_vs_customer_new'
 
         query = """SELECT '{0}' AS trac,
                           '{1}' AS project,
@@ -343,8 +343,7 @@ class QualityOurCustomerTimeLast1000Hours(Quality):
                           customerrequest.value AS cr_id
                     FROM "trac_{0}".ticket AS ticket
                     LEFT OUTER JOIN "trac_{0}".ticket_custom AS customerrequest ON ticket.id=customerrequest.ticket AND customerrequest.name='customerrequest'
-                        WHERE status!='closed'
-                        AND to_timestamp(time / 1000000) > CURRENT_TIMESTAMP - INTERVAL '1000 hours'"""
+                        WHERE status!='closed'"""
 
         crs = dict(session.query(CustomerRequest.id, CustomerRequest.name).all())
         queries = []
@@ -538,7 +537,7 @@ def main():
     parser.add_argument('--ticket', nargs=0, action=QualityTicket, help='generate ticket quality report.')
     parser.add_argument('--raw', nargs=0, action=QualityRaw, help='generate raw quality report.')
     parser.add_argument('--we_vs_customer_closed', nargs=0, action=QualityOurCustomerTime, help='generate we vs customer time quality report.')
-    parser.add_argument('--we_vs_customer_new', nargs=0, action=QualityOurCustomerTimeLast1000Hours, help='generate we vs customer time quality report.')
+    parser.add_argument('--we_vs_customer_new', nargs=0, action=QualityOurCustomerTimeOpened, help='generate we vs customer time quality report.')
     parser.add_argument('--operator', nargs=0, action=QualityOperator, help='generate total work time for CR and operator quality report.')
     namespace = parser.parse_args()
 
