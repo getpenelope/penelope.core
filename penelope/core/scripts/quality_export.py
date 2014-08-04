@@ -145,9 +145,6 @@ class Quality(argparse.Action):
         Base.metadata.create_all()
         self.metadata = MetaData(engine)
 
-        #if not namespace.google and not namespace.filename:
-        #    raise argparse.ArgumentTypeError(u'You need to pass filename or google.')
-
         configuration = {}
         tmp = tempfile.NamedTemporaryFile(suffix='.csv')
         namespace.filename = tmp.name

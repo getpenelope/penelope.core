@@ -85,7 +85,7 @@ def configurate(config):
 
     config.formalchemy_model_view('admin',
         request_method='GET',
-        permission='edit',
+        permission='costs',
         name='send_user_invitation',
         attr='send_user_invitation',
         model='penelope.core.models.dashboard.User',
@@ -113,7 +113,7 @@ def configurate(config):
 
 send_user_invitation = actions.UIButton(id='send_user_invitation',
     content='Send user invitation',
-    permission='edit',
+    permission='costs',
     _class='btn btn-success',
     attrs=dict(href="request.fa_url('User', request.model_id, 'send_user_invitation')"))
 

@@ -69,13 +69,13 @@
               </ul>
             </li>
 
-            <li class="dropdown ${request.active_topbar(['_iterations','/admin/'])}">
+            <li class="dropdown ${request.active_topbar(['_iterations','/admin/'])}" tal:condition="request.has_permission('view_iterations', None)">
               <a href="#" class="dropdown-toggle" data-toggle="dropdown">
                 <tal:translate i18n:translate="label_work">work</tal:translate>
                 <b class="caret"></b>
               </a>
               <ul class="dropdown-menu">
-                <li tal:condition="request.has_permission('view_iterations', None)">
+                <li>
                   <a href="${request.application_url}/view_iterations">
                     <tal:translate i18n:translate="label_scheduling">scheduling</tal:translate>
                   </a>
