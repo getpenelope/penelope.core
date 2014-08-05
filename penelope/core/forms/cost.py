@@ -9,7 +9,7 @@ def configurate(config):
         name='delete',
         attr='delete',
         renderer='fa.bootstrap:templates/admin/edit.pt',
-        model='penelope.core.models.dashboard.Cost',
+        model='penelope.models.Cost',
         view=CostModelView)
 
 

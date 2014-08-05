@@ -22,7 +22,8 @@ from penelope.core.sidebar import SidebarRenderer, HeaderSidebarAction, SidebarA
 from penelope.core.interfaces import ISidebar
 from penelope.core.gdata import IIterationView
 from penelope.core.gdata.utils import documents, spreadsheets, calendar, get_working_days
-from penelope.core.models import Project, DBSession, User, GlobalConfig, Customer, Role
+from penelope.core.dbsession import DBSession
+from penelope.models import Project, User, GlobalConfig, Customer, Role
 
 
 logging.basicConfig()

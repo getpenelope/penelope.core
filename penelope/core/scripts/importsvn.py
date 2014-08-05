@@ -7,9 +7,9 @@ import csv
 from sqlalchemy import engine_from_config
 from pyramid.paster import get_appsettings, setup_logging
 
-from penelope.core.models.dashboard import Project, Application, SVN
-from penelope.core.models.dbsession import DBSession
-from penelope.core.models import Base
+from penelope.models import Project, Application, SVN
+from penelope.core.dbsession import DBSession
+from penelope.models import Base
 
 
 beaker.cache.cache_regions.update(dict(calculate_matrix={}))

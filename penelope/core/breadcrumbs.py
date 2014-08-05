@@ -3,7 +3,7 @@ from zope.interface import Interface
 from fa.bootstrap import actions
 
 from penelope.core.interfaces import IBreadcrumbs, IReportView
-from penelope.core.models.interfaces import IPorModel, IProjectRelated, IKanbanBoard
+from penelope.core.interfaces import IPorModel, IProjectRelated, IKanbanBoard
 
 
 gsm = zope.component.getGlobalSiteManager()

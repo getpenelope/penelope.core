@@ -2,7 +2,8 @@
 
 import sqlalchemy as sa
 
-from penelope.core.models import DBSession, Project, TimeEntry, CustomerRequest
+from penelope.core.dbsession import DBSession
+from penelope.models import Project, TimeEntry, CustomerRequest
 
 
 class NullCustomerRequest(object):

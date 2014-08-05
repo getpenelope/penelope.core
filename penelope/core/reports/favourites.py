@@ -8,7 +8,8 @@ from colander import SchemaNode
 from pyramid.view import view_config
 from pyramid.response import Response
 
-from penelope.core.models import DBSession, SavedQuery
+from penelope.core.dbsession import DBSession
+from penelope.models import SavedQuery
 from penelope.core.lib.widgets import DeleteButton, FavoriteButton, RenameButton, PorInlineForm
 
 

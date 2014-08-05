@@ -6,10 +6,10 @@ from pyramid_rpc.jsonrpc import jsonrpc_method
 
 from penelope.core.lib.helpers import time_parse
 
-from penelope.core.models import DBSession
-from penelope.core.models.tp import TimeEntry, timedelta_as_human_str
-from penelope.core.models.dashboard import User, Customer, Project, CustomerRequest
-from penelope.core.models.tickets import ticket_store
+from penelope.core.dbsession import DBSession
+from penelope.models import TimeEntry, timedelta_as_human_str
+from penelope.models import User, Customer, Project, CustomerRequest
+from penelope.models.tickets import ticket_store
 
 
 def decode_string(entry):

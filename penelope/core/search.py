@@ -6,8 +6,8 @@ import deform
 from sunburnt import SolrInterface
 from pyramid.view import view_config
 from pyramid.url import current_route_url
-from penelope.core.models.dashboard import Trac, User
-from penelope.core.models import DBSession
+from penelope.models import Trac, User
+from penelope.core.dbsession import DBSession
 from penelope.core.lib.widgets import SearchButton, PorInlineForm
 from deform_bootstrap.widget import ChosenMultipleWidget
 

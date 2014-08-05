@@ -6,7 +6,7 @@ from zope.interface import Interface
 from pyramid.renderers import get_renderer
 
 from penelope.core.interfaces import IApplicationView
-from penelope.core.models.interfaces import ITrac, IApplication, ITracReport, IGoogleDocs
+from penelope.core.interfaces import ITrac, IApplication, ITracReport, IGoogleDocs
 from penelope.core.gdata.views import get_google_document
 
 gsm = zope.component.getGlobalSiteManager()

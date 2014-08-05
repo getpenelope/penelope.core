@@ -5,8 +5,8 @@ import pretty
 from datetime import datetime
 from time import sleep
 from socketio.namespace import BaseNamespace
-from penelope.core.models.dashboard import Activity
-from penelope.core.models.dbsession import DBSession
+from penelope.models import Activity
+from penelope.core.dbsession import DBSession
 
 
 class FeedlyNamespace(BaseNamespace):

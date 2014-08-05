@@ -13,8 +13,9 @@ from fa.jquery.fanstatic_resources import fa_js
 from fa.jquery.renderers import DateFieldRenderer, default_renderers
 
 from penelope.core.lib.helpers import listwrap, ticket_url, unicodelower
-from penelope.core.models import DBSession, User, CustomerRequest, Project, Contract, Application
-from penelope.core.models.tickets import ticket_store
+from penelope.core.dbsession import DBSession
+from penelope.models import User, CustomerRequest, Project, Contract, Application
+from penelope.models.tickets import ticket_store
 
 
 def _query_options(L):

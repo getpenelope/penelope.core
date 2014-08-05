@@ -14,8 +14,9 @@ from deform.widget import SelectWidget
 from pyramid.httpexceptions import HTTPForbidden
 from pyramid.view import view_config
 
-from penelope.core.models import DBSession, Project, TimeEntry, User, CustomerRequest, Contract, Customer
-from penelope.core.models.tickets import ticket_store
+from penelope.core.dbsession import DBSession
+from penelope.models import Project, TimeEntry, User, CustomerRequest, Contract, Customer
+from penelope.models.tickets import ticket_store
 from penelope.core import fanstatic_resources
 from penelope.core.lib.helpers import ticket_url, total_seconds
 from penelope.core.lib.widgets import SearchButton, PorInlineForm

@@ -11,8 +11,8 @@ from random import choice
 from sqlalchemy.orm.exc import NoResultFound
 from uuid import uuid4
 
-from penelope.core.models import DBSession
-from penelope.core.models.dashboard import User, PasswordResetToken
+from penelope.core.dbsession import DBSession
+from penelope.models import User, PasswordResetToken
 from penelope.core.notifications import notify_with_password_reset
 
 _ = TranslationStringFactory('penelope')

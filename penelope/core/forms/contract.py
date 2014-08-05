@@ -14,13 +14,13 @@ def configurate(config):
                                   name='',
                                   attr='show',
                                   renderer='fa.bootstrap:templates/admin/show.pt',
-                                  model='penelope.core.models.dashboard.Contract',
+                                  model='penelope.models.Contract',
                                   view=ContractModelView)
     config.formalchemy_model_view('admin',
                                   request_method='GET',
                                   permission='workflow',
                                   name='goto_state',
-                                  model='penelope.core.models.dashboard.Contract',
+                                  model='penelope.models.Contract',
                                   view=workflow.goto_state)
     config.formalchemy_model_view('admin',
                                   request_method='POST',
@@ -28,7 +28,7 @@ def configurate(config):
                                   name='delete',
                                   attr='delete',
                                   renderer='fa.bootstrap:templates/admin/edit.pt',
-                                  model='penelope.core.models.dashboard.Contract',
+                                  model='penelope.models.Contract',
                                   view=ContractModelView)
 
 

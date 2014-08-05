@@ -26,9 +26,10 @@ from penelope.core.reports.favourites import render_saved_query_form
 from penelope.core.reports.queries import qry_active_projects, te_filter_by_customer_requests, filter_users_with_timeentries, te_filter_by_contracts
 from penelope.core.reports.validators import validate_period
 
-from penelope.core.models import DBSession, Project, TimeEntry, User, CustomerRequest, Contract, Customer
-from penelope.core.models.tickets import ticket_store
-from penelope.core.models.tp import timedelta_as_human_str
+from penelope.core.dbsession import DBSession
+from penelope.models import Project, TimeEntry, User, CustomerRequest, Contract, Customer
+from penelope.models.tickets import ticket_store
+from penelope.models import timedelta_as_human_str
 
 log = logging.getLogger(__name__)
 

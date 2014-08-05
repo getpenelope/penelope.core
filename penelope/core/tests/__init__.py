@@ -3,7 +3,7 @@ import jsonrpc.proxy
 from pyramid import testing
 from webtest import TestApp
 
-from penelope.core.models.dashboard import User, Project, Group
+from penelope.models import User, Project, Group
 
 User.__mapper__.order_by = []
 Project.manager.property.order_by = []

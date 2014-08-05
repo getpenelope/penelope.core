@@ -37,6 +37,7 @@ requires = [
     'Paste',
     'PasteScript',
     'penelope.trac',
+    'penelope.models',
     'plone.i18n',
     'profilehooks',
     'psycopg2',

@@ -17,15 +17,15 @@ from penelope.core import PROJECT_ID_BLACKLIST
 from penelope.core.forms.renderers import UrlRenderer
 from penelope.core.forms.renderers import TicketRenderer
 from penelope.core.lib.fa_fields import BigTextAreaFieldRenderer
-from penelope.core.models import DBSession
-from penelope.core.models.dashboard import TRAC, SVN, Application, Customer, \
+from penelope.core.dbsession import DBSession
+from penelope.models import TRAC, SVN, Application, Customer, \
         CustomerRequest, Group, Project, User, Contract, KanbanBoard, \
         GOOGLE_DOCS, TRAC_REPORT, GENERIC_APP, BACKLOG_PRIORITY_ORDER, \
         BACKLOG_MODIFICATION_ORDER, Cost
-from penelope.core.models.tp import TimeEntry
-from penelope.core.models.dublincore import DublinCore
-from penelope.core.models.interfaces import IRoleable, ITimeEntry
-from penelope.core.models.workflow import Workflow
+from penelope.models import TimeEntry
+from penelope.models.dublincore import DublinCore
+from penelope.core.interfaces import IRoleable, ITimeEntry
+from penelope.models.workflow import Workflow
 
 _ = TranslationStringFactory('penelope')
 

@@ -14,10 +14,11 @@ from pyramid.security import has_permission
 from penelope.core import fanstatic_resources, messages
 from penelope.core.interfaces import IBreadcrumbs, IPorRequest, ISidebar
 from penelope.core.lib.htmlhelpers import get_application_link
-from penelope.core.security import acl
 from penelope.core.lib.helpers import chunks, unicodelower
-from penelope.core.models import DBSession, Project, KanbanBoard
-from penelope.core.models.interfaces import IProjectRelated
+from penelope.core.dbsession import DBSession
+from penelope.core.interfaces import IProjectRelated
+from penelope.models import Project, KanbanBoard
+from penelope.models import security as acl
 
 
 _ = TranslationStringFactory('por')

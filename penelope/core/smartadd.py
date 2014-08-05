@@ -9,10 +9,10 @@ from pyramid.response import Response
 from penelope.core.api import timeentry_crstate_validation_errors
 from penelope.core.lib.helpers import unicodelower
 from penelope.core.lib.helpers import time_chunks
-from penelope.core.models import DBSession
-from penelope.core.models.dashboard import Project
-from penelope.core.models.tp import TimeEntry
-from penelope.core.models.tickets import ticket_store
+from penelope.core.dbsession import DBSession
+from penelope.models import Project
+from penelope.models import TimeEntry
+from penelope.models.tickets import ticket_store
 
 
 class SmartAdd(object):

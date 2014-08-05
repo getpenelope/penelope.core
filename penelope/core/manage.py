@@ -12,7 +12,8 @@ from penelope.core.sidebar import SidebarRenderer, HeaderSidebarAction, SidebarA
 from penelope.core.interfaces import ISidebar
 from penelope.core.interfaces import IManageView
 from penelope.core.views import DefaultContext
-from penelope.core.models import dashboard, DBSession
+from penelope.models import dashboard
+from penelope.core.dbsession import DBSession
 from penelope.core import forms
 
 

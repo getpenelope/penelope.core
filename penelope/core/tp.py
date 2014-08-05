@@ -6,8 +6,8 @@ import sqlalchemy as sa
 
 from pyramid.view import view_config
 
-from penelope.core.models import DBSession
-from penelope.core.models.tp import TimeEntry, timedelta_as_human_str
+from penelope.core.dbsession import DBSession
+from penelope.models import TimeEntry, timedelta_as_human_str
 from penelope.core import views, fanstatic_resources
 
 

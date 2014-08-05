@@ -15,8 +15,8 @@ import zope.component.event
 from fa.bootstrap import actions
 
 from penelope.core.backlog import Backlog
-from penelope.core.models import dashboard
-from penelope.core.models import DBSession
+from penelope.models import dashboard
+from penelope.core.dbsession import DBSession
 from penelope.core.forms import ModelView
 
 
@@ -28,7 +28,7 @@ def configurate(config):
         name='',
         attr='documentation',
         renderer='fa.bootstrap:templates/admin/show.pt',
-        model='penelope.core.models.dashboard.Project',
+        model='penelope.models.Project',
         view=ProjectModelView)
 
     config.formalchemy_model_view('admin',
@@ -37,7 +37,7 @@ def configurate(config):
         name='delete',
         attr='delete',
         renderer='fa.bootstrap:templates/admin/edit.pt',
-        model='penelope.core.models.dashboard.Project',
+        model='penelope.models.Project',
         view=ProjectModelView)
 
     config.formalchemy_model_view('admin',
@@ -46,7 +46,7 @@ def configurate(config):
         context='pyramid_formalchemy.resources.ModelListing',
         request_method='GET',
         permission='listing',
-        model='penelope.core.models.dashboard.Project',
+        model='penelope.models.Project',
         view=ProjectModelView)
 
     #custom view for adding an application to the project
@@ -56,7 +56,7 @@ def configurate(config):
         name='add_group',
         attr='add_group',
         renderer='penelope.core.forms:templates/new.pt',
-        model='penelope.core.models.dashboard.Project',
+        model='penelope.models.Project',
         view=ProjectModelView)
 
     config.formalchemy_model_view('admin',
@@ -65,7 +65,7 @@ def configurate(config):
         name='add_group',
         attr='add_group',
         renderer='penelope.core.forms:templates/new.pt',
-        model='penelope.core.models.dashboard.Project',
+        model='penelope.models.Project',
         view=ProjectModelView)
 
     #custom view for adding an application to the project
@@ -75,7 +75,7 @@ def configurate(config):
         name='add_application',
         attr='add_application',
         renderer='penelope.core.forms:templates/new.pt',
-        model='penelope.core.models.dashboard.Project',
+        model='penelope.models.Project',
         view=ProjectModelView)
 
     config.formalchemy_model_view('admin',
@@ -84,7 +84,7 @@ def configurate(config):
         name='add_application',
         attr='add_application',
         renderer='penelope.core.forms:templates/new.pt',
-        model='penelope.core.models.dashboard.Project',
+        model='penelope.models.Project',
         view=ProjectModelView)
 
     #custom view for configuration section
@@ -94,7 +94,7 @@ def configurate(config):
         name='configuration',
         attr='configuration',
         renderer='penelope.core.forms:templates/configuration.pt',
-        model='penelope.core.models.dashboard.Project',
+        model='penelope.models.Project',
         view=ProjectModelView)
 
     #custom view for documentation section
@@ -104,7 +104,7 @@ def configurate(config):
         name='metadata',
         attr='show',
         renderer='penelope.core.forms:templates/project.pt',
-        model='penelope.core.models.dashboard.Project',
+        model='penelope.models.Project',
         view=ProjectModelView)
 
     #custom view for customer_requests section
@@ -113,7 +113,7 @@ def configurate(config):
         permission='list_customer_request',
         name='customer_requests',
         attr='customer_requests',
-        model='penelope.core.models.dashboard.Project',
+        model='penelope.models.Project',
         view=ProjectModelView)
 
     #custom view for customer_requests section
@@ -122,7 +122,7 @@ def configurate(config):
         permission='edit',
         name='customer_requests',
         attr='update_cr_states',
-        model='penelope.core.models.dashboard.Project',
+        model='penelope.models.Project',
         view=ProjectModelView)
 
     #custom view for contracts section
@@ -132,7 +132,7 @@ def configurate(config):
         name='contracts',
         attr='contracts',
         renderer='penelope.core.forms:templates/contracts.pt',
-        model='penelope.core.models.dashboard.Project',
+        model='penelope.models.Project',
         view=ProjectModelView)
 
 
@@ -143,7 +143,7 @@ def configurate(config):
         name='tickets',
         attr='tickets',
         renderer='penelope.core.forms:templates/tickets.pt',
-        model='penelope.core.models.dashboard.Project',
+        model='penelope.models.Project',
         view=ProjectModelView)
 
     #custom view for time_entries section
@@ -153,7 +153,7 @@ def configurate(config):
         name='time_entries',
         attr='time_entries',
         renderer='penelope.core.forms:templates/time_entries.pt',
-        model='penelope.core.models.dashboard.Project',
+        model='penelope.models.Project',
         view=ProjectModelView)
 
     #custom view for documentation section
@@ -163,7 +163,7 @@ def configurate(config):
         name='applications',
         attr='applications',
         renderer='penelope.core.forms:templates/configurate_apps.pt',
-        model='penelope.core.models.dashboard.Project',
+        model='penelope.models.Project',
         view=ProjectModelView)
 
     #custom view for adding a customer request to the project
@@ -173,7 +173,7 @@ def configurate(config):
         name='add_customer_request',
         attr='add_customer_request',
         renderer='penelope.core.forms:templates/new.pt',
-        model='penelope.core.models.dashboard.Project',
+        model='penelope.models.Project',
         view=ProjectModelView)
 
     config.formalchemy_model_view('admin',
@@ -182,7 +182,7 @@ def configurate(config):
         name='add_customer_request',
         attr='add_customer_request',
         renderer='penelope.core.forms:templates/new.pt',
-        model='penelope.core.models.dashboard.Project',
+        model='penelope.models.Project',
         view=ProjectModelView)
 
     #custom view for adding a contract to the project
@@ -192,7 +192,7 @@ def configurate(config):
         name='add_contract',
         attr='add_contract',
         renderer='penelope.core.forms:templates/new.pt',
-        model='penelope.core.models.dashboard.Project',
+        model='penelope.models.Project',
         view=ProjectModelView)
 
     config.formalchemy_model_view('admin',
@@ -201,7 +201,7 @@ def configurate(config):
         name='add_contract',
         attr='add_contract',
         renderer='penelope.core.forms:templates/new.pt',
-        model='penelope.core.models.dashboard.Project',
+        model='penelope.models.Project',
         view=ProjectModelView)
 
 
@@ -210,7 +210,7 @@ def configurate(config):
         permission='view',
         name='toggle_favorite',
         attr='toggle_favorite',
-        model='penelope.core.models.dashboard.Project',
+        model='penelope.models.Project',
         view=ProjectModelView)
 
     config.formalchemy_model_view('admin',
@@ -219,7 +219,7 @@ def configurate(config):
         name='list_customer_requests.json',
         renderer='json',
         attr='list_customer_requests',
-        model='penelope.core.models.dashboard.Project',
+        model='penelope.models.Project',
         view=ProjectModelView)
 
 add_customer_request_actions = deepcopy(actions.defaults_actions['new_buttons'])

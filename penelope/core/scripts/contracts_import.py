@@ -8,10 +8,10 @@ import beaker
 from sqlalchemy import engine_from_config
 from pyramid.paster import setup_logging, bootstrap
 
-from penelope.core.models.dbsession import DBSession
-from penelope.core.models import Base
-from penelope.core.models.dashboard import Contract, CustomerRequest
-from penelope.core.models.tp import TimeEntry
+from penelope.core.dbsession import DBSession
+from penelope.models import Base
+from penelope.models import Contract, CustomerRequest
+from penelope.models import TimeEntry
 
 
 beaker.cache.cache_regions.update(dict(calculate_matrix={'key_length':''}))

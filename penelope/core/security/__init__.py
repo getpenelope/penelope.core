@@ -1,7 +1,10 @@
 import zope.interface
 
+from zope.component import getMultiAdapter
 from repoze.who.interfaces import IChallengeDecider
 from repoze.who.plugins.friendlyform import FriendlyFormPlugin as BasePlugin
+
+from penelope.core.security.acl import IRoleFinder
 
 
 def challenge_decider(environ, status, headers):
@@ -56,5 +59,5 @@ def rolefinder(identity, request):
     user = request.authenticated_user or identity.get('user')
     if user and user.active:
         context = request.challenge_item or request.model_instance
-        roles = set(['role:%s' % a for a in user.roles_in_context(context)])
+        roles = set(['role:%s' % a for a in getMultiAdapter((context, user), IRoleFinder).get_roles()])
     return roles

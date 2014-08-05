@@ -15,8 +15,9 @@ from pyramid.view import view_config
 
 from penelope.core.lib.helpers import ticket_url
 from penelope.core.lib.widgets import SearchButton, PorInlineForm
-from penelope.core.models import DBSession, TimeEntry
-from penelope.core.models.tp import timedelta_as_human_str, timedelta_as_work_days
+from penelope.core.dbsession import DBSession
+from penelope.models import TimeEntry
+from penelope.models import timedelta_as_human_str, timedelta_as_work_days
 from penelope.core.reports import fields
 from penelope.core.reports.favourites import render_saved_query_form
 from penelope.core.reports.queries import qry_active_projects

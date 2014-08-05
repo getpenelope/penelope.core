@@ -5,6 +5,9 @@ from zope.component import getGlobalSiteManager
 from pyramid.authentication import RepozeWho1AuthenticationPolicy
 from pyramid.authorization import ACLAuthorizationPolicy
 from pyramid_skins.renderer import renderer_factory
+from sqlalchemy import engine_from_config
+from sqlalchemy.pool import NullPool
+
 import gevent_psycopg2; gevent_psycopg2.monkey_patch()
 
 PROJECT_ID_BLACKLIST = ('portale', 'project', 'support', 'assistenza')
@@ -47,8 +50,15 @@ def main(global_config, **settings):
     #mailier
     config.include('pyramid_mailer')
 
-    # penelope.core.models's configuration
-    config.include('penelope.core.models')
+    # penelope.models's configuration
+    from penelope.models import Base
+    from penelope.core.dbsession import DBSession
+    from penelope.core.interfaces import register
+    register()
+    engine = engine_from_config(config.registry.settings, 'sa.dashboard.', poolclass=NullPool)
+    DBSession.configure(bind=engine)
+    Base.metadata.bind = engine
+
     import penelope.core.events; penelope.core.events
     import penelope.core.breadcrumbs; penelope.core.breadcrumbs
     import penelope.core.sidebar; penelope.core.sidebar
@@ -98,9 +108,9 @@ def main(global_config, **settings):
     config.formalchemy_admin('admin',
                              package='penelope.core',
                              factory='penelope.core.forms.CrudModels',
-                             models='penelope.core.models',
+                             models='penelope.models',
                              view='penelope.core.forms.ModelView',
-                             session_factory='penelope.core.models.DBSession')
+                             session_factory='penelope.core.dbsession.DBSession')
 
     config.add_view(context='pyramid_formalchemy.resources.ModelListing',
                     renderer='fa.bootstrap:templates/admin/new.pt',
@@ -117,5 +127,7 @@ def main(global_config, **settings):
 
     from penelope.core.forms import include_forms
     include_forms(config)
+
+    from penelope.trac import events; events
 
     return config.make_wsgi_app()

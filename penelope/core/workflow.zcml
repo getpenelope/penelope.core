@@ -7,7 +7,7 @@
    type="CustomerRequest"
    name="Customer Request workflow"
    state_attr="workflow_state"
-   content_types="penelope.core.models.interfaces.ICustomerRequest"
+   content_types="penelope.core.interfaces.ICustomerRequest"
    initial_state="created">
 
    <state name="created"></state>
@@ -55,7 +55,7 @@
    type="Project"
    name="Project workflow"
    state_attr="workflow_state"
-   content_types="penelope.core.models.interfaces.IProject"
+   content_types="penelope.core.interfaces.IProject"
    initial_state="active">
 
    <state name="active"></state>
@@ -79,7 +79,7 @@
    type="TimeEntry"
    name="Time entry workflow"
    state_attr="workflow_state"
-   content_types="penelope.core.models.interfaces.ITimeEntry"
+   content_types="penelope.core.interfaces.ITimeEntry"
    initial_state="new">
 
    <state name="new" title="New"></state>
@@ -124,7 +124,7 @@
    type="Contract"
    name="Contract workflow"
    state_attr="workflow_state"
-   content_types="penelope.core.models.interfaces.IContract"
+   content_types="penelope.core.interfaces.IContract"
    permission_checker="pyramid.security.has_permission"
    initial_state="draft">
 

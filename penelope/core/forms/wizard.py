@@ -11,9 +11,10 @@ from pyramid.renderers import get_renderer
 from pyramid import httpexceptions as exc
 from pyramid.i18n import TranslationStringFactory
 
-from penelope.core.models import Project, Group, DBSession, User, CustomerRequest
-from penelope.core.models.dashboard import ApplicationACL, Contract
-from penelope.core.models.dashboard import Trac, Role, GoogleDoc, Estimation
+from penelope.models import Project, Group, User, CustomerRequest
+from penelope.core.dbsession import DBSession
+from penelope.models import ApplicationACL, Contract
+from penelope.models import Trac, Role, GoogleDoc, Estimation
 from penelope.core.lib.widgets import SubmitButton, ResetButton, WizardForm
 from penelope.core.fanstatic_resources import wizard as wizard_fanstatic
 from penelope.core import PROJECT_ID_BLACKLIST

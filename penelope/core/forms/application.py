@@ -10,8 +10,8 @@ from fa.bootstrap import actions
 from penelope.core.interfaces import IApplicationView
 from penelope.core.lib.helpers import unicodelower
 from penelope.core.forms import ModelView
-from penelope.core.models import DBSession
-from penelope.core.models.dashboard import Role, ApplicationACL
+from penelope.core.dbsession import DBSession
+from penelope.models import Role, ApplicationACL
 
 
 
@@ -22,7 +22,7 @@ def configurate(config):
                                   permission='view',
                                   name='',
                                   attr='show',
-                                  model='penelope.core.models.dashboard.Application',
+                                  model='penelope.models.Application',
                                   renderer='penelope.core.forms:templates/application_show.pt',
                                   view=ApplicationModelView)
 
@@ -32,7 +32,7 @@ def configurate(config):
         name='delete',
         attr='delete',
         renderer='fa.bootstrap:templates/admin/edit.pt',
-        model='penelope.core.models.dashboard.Application',
+        model='penelope.models.Application',
         view=ApplicationModelView)
 
     config.formalchemy_model_view('admin',
@@ -40,7 +40,7 @@ def configurate(config):
                                   permission='edit',
                                   name='security',
                                   attr='security',
-                                  model='penelope.core.models.dashboard.Application',
+                                  model='penelope.models.Application',
                                   renderer='penelope.core.forms:templates/application_acl.pt',
                                   view=ApplicationModelView)
 
@@ -49,7 +49,7 @@ def configurate(config):
                                   permission='edit',
                                   name='security_edit',
                                   attr='security_edit',
-                                  model='penelope.core.models.dashboard.Application',
+                                  model='penelope.models.Application',
                                   renderer='penelope.core.forms:templates/application_acl.pt',
                                   view=ApplicationModelView)
 
@@ -58,7 +58,7 @@ def configurate(config):
                                   permission='edit',
                                   name='security_save',
                                   attr='security_save',
-                                  model='penelope.core.models.dashboard.Application',
+                                  model='penelope.models.Application',
                                   renderer='penelope.core.forms:templates/application_acl.pt',
                                   view=ApplicationModelView)
 

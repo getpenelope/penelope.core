@@ -8,7 +8,7 @@ from pyramid import httpexceptions as exc
 
 from penelope.core.lib.widgets import SubmitButton, ResetButton, WizardForm
 from penelope.core.fanstatic_resources import fastticketing as fastticketing_fanstatic
-from penelope.core.models.tickets import ticket_store
+from penelope.models.tickets import ticket_store
 
 
 class Tickets(colander.SequenceSchema):

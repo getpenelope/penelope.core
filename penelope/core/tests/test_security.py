@@ -11,8 +11,8 @@ from pyramid.authorization import ACLAuthorizationPolicy
 from webtest import TestApp
 from mock import patch
 
-from penelope.core.models.dashboard import User
-from penelope.core.models import Base, Project, Customer, Role, Group, CustomerRequest, Application, TimeEntry
+from penelope.models import User
+from penelope.models import Base, Project, Customer, Role, Group, CustomerRequest, Application, TimeEntry
 from penelope.core import main
 from penelope.core.views import PORRequest
 
@@ -44,11 +44,11 @@ class BaseTestCase(unittest2.TestCase):
         Base.metadata.bind = cls.engine
         Base.metadata.create_all(cls.engine)
 
-        import penelope.core.models
+        import penelope.core
         class MockSession(cls.Session):
             def __call__(self):
                 return self
-        penelope.core.models.DBSession = MockSession(bind=cls.engine)
+        penelope.core.dbsession.DBSession = MockSession(bind=cls.engine)
 
     def setUp(self):
         from formalchemy.forms import FieldSet
@@ -124,8 +124,6 @@ class IntegrationTestBase(BaseTestCase):
             self.user = self.session.query(User).filter_by(email=u'u1@rt.com').one()
         else:
             self.user = self.session.query(User).get(user_id)
-        if roles:
-            self.user.roles_in_context = lambda x: set(roles)
         normal_get = self.app.get
         normal_post = self.app.post
 
@@ -157,8 +155,8 @@ class TestQuerySecurity(IntegrationTestBase):
         super(TestQuerySecurity, self).setUp()
         Base.metadata.drop_all(self.engine)
         Base.metadata.create_all(self.engine)
-        import penelope.core.models
-        self.session = penelope.core.models.DBSession()
+        import penelope.core
+        self.session = penelope.core.dbsession.DBSession()
 
     def tearDown(self):
         testing.tearDown()
@@ -174,7 +172,7 @@ class TestQuerySecurity(IntegrationTestBase):
         environ = {'repoze.who.identity': {'user': user,
                    'repoze.who.userid': user.id}}
 
-        from penelope.core.security import acl
+        from penelope.models import security as acl
         registry.registerAdapter(acl.GenericRoles, (acl.Interface, acl.IUser),
                                  acl.IRoleFinder)
         registry.registerAdapter(acl.ProjectRelatedRoles, (acl.IProjectRelated, acl.IUser),
@@ -283,7 +281,7 @@ class TestQuerySecurity(IntegrationTestBase):
         self.session.add(project)
         self.session.commit()
 
-        from penelope.core.security import acl
+        from penelope.models import security as acl
         self.assertItemsEqual(acl.GenericRoles(project, user).get_roles(), set(['internal_developer']))
         self.assertItemsEqual(acl.GenericRoles(None, user).get_roles(), set(['internal_developer']))
         self.assertTrue('internal_developer' not in acl.ProjectRelatedRoles(project, user).get_roles())
@@ -306,7 +304,7 @@ class TestQuerySecurity(IntegrationTestBase):
         self.session.add(project)
         self.session.commit()
 
-        from penelope.core.security import acl
+        from penelope.models import security as acl
         self.assertTrue('project_manager' in acl.ProjectRelatedRoles(project, user).get_roles())
 
 
@@ -321,8 +319,8 @@ class SecurityLocalRolesMatrixTest(IntegrationTestBase):
         Base.metadata.drop_all(self.engine)
         Base.metadata.create_all(self.engine)
 
-        import penelope.core.models
-        self.session = penelope.core.models.DBSession()
+        import penelope.core
+        self.session = penelope.core.dbsession.DBSession()
 
         user = User(email=u'u1@rt.com')
         self.session.add(user)
@@ -338,7 +336,7 @@ class SecurityLocalRolesMatrixTest(IntegrationTestBase):
         self.session.commit()
 
     def test_customer_view_for_local_roles(self):
-        from penelope.core.models import DBSession
+        from penelope.core.dbsession import DBSession
         path = '/admin/Customer/my-customer'
         old = Project.active
         Project.active = Project.activated==True

@@ -12,7 +12,7 @@ from fa.bootstrap.actions import TabsActions, TabAction, UIButton
 
 from penelope.core.interfaces import ISidebar
 from penelope.core.lib.helpers import unicodelower
-from penelope.core.models.interfaces import IProjectRelated, ICustomerRequest, IApplication#, IKanbanBoard
+from penelope.core.interfaces import IProjectRelated, ICustomerRequest, IApplication#, IKanbanBoard
 
 gsm = zope.component.getGlobalSiteManager()
 

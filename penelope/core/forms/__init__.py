@@ -25,8 +25,8 @@ from formalchemy import fields
 from formalchemy.exceptions import ValidationError
 from webhelpers.paginate import Page
 
-from penelope.core.models.dbsession import DBSession
-from penelope.core.models import dashboard
+from penelope.core.dbsession import DBSession
+from penelope.models import dashboard
 from penelope.core import fanstatic_resources, views
 from penelope.core.forms import application_views;application_views
 from penelope.core.forms import renderers;renderers

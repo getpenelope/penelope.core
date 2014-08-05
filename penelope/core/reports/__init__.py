@@ -4,7 +4,8 @@ from pyramid.view import view_config
 from penelope.core.lib.helpers import unicodelower
 from penelope.core.reports.views import ReportContext; ReportContext
 from penelope.core.reports.queries import filter_users_with_timeentries, qry_active_projects
-from penelope.core.models import DBSession, Project, SavedQuery, User
+from penelope.models import Project, SavedQuery, User
+from penelope.core.dbsession import DBSession
 
 
 @view_config(name='index', route_name='reports', renderer='skin', permission='reports_index')

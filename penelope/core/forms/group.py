@@ -17,7 +17,7 @@ def configurate(config):
         attr='datatable',
         request_method='GET',
         permission='listing',
-        model='penelope.core.models.dashboard.Group',
+        model='penelope.models.Group',
         view=GroupModelView)
 
     config.formalchemy_model_view('admin',
@@ -26,7 +26,7 @@ def configurate(config):
         name='delete',
         attr='delete',
         renderer='fa.bootstrap:templates/admin/edit.pt',
-        model='penelope.core.models.dashboard.Group',
+        model='penelope.models.Group',
         view=GroupModelView)
 
 

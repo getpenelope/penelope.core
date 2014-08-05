@@ -13,8 +13,8 @@ from pyramid_formalchemy import actions
 
 from penelope.core.forms import ModelView
 from penelope.core.fanstatic_resources import kanban
-from penelope.core.models.dashboard import KanbanBoard, User, Role, KanbanACL
-from penelope.core.models import DBSession
+from penelope.models import KanbanBoard, User, Role, KanbanACL
+from penelope.core.dbsession import DBSession
 from penelope.core.lib.widgets import SubmitButton, ResetButton, WizardForm
 from penelope.core.fanstatic_resources import wizard as security_fanstatic
 
@@ -26,7 +26,7 @@ def configurate(config):
             name='',
             attr='show',
             renderer='penelope.core.forms:templates/kanbanboard.pt',
-            model='penelope.core.models.dashboard.KanbanBoard',
+            model='penelope.models.KanbanBoard',
             view=KanbanBoardModelView)
 
     config.formalchemy_model_view('admin',
@@ -35,7 +35,7 @@ def configurate(config):
             attr='listing',
             context='pyramid_formalchemy.resources.ModelListing',
             renderer='pyramid_formalchemy:templates/admin/listing.pt',
-            model='penelope.core.models.dashboard.KanbanBoard',
+            model='penelope.models.KanbanBoard',
             view=KanbanBoardModelView)
 
     config.formalchemy_model_view('admin',
@@ -44,7 +44,7 @@ def configurate(config):
             name='delete',
             attr='delete',
             renderer='fa.bootstrap:templates/admin/edit.pt',
-            model='penelope.core.models.dashboard.KanbanBoard',
+            model='penelope.models.KanbanBoard',
             view=KanbanBoardModelView)
 
     config.formalchemy_model_view('admin',
@@ -52,7 +52,7 @@ def configurate(config):
             permission='edit',
             name='security',
             attr='render',
-            model='penelope.core.models.dashboard.KanbanBoard',
+            model='penelope.models.KanbanBoard',
             renderer='penelope.core.forms:templates/kanbanboard_acl.pt',
             view=SecurityForm)
 
@@ -61,7 +61,7 @@ def configurate(config):
             permission='edit',
             name='security',
             attr='render',
-            model='penelope.core.models.dashboard.KanbanBoard',
+            model='penelope.models.KanbanBoard',
             renderer='penelope.core.forms:templates/kanbanboard_acl.pt',
             view=SecurityForm)
 

@@ -2,14 +2,12 @@ import datetime
 import lipsum
 import random
 import transaction
-import base64
-import os
 
 from sqlalchemy import engine_from_config
 
-from penelope.core.models.dashboard import GlobalConfig
-from penelope.core.models.dashboard import User, Customer, CustomerRequest, Project, Role
-from penelope.core.models.tp import TimeEntry
+from penelope.models import GlobalConfig
+from penelope.models import User, Customer, CustomerRequest, Project, Role
+from penelope.models import TimeEntry
 
 
 def add_user(session, email, fullname=None, password=None):
@@ -86,8 +84,8 @@ def populate_time_entries(session, users, projects, all_tickets):
 
 
 def populate_dummies(settings=None):
-    from penelope.core.models.dbsession import DBSession
-    from penelope.core.models import Base
+    from penelope.core.dbsession import DBSession
+    from penelope.models import Base
 
     if settings:
         engine = engine_from_config(settings, 'sa.dashboard.')

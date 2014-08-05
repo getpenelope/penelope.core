@@ -21,10 +21,10 @@ from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import relationship, backref, defer
 
 from trac.util.datefmt import from_utimestamp
-from penelope.core.models.dashboard import Project, CustomerRequest, Trac, Estimation, Customer, Contract, User
-from penelope.core.models.tp import TimeEntry, timedelta_as_work_days
-from penelope.core.models.dbsession import DBSession
-from penelope.core.models import Base
+from penelope.models import Project, CustomerRequest, Trac, Estimation, Customer, Contract, User
+from penelope.models import TimeEntry, timedelta_as_work_days
+from penelope.core.dbsession import DBSession
+from penelope.models import Base
 
 
 beaker.cache.cache_regions.update(dict(calculate_matrix={}))

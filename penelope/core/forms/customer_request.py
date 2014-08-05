@@ -7,12 +7,14 @@ from pyramid import httpexceptions as exc
 from js.jqgrid import jqgrid, jqgrid_i18n_en
 from fa.bootstrap import actions
 
+from penelope.models import dashboard, tp
+from penelope.models.tickets import ticket_store
 from penelope.core.forms import ModelView
 from penelope.core.forms import workflow
 from penelope.core.fanstatic_resources import migrate_cr
 from penelope.core.forms.fast_ticketing import FastTicketing
 from penelope.core.lib.helpers import ticket_url, unicodelower
-from penelope.core.models import dashboard, tp, DBSession
+from penelope.core.dbsession import DBSession
 
 
 def configurate(config):
@@ -22,7 +24,7 @@ def configurate(config):
                                   name='',
                                   attr='show',
                                   renderer='fa.bootstrap:templates/admin/show.pt',
-                                  model='penelope.core.models.dashboard.CustomerRequest',
+                                  model='penelope.models.CustomerRequest',
                                   view=CustomerRequestModelView)
 
     config.formalchemy_model_view('admin',
@@ -31,7 +33,7 @@ def configurate(config):
                                   name='delete',
                                   attr='delete',
                                   renderer='fa.bootstrap:templates/admin/edit.pt',
-                                  model='penelope.core.models.dashboard.CustomerRequest',
+                                  model='penelope.models.CustomerRequest',
                                   view=CustomerRequestModelView)
 
     config.formalchemy_model_view('admin',
@@ -40,14 +42,14 @@ def configurate(config):
                                   attr='listing',
                                   request_method='GET',
                                   permission='view',
-                                  model='penelope.core.models.dashboard.CustomerRequest',
+                                  model='penelope.models.CustomerRequest',
                                   view=CustomerRequestListingView)
 
     config.formalchemy_model_view('admin',
                                   request_method='GET',
                                   permission='workflow',
                                   name='goto_state',
-                                  model='penelope.core.models.dashboard.CustomerRequest',
+                                  model='penelope.models.CustomerRequest',
                                   view=workflow.goto_state)
 
     config.formalchemy_model_view('admin',
@@ -56,7 +58,7 @@ def configurate(config):
                                   name='estimations.json',
                                   renderer='json',
                                   attr='get_estimations',
-                                  model='penelope.core.models.dashboard.CustomerRequest',
+                                  model='penelope.models.CustomerRequest',
                                   view=CustomerRequestModelView)
 
     config.formalchemy_model_view('admin',
@@ -65,7 +67,7 @@ def configurate(config):
                                   name='estimations.html',
                                   attr='get_estimations_html',
                                   renderer='penelope.core.forms:templates/estimations_simple.pt',
-                                  model='penelope.core.models.dashboard.CustomerRequest',
+                                  model='penelope.models.CustomerRequest',
                                   view=CustomerRequestModelView)
 
     config.formalchemy_model_view('admin',
@@ -74,7 +76,7 @@ def configurate(config):
                                   name='estimations.json',
                                   renderer='json',
                                   attr='put_estimations',
-                                  model='penelope.core.models.dashboard.CustomerRequest',
+                                  model='penelope.models.CustomerRequest',
                                   view=CustomerRequestModelView)
 
     config.formalchemy_model_view('admin',
@@ -82,7 +84,7 @@ def configurate(config):
                                   permission='estimations',
                                   name='estimations',
                                   attr='estimations',
-                                  model='penelope.core.models.dashboard.CustomerRequest',
+                                  model='penelope.models.CustomerRequest',
                                   renderer='penelope.core.forms:templates/estimations.pt',
                                   view=CustomerRequestModelView)
 
@@ -91,7 +93,7 @@ def configurate(config):
                                   permission='view',
                                   name='tickets',
                                   attr='tickets',
-                                  model='penelope.core.models.dashboard.CustomerRequest',
+                                  model='penelope.models.CustomerRequest',
                                   renderer='penelope.core.forms:templates/customer_request_tickets.pt',
                                   view=CustomerRequestModelView)
 
@@ -100,7 +102,7 @@ def configurate(config):
                                   permission='edit',
                                   name='migrate',
                                   attr='migrate',
-                                  model='penelope.core.models.dashboard.CustomerRequest',
+                                  model='penelope.models.CustomerRequest',
                                   renderer='penelope.core.forms:templates/customer_request_migrate.pt',
                                   view=CustomerRequestModelView)
 
@@ -109,7 +111,7 @@ def configurate(config):
                                   permission='edit',
                                   name='migrate',
                                   attr='do_migrate',
-                                  model='penelope.core.models.dashboard.CustomerRequest',
+                                  model='penelope.models.CustomerRequest',
                                   view=CustomerRequestModelView)
 
     #custom view for adding tickets to a customerrequest
@@ -119,7 +121,7 @@ def configurate(config):
                                   name='fastticketing',
                                   attr='render',
                                   renderer='penelope.core.forms:templates/fast_ticketing.pt',
-                                  model='penelope.core.models.dashboard.CustomerRequest',
+                                  model='penelope.models.CustomerRequest',
                                   view=FastTicketing)
     #custom view for adding tickets to a customerrequest
     config.formalchemy_model_view('admin',
@@ -128,7 +130,7 @@ def configurate(config):
                                   name='fastticketing',
                                   attr='render',
                                   renderer='penelope.core.forms:templates/fast_ticketing.pt',
-                                  model='penelope.core.models.dashboard.CustomerRequest',
+                                  model='penelope.models.CustomerRequest',
                                   view=FastTicketing)
 
 
@@ -254,7 +256,6 @@ class CustomerRequestModelView(ModelView):
         return self.render(**opts)
 
     def do_migrate(self):
-        from penelope.core.models.tickets import ticket_store
 
         context = self.context.get_instance()
         cr_id = context.id
@@ -361,4 +362,3 @@ class CustomerRequestModelView(ModelView):
             resp['rows'].append({'id': str(item.id), 'cell':[item.person_type,
                                                              item.days]})
         return resp
-

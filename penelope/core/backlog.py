@@ -2,16 +2,14 @@
 
 import collections
 import datetime
-import sqlalchemy as sa
 
 from repoze.workflow import get_workflow
 from pyramid.view import view_config
 
 from penelope.core import fanstatic_resources
 from penelope.core.lib.helpers import unicodelower, total_seconds
-from penelope.core.models import DBSession
-from penelope.core.models.dashboard import Project, CustomerRequest
-from penelope.core.models.tickets import ticket_store
+from penelope.core.dbsession import DBSession
+from penelope.models import Project, CustomerRequest
 
 
 class ProjectBGB(object):

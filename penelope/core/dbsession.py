@@ -1,5 +1,5 @@
 """
-The DBSession is made available to model classes outside of penelope.core.models.__init__
+The DBSession is made available to model classes outside of penelope.models.__init__
 to help avoid circular imports.
 """
 

@@ -6,8 +6,8 @@ from pyramid_mailer.mailer import DummyMailer
 from pyramid_mailer.interfaces import IMailer
 
 from penelope.core import messages
-from penelope.core.models.dashboard import User, PasswordResetToken
-from penelope.core.models import DBSession
+from penelope.models import User, PasswordResetToken
+from penelope.core.dbsession import DBSession
 
 
 class Request(testing.DummyRequest):

@@ -12,7 +12,8 @@ from penelope.core.fanstatic_resources import user_stats
 from penelope.core.forms import ModelView
 from penelope.core.forms.renderers import ProjectRelationRenderer
 from penelope.core.interfaces import IManageView
-from penelope.core.models import dashboard, tp, DBSession
+from penelope.models import dashboard, tp
+from penelope.core.dbsession import DBSession
 from penelope.core.notifications import notify_user_with_welcoming_mail
 from penelope.core.lib.helpers import timedelta_as_work_hours
 
@@ -25,7 +26,7 @@ def configurate(config):
         name='',
         attr='show',
         renderer='penelope.core.forms:templates/user.pt',
-        model='penelope.core.models.dashboard.User',
+        model='penelope.models.User',
         view=UserModelView)
 
     config.formalchemy_model_view('admin',
@@ -34,7 +35,7 @@ def configurate(config):
         name='delete',
         attr='delete',
         renderer='fa.bootstrap:templates/admin/edit.pt',
-        model='penelope.core.models.dashboard.User',
+        model='penelope.models.User',
         view=UserModelView)
 
     config.formalchemy_model_view('admin',
@@ -43,7 +44,7 @@ def configurate(config):
         context=ModelListing,
         request_method='GET',
         permission='listing',
-        model='penelope.core.models.dashboard.User',
+        model='penelope.models.User',
         view=UserModelView)
 
     #custom view for tokens section
@@ -53,7 +54,7 @@ def configurate(config):
         name='user_tokens',
         attr='user_tokens',
         renderer='penelope.core.forms:templates/user_tokens.pt',
-        model='penelope.core.models.dashboard.User',
+        model='penelope.models.User',
         view=UserModelView)
 
     config.formalchemy_model_view('admin',
@@ -62,7 +63,7 @@ def configurate(config):
         name='user_costs',
         attr='user_costs',
         renderer='penelope.core.forms:templates/user_costs.pt',
-        model='penelope.core.models.dashboard.User',
+        model='penelope.models.User',
         view=UserModelView)
 
     config.formalchemy_model_view('admin',
@@ -71,7 +72,7 @@ def configurate(config):
         name='user_stats',
         attr='user_stats',
         renderer='penelope.core.forms:templates/user_stats.pt',
-        model='penelope.core.models.dashboard.User',
+        model='penelope.models.User',
         view=UserModelView)
 
     config.formalchemy_model_view('admin',
@@ -80,7 +81,7 @@ def configurate(config):
         name='user_stats.json',
         attr='json_user_stats',
         renderer='json',
-        model='penelope.core.models.dashboard.User',
+        model='penelope.models.User',
         view=UserModelView)
 
     config.formalchemy_model_view('admin',
@@ -88,7 +89,7 @@ def configurate(config):
         permission='costs',
         name='send_user_invitation',
         attr='send_user_invitation',
-        model='penelope.core.models.dashboard.User',
+        model='penelope.models.User',
         view=UserModelView)
 
     #custom view for adding a customer request to the project
@@ -98,7 +99,7 @@ def configurate(config):
         name='add_cost',
         attr='add_cost',
         renderer='penelope.core.forms:templates/new.pt',
-        model='penelope.core.models.dashboard.User',
+        model='penelope.models.User',
         view=UserModelView)
 
     config.formalchemy_model_view('admin',
@@ -107,7 +108,7 @@ def configurate(config):
         name='add_cost',
         attr='add_cost',
         renderer='penelope.core.forms:templates/new.pt',
-        model='penelope.core.models.dashboard.User',
+        model='penelope.models.User',
         view=UserModelView)
 
 

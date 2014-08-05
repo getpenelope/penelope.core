@@ -7,7 +7,7 @@ from pyramid_skins import SkinObject
 
 from fa.bootstrap import actions
 
-from penelope.core.models import dashboard
+from penelope.models import dashboard
 from penelope.core.forms import ModelView
 from penelope.core.forms.renderers import ProjectRelationRenderer
 from penelope.core.reports.all_entries import AllEntriesReport
@@ -24,7 +24,7 @@ def configurate(config):
         name='metadata',
         attr='show',
         renderer='penelope.core.forms:templates/customer.pt',
-        model='penelope.core.models.dashboard.Customer',
+        model='penelope.models.Customer',
         view=CustomerModelView)
 
     config.formalchemy_model_view('admin',
@@ -33,7 +33,7 @@ def configurate(config):
         name='delete',
         attr='delete',
         renderer='fa.bootstrap:templates/admin/edit.pt',
-        model='penelope.core.models.dashboard.Customer',
+        model='penelope.models.Customer',
         view=CustomerModelView)
 
     config.formalchemy_model_view('admin',
@@ -42,7 +42,7 @@ def configurate(config):
         context='pyramid_formalchemy.resources.ModelListing',
         request_method='GET',
         permission='customer_listing',
-        model='penelope.core.models.dashboard.Customer',
+        model='penelope.models.Customer',
         view=CustomerModelView)
 
     #custom view for adding a project to a customer
@@ -52,7 +52,7 @@ def configurate(config):
         name='add_project',
         attr='add_project',
         renderer='penelope.core.forms:templates/new.pt',
-        model='penelope.core.models.dashboard.Customer',
+        model='penelope.models.Customer',
         view=CustomerModelView)
 
     config.formalchemy_model_view('admin',
@@ -61,7 +61,7 @@ def configurate(config):
         name='add_project',
         attr='add_project',
         renderer='penelope.core.forms:templates/new.pt',
-        model='penelope.core.models.dashboard.Customer',
+        model='penelope.models.Customer',
         view=CustomerModelView)
 
     #custom view for adding a project to a customer
@@ -71,7 +71,7 @@ def configurate(config):
         name='wizard',
         attr='render',
         renderer='penelope.core.forms:templates/wizard.pt',
-        model='penelope.core.models.dashboard.Customer',
+        model='penelope.models.Customer',
         view=Wizard)
     #custom view for adding a project to a customer
     config.formalchemy_model_view('admin',
@@ -80,7 +80,7 @@ def configurate(config):
         name='wizard',
         attr='render',
         renderer='penelope.core.forms:templates/wizard.pt',
-        model='penelope.core.models.dashboard.Customer',
+        model='penelope.models.Customer',
         view=Wizard)
 
     #custom view for customer projects
@@ -90,7 +90,7 @@ def configurate(config):
         name='',
         attr='customer_projects',
         renderer='penelope.core.forms:templates/customer_projects.pt',
-        model='penelope.core.models.dashboard.Customer',
+        model='penelope.models.Customer',
         view=CustomerModelView)
 
     #custom view for customer projects
@@ -99,7 +99,7 @@ def configurate(config):
         permission='time_entries',
         name='customer_time_entries',
         attr='customer_time_entries',
-        model='penelope.core.models.dashboard.Customer',
+        model='penelope.models.Customer',
         view=CustomerModelView)
 
 

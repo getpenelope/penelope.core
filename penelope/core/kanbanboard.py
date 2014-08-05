@@ -3,10 +3,10 @@ import redis
 
 from json import loads, dumps
 from socketio.namespace import BaseNamespace
-from penelope.core.models.dashboard import KanbanBoard, \
+from penelope.models import KanbanBoard, \
         BACKLOG_PRIORITY_ORDER, BACKLOG_MODIFICATION_ORDER
-from penelope.core.models.dashboard import Trac, Project, CustomerRequest
-from penelope.core.models import DBSession
+from penelope.models import Trac, Project, CustomerRequest
+from penelope.core.dbsession import DBSession
 
 
 class KanbanNamespace(BaseNamespace):

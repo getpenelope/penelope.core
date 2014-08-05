@@ -10,7 +10,7 @@ def configurate(config):
     config.formalchemy_model_view('admin',
         view='penelope.core.forms.ModelView',
         context=ModelListing,
-        model='penelope.core.models.dashboard.Role',
+        model='penelope.models.Role',
         renderer='pyramid_formalchemy:templates/admin/listing.pt',
         attr='listing',
         request_method='GET',

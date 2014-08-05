@@ -3,8 +3,8 @@ import unittest2
 import transaction
 import datetime
 
-from penelope.core.models.dashboard import User, Customer, CustomerRequest, Application, Project
-from penelope.core.models import DBSession
+from penelope.models import User, Customer, CustomerRequest, Application, Project
+from penelope.core.dbsession import DBSession
 
 
 class TestJSONRPCProxy(unittest2.TestCase):

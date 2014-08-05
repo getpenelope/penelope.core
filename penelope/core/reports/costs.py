@@ -14,8 +14,9 @@ from deform.widget import SelectWidget
 from pyramid.view import view_config
 from webhelpers.html.builder import literal
 
-from penelope.core.models import DBSession, Project, TimeEntry, User, CustomerRequest, Contract, Customer
-from penelope.core.models.tickets import ticket_store
+from penelope.models import Project, TimeEntry, User, CustomerRequest, Contract, Customer
+from penelope.core.dbsession import DBSession
+from penelope.models.tickets import ticket_store
 from penelope.core import fanstatic_resources
 from penelope.core.lib.widgets import SearchButton, PorInlineForm
 from penelope.core.reports.queries import qry_active_projects, te_filter_by_customer_requests, filter_users_with_timeentries, te_filter_by_contracts

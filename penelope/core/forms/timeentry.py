@@ -12,7 +12,7 @@ def configurate(config):
         name='',
         attr='show',
         renderer='fa.bootstrap:templates/admin/show.pt',
-        model='penelope.core.models.tp.TimeEntry',
+        model='penelope.models.TimeEntry',
         view=TimeEntryModelView)
 
     config.formalchemy_model_view('admin',
@@ -21,7 +21,7 @@ def configurate(config):
         name='edit',
         attr='edit',
         renderer='fa.bootstrap:templates/admin/edit.pt',
-        model='penelope.core.models.tp.TimeEntry',
+        model='penelope.models.TimeEntry',
         view=TimeEntryModelView)
 
     config.formalchemy_model_view('admin',
@@ -30,20 +30,20 @@ def configurate(config):
         name='delete',
         attr='delete',
         renderer='fa.bootstrap:templates/admin/edit.pt',
-        model='penelope.core.models.tp.TimeEntry',
+        model='penelope.models.TimeEntry',
         view=TimeEntryModelView)
 
     config.formalchemy_model_view('admin',
         request_method='GET',
         permission='workflow',
         name='goto_state',
-        model='penelope.core.models.tp.TimeEntry',
+        model='penelope.models.TimeEntry',
         view=workflow.goto_state)
 
     config.formalchemy_model_view('admin',
         view='penelope.core.forms.ModelView',
         context='pyramid_formalchemy.resources.ModelListing',
-        model='penelope.core.models.tp.TimeEntry',
+        model='penelope.models.TimeEntry',
         renderer='pyramid_formalchemy:templates/admin/listing.pt',
         attr='listing',
         request_method='GET',
