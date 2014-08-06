@@ -34,10 +34,11 @@ requires = [
     'lingua',
     'lorem-ipsum-generator',
     'lxml',
+    'mandrill',
     'Paste',
     'PasteScript',
-    'penelope.trac',
     'penelope.models',
+    'penelope.trac',
     'plone.i18n',
     'profilehooks',
     'psycopg2',
@@ -66,7 +67,6 @@ requires = [
     'sunburnt',
     'SQLAlchemy',
     'transaction',
-    'Trac',
     'unittest2',
     'velruse',
     'WebError',
@@ -91,7 +91,7 @@ tests_require = [
 
 
 setup(name='penelope.core',
-      version='2.1.36.dev0',
+      version='3.0.dev0',
       description='Penelope main package',
       long_description=README + '\n\n' +  CHANGES,
       classifiers=[

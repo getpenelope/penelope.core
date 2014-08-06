@@ -55,7 +55,7 @@ def main(global_config, **settings):
     from penelope.core.dbsession import DBSession
     from penelope.core.interfaces import register
     register()
-    engine = engine_from_config(config.registry.settings, 'sa.dashboard.', poolclass=NullPool)
+    engine = engine_from_config(config.registry.settings, 'sa.penelope.', poolclass=NullPool)
     DBSession.configure(bind=engine)
     Base.metadata.bind = engine
 
