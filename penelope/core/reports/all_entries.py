@@ -30,7 +30,7 @@ log = logging.getLogger(__name__)
 class IDTree(dict):
     # XXX see if we can do without this silly tree
 
-    def insert_entry(self, groupby, te_id, customer, project, request, user, date, **discard):
+    def insert_entry(self, groupby, te_id, customer, project, contract, request, user, date, **discard):
         """
         populates the tree with time-entry ids
         """
@@ -47,6 +47,9 @@ class IDTree(dict):
             elif nodetype == 'project':
                 node.setdefault(project, default)
                 node = node[project]
+            elif nodetype == 'contract':
+                node.setdefault(contract, default)
+                node = node[contract]
             elif nodetype == 'request':
                 node.setdefault(request, default)
                 node = node[request]
@@ -57,7 +60,7 @@ class IDTree(dict):
                 node.setdefault(date, default)
                 node = node[date]
             else:
-                raise ValueError('unsupported groupby value?')
+                raise ValueError('unsupported groupby value: {}'.format(nodetype))
 
         node.append(te_id)
 
@@ -79,29 +82,29 @@ class AllEntriesReport(object):
 
         groupbyfirst = SchemaNode(colander.String(),
                                   validator=colander.OneOf([
-                                                            'project.request.user.date',
-                                                            'project.request.date.user',
-                                                            'project.user.request.date',
-                                                            'project.user.date.request',
-                                                            'project.date.user.request',
-                                                            'user.project.request.date',
-                                                            'user.project.date.request',
-                                                            'user.date.project.request',
-                                                            'date.user.project.request',
+                                                            'project.contract.request.user.date',
+                                                            'project.contract.request.date.user',
+                                                            'project.user.contract.request.date',
+                                                            'project.user.date.contract.request',
+                                                            'project.date.user.contract.request',
+                                                            'user.project.contract.request.date',
+                                                            'user.project.date.contract.request',
+                                                            'user.date.project.contract.request',
+                                                            'date.user.project.contract.request',
                                                             ]),
                                   widget=SelectWidget(values=[
-                                          ('project.request.user.date', 'Project/Request/User/Date'),
-                                          ('project.request.date.user', 'Project/Request/Date/User'),
-                                          ('project.user.request.date', 'Project/User/Request/Date'),
-                                          ('project.user.date.request', 'Project/User/Date/Request'),
-                                          ('project.date.user.request', 'Project/Date/User/Request'),
-                                          ('user.project.request.date', 'User/Project/Request/Date'),
-                                          ('user.project.date.request', 'User/Project/Date/Request'),
-                                          ('user.date.project.request', 'User/Date/Project/Request'),
-                                          ('date.user.project.request', 'Date/User/Project/Request'),
+                                          ('project.contract.request.user.date', 'Project/Request/User/Date'),
+                                          ('project.contract.request.date.user', 'Project/Request/Date/User'),
+                                          ('project.user.contract.request.date', 'Project/User/Request/Date'),
+                                          ('project.user.date.contract.request', 'Project/User/Date/Request'),
+                                          ('project.date.user.contract.request', 'Project/Date/User/Request'),
+                                          ('user.project.contract.request.date', 'User/Project/Request/Date'),
+                                          ('user.project.date.contract.request', 'User/Project/Date/Request'),
+                                          ('user.date.project.contract.request', 'User/Date/Project/Request'),
+                                          ('date.user.project.contract.request', 'Date/User/Project/Request'),
                                       ]),
-                                  default='project.request.user.date',
-                                  missing='project.request.user.date',
+                                  default='project.contract.request.user.date',
+                                  missing='project.contract.request.user.date',
                                   title=u'')
 
 
@@ -137,6 +140,9 @@ class AllEntriesReport(object):
 
         if date_from == date_to and date_from is not colander.null:
             groupby.remove('date')
+
+        if contracts:
+            groupby.remove('contract')
 
         if users:
             qry = qry.filter(TimeEntry.author_id.in_(users))
@@ -181,6 +187,7 @@ class AllEntriesReport(object):
             entry = {
                         'customer': te.project.customer.name.strip(),
                         'project': te.project.name.strip(),
+                        'contract': customer_request.contract.name.strip(),
                         'request': customer_request.name.strip(),
                         'user': te.author.fullname.strip(),
                         'date': te.date.strftime('%Y-%m-%d'),
@@ -264,6 +271,7 @@ class AllEntriesReport(object):
         col_headers = {
             'customer': u'Customer',
             'project': u'Project',
+            'contract': u'Contract',
             'request': u'Request',
             'user': u'User',
             'date': u'Data',

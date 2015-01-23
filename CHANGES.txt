@@ -1,7 +1,7 @@
 2.1.37 (unreleased)
 -------------------
 
-- Nothing changed yet.
+- add contract to all time entries groupby [amleczko]
 
 
 2.1.36 (2014-10-06)
