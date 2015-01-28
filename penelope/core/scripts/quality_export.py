@@ -380,11 +380,13 @@ class QualityOurCustomerTimeOpened(Quality):
         with open(namespace.filename, 'wb') as ofile:
             writer = csv.writer(ofile, dialect='excel')
 
-            writer.writerow(['Customer', 'Project', 'CR ID', 'CR name', 'Ticket #', 'Ticket created', 'Ticket summary', 'Ticket type', 'Ticket URL', 'Owner', 'Is RedTurtle user', 'Elapsed time (in normal hours)', 'Excluded from stats'])
+            writer.writerow(['Customer', 'Project', 'CR ID', 'CR name', 'Ticket #', 'Ticket created', 'Ticket created year', 'Ticket summary', 'Ticket type', 'Ticket URL', 'Owner', 'Is RedTurtle user', 'Elapsed time (in normal hours)', 'Excluded from stats'])
 
             for ticket in session.execute(sql).fetchall():
                 reporter = ticket.reporter
-                created = from_utimestamp(ticket.time).strftime('%Y-%m-%d %H:%M')
+                created = from_utimestamp(ticket.time)
+                created_year = created.strftime('%Y')
+                created = created.strftime('%Y-%m-%d %H:%M')
                 owner = ticket.owner or reporter
                 history = session.execute("""SELECT time, oldvalue, newvalue 
                                                 FROM "trac_{0}".ticket_change
@@ -392,18 +394,18 @@ class QualityOurCustomerTimeOpened(Quality):
                                                     ORDER BY time""".format(ticket.trac, ticket.id)).fetchall()
                 if not history:
                     writer.writerow(encode_row(
-                        [ticket.customer, ticket.project, ticket.cr_id, crs.get(ticket.cr_id), ticket.id, created, ticket.summary, ticket.type, url(ticket), owner, is_rt_user(owner), elapsed_time_in_minutes(ticket.time, ticket.changetime), ticket.excluded]))
+                        [ticket.customer, ticket.project, ticket.cr_id, crs.get(ticket.cr_id), ticket.id, created, created_year, ticket.summary, ticket.type, url(ticket), owner, is_rt_user(owner), elapsed_time_in_minutes(ticket.time, ticket.changetime), ticket.excluded]))
                 else:
                     first_history = history.pop(0)
                     owner = first_history.oldvalue or reporter
                     last_change = first_history.time
                     writer.writerow(encode_row(
-                        [ticket.customer, ticket.project, ticket.cr_id, crs.get(ticket.cr_id), ticket.id, created, ticket.summary, ticket.type, url(ticket), owner, is_rt_user(owner), elapsed_time_in_minutes(ticket.time, last_change), ticket.excluded]))
+                        [ticket.customer, ticket.project, ticket.cr_id, crs.get(ticket.cr_id), ticket.id, created, created_year, ticket.summary, ticket.type, url(ticket), owner, is_rt_user(owner), elapsed_time_in_minutes(ticket.time, last_change), ticket.excluded]))
 
                     for h in history:
                         owner = h.oldvalue or reporter
                         writer.writerow(encode_row(
-                                [ticket.customer, ticket.project, ticket.cr_id, crs.get(ticket.cr_id), ticket.id, created, ticket.summary, ticket.type, url(ticket), owner, is_rt_user(owner), elapsed_time_in_minutes(last_change, h.time), ticket.excluded]))
+                                [ticket.customer, ticket.project, ticket.cr_id, crs.get(ticket.cr_id), ticket.id, created, created_year, ticket.summary, ticket.type, url(ticket), owner, is_rt_user(owner), elapsed_time_in_minutes(last_change, h.time), ticket.excluded]))
                         last_change = h.time
 
 
@@ -455,7 +457,7 @@ class QualityOurCustomerTime(Quality):
         with open(namespace.filename, 'wb') as ofile:
             writer = csv.writer(ofile, dialect='excel')
 
-            writer.writerow(['Customer', 'Project', 'CR ID', 'CR name', 'Ticket #', 'Ticket summary', 'Ticket type', 'Ticket URL', 'Owner', 'Is RedTurtle user', 'Elapsed time (in normal hours)', 'Excluded from stats'])
+            writer.writerow(['Customer', 'Project', 'CR ID', 'CR name', 'Ticket #', 'Ticket summary', 'Ticket type', 'Ticket URL', 'Owner', 'Is RedTurtle user', 'Elapsed time (in normal hours)', 'Excluded from stats', 'Closure date', 'Closure year'])
 
             for ticket in session.execute(sql).fetchall():
                 reporter = ticket.reporter
@@ -464,20 +466,24 @@ class QualityOurCustomerTime(Quality):
                                                 FROM "trac_{0}".ticket_change
                                                     WHERE ticket={1} AND field='owner'
                                                     ORDER BY time""".format(ticket.trac, ticket.id)).fetchall()
+                close_date = session.execute("""SELECT time FROM "trac_{0}".ticket_change
+                                                            WHERE ticket={1} AND field='status' and newvalue='closed'
+                                                            ORDER BY time DESC LIMIT 1""".format(ticket.trac, ticket.id)).fetchone()
+                close_date = datetime.fromtimestamp(close_date.time/1000000)
                 if not history:
                     writer.writerow(encode_row(
-                            [ticket.customer, ticket.project, ticket.cr_id, crs.get(ticket.cr_id), ticket.id, ticket.summary, ticket.type, url(ticket), owner, is_rt_user(owner), elapsed_time_in_minutes(ticket.time, ticket.changetime), ticket.excluded]))
+                            [ticket.customer, ticket.project, ticket.cr_id, crs.get(ticket.cr_id), ticket.id, ticket.summary, ticket.type, url(ticket), owner, is_rt_user(owner), elapsed_time_in_minutes(ticket.time, ticket.changetime), ticket.excluded, close_date.strftime('%Y-%m-%d'), close_date.strftime('%Y')]))
                 else:
                     first_history = history.pop(0)
                     owner = first_history.oldvalue or reporter
                     last_change = first_history.time
                     writer.writerow(encode_row(
-                            [ticket.customer, ticket.project, ticket.cr_id, crs.get(ticket.cr_id), ticket.id, ticket.summary, ticket.type, url(ticket), owner, is_rt_user(owner), elapsed_time_in_minutes(ticket.time, last_change), ticket.excluded]))
+                            [ticket.customer, ticket.project, ticket.cr_id, crs.get(ticket.cr_id), ticket.id, ticket.summary, ticket.type, url(ticket), owner, is_rt_user(owner), elapsed_time_in_minutes(ticket.time, last_change), ticket.excluded, close_date.strftime('%Y-%m-%d'), close_date.strftime('%Y')]))
 
                     for h in history:
                         owner = h.oldvalue or reporter
                         writer.writerow(encode_row(
-                                [ticket.customer, ticket.project, ticket.cr_id, crs.get(ticket.cr_id), ticket.id, ticket.summary, ticket.type, url(ticket), owner, is_rt_user(owner), elapsed_time_in_minutes(last_change, h.time), ticket.excluded]))
+                                [ticket.customer, ticket.project, ticket.cr_id, crs.get(ticket.cr_id), ticket.id, ticket.summary, ticket.type, url(ticket), owner, is_rt_user(owner), elapsed_time_in_minutes(last_change, h.time), ticket.excluded, close_date.strftime('%Y-%m-%d'), close_date.strftime('%Y')]))
                         last_change = h.time
 
 
