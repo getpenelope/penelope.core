@@ -1,4 +1,4 @@
-2.1.38 (unreleased)
+2.1.38 (2015-01-28)
 -------------------
 
 - fix quality reports to handle unicode properly [amleczko]
