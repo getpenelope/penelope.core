@@ -45,7 +45,7 @@ $(document).ready(function(){
         } else {
             var duration_text = $('<span>' + part_int+'.'+part_dec+'</span>');
         }
-        var report_url = "/reports/report_all_entries?_charset_=UTF-8&__formid__=all_entries&customer_id=&project_id=&__start__=customer_requests%3Asequence&customer_requests="+$me.data('crId')+"&__end__=customer_requests%3Asequence&__start__=contracts%3Asequence&__end__=contracts%3Asequence&date_from=&date_to=&__start__=users%3Asequence&__end__=users%3Asequence&groupbyfirst=project.request.user.date&submit=submit"
+        var report_url = "/reports/report_all_entries?_charset_=UTF-8&__formid__=all_entries&customer_id=&project_id=&__start__=customer_requests%3Asequence&customer_requests="+$me.data('crId')+"&__end__=customer_requests%3Asequence&__start__=contracts%3Asequence&__end__=contracts%3Asequence&date_from=&date_to=&__start__=users%3Asequence&__end__=users%3Asequence&groupbyfirst=project.contract.request.user.date&submit=submit"
         var estimations = $('<a target="_blank" href="'+report_url+'" title="Open report for that customer request"></a>').append(duration_text);
         $duration.empty().append(estimations);
     };
