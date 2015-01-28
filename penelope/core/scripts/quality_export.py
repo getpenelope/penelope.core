@@ -30,6 +30,16 @@ from penelope.core.models import Base
 beaker.cache.cache_regions.update(dict(calculate_matrix={}))
 
 
+def encode_row(row):
+    result = []
+    for r in row:
+        if isinstance(r, unicode):
+            result.append(r.encode('utf8'))
+        else:
+            result.append(r)
+    return result
+
+
 def create_client():
     client = gdata.docs.client.DocsClient(source='GDataDocumentsListAPISample-v1.0')
     try:
@@ -116,6 +126,9 @@ def tickets_for_cr(metadata, session, trac_name, cr_id=None):
             'customer_request':relationship(TicketCustom, primaryjoin=and_(ticket_custom.c.ticket==ticket.c.id,
                                                                           ticket_custom.c.name=='customerrequest'),
                                            foreign_keys=[ticket.c.id]),
+            'excluded':relationship(TicketCustom, primaryjoin=and_(ticket_custom.c.ticket==ticket.c.id,
+                                                                          ticket_custom.c.name=='stats_exclude'),
+                                           foreign_keys=[ticket.c.id]),
             'open_by_customer':relationship(TicketCustom, primaryjoin=and_(ticket_custom.c.ticket==ticket.c.id,
                                                                            ticket_custom.c.name=='esogeno'),
                                             foreign_keys=[ticket.c.id]),
@@ -170,14 +183,14 @@ class QualityProject(Quality):
                                   .filter(extract('year', TimeEntry.date) == namespace.year)\
                                   .distinct():
 
-                writer.writerow([project.id, project.customer_id, 
+                writer.writerow(encode_row([project.id, project.customer_id, 
                                  project.creation_date and project.creation_date.strftime('%Y') or '',
                                  project.creation_date and project.creation_date.strftime('%m') or '',
                                  project.creation_date and project.creation_date.strftime('%d') or '',
                                  project.completion_date and project.completion_date.strftime('%Y') or '',
                                  project.completion_date and project.completion_date.strftime('%m') or '',
                                  project.completion_date and project.completion_date.strftime('%d') or '',
-                                 ])
+                                 ]))
 
 
 class QualityCR(Quality):
@@ -220,9 +233,9 @@ class QualityCR(Quality):
                                                     current_year_entries.filter(or_(TimeEntry.description.ilike('%install%'),
                                                                                     TimeEntry.description.ilike('%sistem%')))], timedelta()))
 
-                writer.writerow([cr.id, cr.name.encode('utf8'), cr.customer_id,
-                    cr.workflow_state, estimations, current_year_hours,
-                    current_year_dev_hours, total_hours, total_dev_hours])
+                writer.writerow(encode_row([cr.id, cr.name, cr.customer_id,
+                                            cr.workflow_state, estimations, current_year_hours,
+                                            current_year_dev_hours, total_hours, total_dev_hours]))
 
 
 class QualityTicket(Quality):
@@ -231,15 +244,22 @@ class QualityTicket(Quality):
         session = DBSession()
         with open(namespace.filename, 'wb') as ofile:
             writer = csv.writer(ofile, dialect='excel')
-            writer.writerow(['Ticket ID', 'Customer',
+            writer.writerow(['Ticket ID',
+                             'Customer',
                              'Ticket creation year',
                              'Ticket creation month',
                              'Ticket creation day',
                              'Ticket completion year',
                              'Ticket completion moneth',
                              'Ticket completion day',
-                             'Ticket state', 'Ticket last owner', 'Ticket types',
-                             'Ticket opened by customer', 'Problem nature'])
+                             'Ticket state',
+                             'Ticket summary', # new field
+                             'Ticket last owner',
+                             'Ticket types',
+                             'Ticket opened by customer',
+                             'Problem nature',
+                             'Excluded from stats' # new field
+                             ])
 
             for pr in session.query(Project.customer_id, Project.id, Trac.trac_name)\
                              .outerjoin(Trac, Project.id==Trac.project_id)\
@@ -260,18 +280,24 @@ class QualityTicket(Quality):
                         if h.field == 'type':
                             all_types.update([h.oldvalue])
                     all_types.update([ticket.type])
-                    all_types = '|'.join(all_types).encode('utf8','ignore')
-                    writer.writerow(
-                          [ticket.id, pr.customer_id,
+                    all_types = '|'.join(all_types)
+
+                    writer.writerow(encode_row(
+                          [ticket.id,
+                           pr.customer_id,
                            ticket.date.strftime('%Y'),
                            ticket.date.strftime('%m'),
                            ticket.date.strftime('%d'),
                            close_date and close_date.strftime('%Y') or '',
                            close_date and close_date.strftime('%m') or '',
                            close_date and close_date.strftime('%d') or '',
-                           last_status, ticket.owner, all_types,
+                           last_status,
+                           ticket.summary,
+                           ticket.owner,
+                           all_types,
                            ticket.open_by_customer and ticket.open_by_customer.unicode_value or '',
-                           ticket.issue_type and ticket.issue_type.unicode_value or ''])
+                           ticket.issue_type and ticket.issue_type.unicode_value or '',
+                           ticket.excluded and ticket.excluded.unicode_value or '']))
 
 
 class QualityRaw(Quality):
@@ -302,7 +328,7 @@ class QualityRaw(Quality):
 
                 if entries.count():
                     hours = timedelta_as_work_days(sum([a.hours for a in entries], timedelta()))
-                    writer.writerow([cr.id, cr.customer_id, hours])
+                    writer.writerow(encode_row([cr.id, cr.customer_id, hours]))
 
 
 class QualityOurCustomerTimeOpened(Quality):
@@ -327,7 +353,7 @@ class QualityOurCustomerTimeOpened(Quality):
 
         namespace.we_vs_customer_new['custom_report_name'] = 'we_vs_customer_new'
 
-        query = """SELECT '{0}' AS trac,
+        query = u"""SELECT '{0}' AS trac,
                           '{1}' AS project,
                           '{2}' AS customer,
                           id,
@@ -365,16 +391,19 @@ class QualityOurCustomerTimeOpened(Quality):
                                                     WHERE ticket={1} AND field='owner'
                                                     ORDER BY time""".format(ticket.trac, ticket.id)).fetchall()
                 if not history:
-                    writer.writerow([ticket.customer, ticket.project, ticket.cr_id, crs.get(ticket.cr_id), ticket.id, created, ticket.summary, ticket.type, url(ticket), owner, is_rt_user(owner), elapsed_time_in_minutes(ticket.time, ticket.changetime), ticket.excluded])
+                    writer.writerow(encode_row(
+                        [ticket.customer, ticket.project, ticket.cr_id, crs.get(ticket.cr_id), ticket.id, created, ticket.summary, ticket.type, url(ticket), owner, is_rt_user(owner), elapsed_time_in_minutes(ticket.time, ticket.changetime), ticket.excluded]))
                 else:
                     first_history = history.pop(0)
                     owner = first_history.oldvalue or reporter
                     last_change = first_history.time
-                    writer.writerow([ticket.customer, ticket.project, ticket.cr_id, crs.get(ticket.cr_id), ticket.id, created, ticket.summary, ticket.type, url(ticket), owner, is_rt_user(owner), elapsed_time_in_minutes(ticket.time, last_change), ticket.excluded])
+                    writer.writerow(encode_row(
+                        [ticket.customer, ticket.project, ticket.cr_id, crs.get(ticket.cr_id), ticket.id, created, ticket.summary, ticket.type, url(ticket), owner, is_rt_user(owner), elapsed_time_in_minutes(ticket.time, last_change), ticket.excluded]))
 
                     for h in history:
                         owner = h.oldvalue or reporter
-                        writer.writerow([ticket.customer, ticket.project, ticket.cr_id, crs.get(ticket.cr_id), ticket.id, created, ticket.summary, ticket.type, url(ticket), owner, is_rt_user(owner), elapsed_time_in_minutes(last_change, h.time), ticket.excluded])
+                        writer.writerow(encode_row(
+                                [ticket.customer, ticket.project, ticket.cr_id, crs.get(ticket.cr_id), ticket.id, created, ticket.summary, ticket.type, url(ticket), owner, is_rt_user(owner), elapsed_time_in_minutes(last_change, h.time), ticket.excluded]))
                         last_change = h.time
 
 
@@ -398,7 +427,7 @@ class QualityOurCustomerTime(Quality):
         def url(ticket):
             return "https://penelope.redturtle.it/trac/{0.trac}/ticket/{0.id}".format(ticket)
 
-        query = """SELECT '{0}' AS trac,
+        query = u"""SELECT '{0}' AS trac,
                           '{2}' AS project,
                           '{3}' AS customer,
                           id,
@@ -436,16 +465,19 @@ class QualityOurCustomerTime(Quality):
                                                     WHERE ticket={1} AND field='owner'
                                                     ORDER BY time""".format(ticket.trac, ticket.id)).fetchall()
                 if not history:
-                    writer.writerow([ticket.customer, ticket.project, ticket.cr_id, crs.get(ticket.cr_id), ticket.id, ticket.summary, ticket.type, url(ticket), owner, is_rt_user(owner), elapsed_time_in_minutes(ticket.time, ticket.changetime), ticket.excluded])
+                    writer.writerow(encode_row(
+                            [ticket.customer, ticket.project, ticket.cr_id, crs.get(ticket.cr_id), ticket.id, ticket.summary, ticket.type, url(ticket), owner, is_rt_user(owner), elapsed_time_in_minutes(ticket.time, ticket.changetime), ticket.excluded]))
                 else:
                     first_history = history.pop(0)
                     owner = first_history.oldvalue or reporter
                     last_change = first_history.time
-                    writer.writerow([ticket.customer, ticket.project, ticket.cr_id, crs.get(ticket.cr_id), ticket.id, ticket.summary, ticket.type, url(ticket), owner, is_rt_user(owner), elapsed_time_in_minutes(ticket.time, last_change), ticket.excluded])
+                    writer.writerow(encode_row(
+                            [ticket.customer, ticket.project, ticket.cr_id, crs.get(ticket.cr_id), ticket.id, ticket.summary, ticket.type, url(ticket), owner, is_rt_user(owner), elapsed_time_in_minutes(ticket.time, last_change), ticket.excluded]))
 
                     for h in history:
                         owner = h.oldvalue or reporter
-                        writer.writerow([ticket.customer, ticket.project, ticket.cr_id, crs.get(ticket.cr_id), ticket.id, ticket.summary, ticket.type, url(ticket), owner, is_rt_user(owner), elapsed_time_in_minutes(last_change, h.time), ticket.excluded])
+                        writer.writerow(encode_row(
+                                [ticket.customer, ticket.project, ticket.cr_id, crs.get(ticket.cr_id), ticket.id, ticket.summary, ticket.type, url(ticket), owner, is_rt_user(owner), elapsed_time_in_minutes(last_change, h.time), ticket.excluded]))
                         last_change = h.time
 
 
@@ -503,18 +535,19 @@ class QualityOperator(Quality):
                            .group_by(User.fullname)
 
             for row in query:
-                writer.writerow([row.customer.encode('utf8'),
-                                 row.project.encode('utf8'),
-                                 row.CustomerRequest.name.encode('utf8'),
+                writer.writerow(encode_row(
+                                [row.customer,
+                                 row.project,
+                                 row.CustomerRequest.name,
                                  row.CustomerRequest.estimation_days,
                                  row.CustomerRequest.workflow_state,
-                                 row.contract_number and row.contract_number.encode('utf8') or 'N/A',
+                                 row.contract_number and row.contract_number or 'N/A',
                                  row.contract_amount or 0,
                                  row.contract_days or 0,
                                  row.contract_end_date or 'N/A',
                                  row.contract_workflow_state,
-                                 row.user.encode('utf8'),
-                                 timedelta_as_work_days(row.total_time)])
+                                 row.user,
+                                 timedelta_as_work_days(row.total_time)]))
 
 
 def main():

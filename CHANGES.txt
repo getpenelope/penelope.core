@@ -1,7 +1,7 @@
 2.1.38 (unreleased)
 -------------------
 
-- Nothing changed yet.
+- fix quality reports to handle unicode properly [amleczko]
 
 
 2.1.37 (2015-01-24)
