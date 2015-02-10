@@ -145,6 +145,37 @@ def tickets_for_cr(metadata, session, trac_name, cr_id=None):
     return query, Ticket, TicketCustom
 
 
+def trac_bool(value):
+    """
+    Make sure all the strange trac formats are supported and proper bool is returned.
+    """
+    if value == 0 or value == 'false' or value == None or value == '0':
+        return False
+    else:
+        return True
+
+
+def round_to(n, precission):
+    correction = 0.5 if n >= 0 else -0.5
+    return int(n/precission+correction)*precission
+
+
+def elapsed_time_in_hours(start, end, email, customer_time, rt_time):
+    """
+    Calculate elapsed time in minutes taking under consideration ticket owner.
+    """
+    td = from_utimestamp(end) - from_utimestamp(start)
+    total_seconds = (td.microseconds + (td.seconds + td.days * 24 * 3600) * 10**6) / 10**6
+    elapsed = total_seconds / 3600.0
+
+    if email and 'redturtle' in email or False:
+        rt_time += elapsed
+    else:
+        customer_time += elapsed
+
+    return customer_time, rt_time
+
+
 class Quality(argparse.Action):
     def __call__(self, parser, namespace, values, option_string):
         super(Quality, self).__init__(parser, namespace, values, option_string)
@@ -336,18 +367,6 @@ class QualityOurCustomerTimeOpened(Quality):
         super(QualityOurCustomerTimeOpened, self).__call__(parser, namespace, values, option_string)
         session = DBSession()
 
-        def is_rt_user(email):
-            return email and 'redturtle' in email or False
-
-        def round_to(n, precission):
-            correction = 0.5 if n >= 0 else -0.5
-            return int(n/precission+correction)*precission
-
-        def elapsed_time_in_minutes(start, end):
-            td = from_utimestamp(end) - from_utimestamp(start)
-            total_seconds = (td.microseconds + (td.seconds + td.days * 24 * 3600) * 10**6) / 10**6
-            return round_to((total_seconds / 3600.0), 0.5)
-
         def url(ticket):
             return "https://penelope.redturtle.it/trac/{0.trac}/ticket/{0.id}".format(ticket)
 
@@ -364,8 +383,10 @@ class QualityOurCustomerTimeOpened(Quality):
                           summary,
                           type,
                           customerrequest.value AS cr_id,
+                          open_by_customer.value AS open_by_customer,
                           exclude_stats.value AS excluded
                     FROM "trac_{0}".ticket AS ticket
+                    LEFT OUTER JOIN "trac_{0}".ticket_custom AS open_by_customer ON ticket.id=open_by_customer.ticket AND open_by_customer.name='esogeno'
                     LEFT OUTER JOIN "trac_{0}".ticket_custom AS customerrequest ON ticket.id=customerrequest.ticket AND customerrequest.name='customerrequest'
                     LEFT OUTER JOIN "trac_{0}".ticket_custom AS exclude_stats ON ticket.id=exclude_stats.ticket AND exclude_stats.name='stats_exclude'
                         WHERE status!='closed'"""
@@ -380,7 +401,10 @@ class QualityOurCustomerTimeOpened(Quality):
         with open(namespace.filename, 'wb') as ofile:
             writer = csv.writer(ofile, dialect='excel')
 
-            writer.writerow(['Customer', 'Project', 'CR ID', 'CR name', 'Ticket #', 'Ticket created', 'Ticket created year', 'Ticket summary', 'Ticket type', 'Ticket URL', 'Owner', 'Is RedTurtle user', 'Elapsed time (in normal hours)', 'Excluded from stats'])
+            writer.writerow(['Customer', 'Project', 'CR ID', 'CR name', 'Ticket #',
+                'Ticket created', 'Ticket created year', 'Ticket summary', 'Ticket type',
+                'Ticket URL', 'Owner', 'Open by customer', 'Elapsed RT time (in normal hours)',
+                'Elapsed non RT time (in normal hours)', 'Excluded from stats'])
 
             for ticket in session.execute(sql).fetchall():
                 reporter = ticket.reporter
@@ -392,39 +416,34 @@ class QualityOurCustomerTimeOpened(Quality):
                                                 FROM "trac_{0}".ticket_change
                                                     WHERE ticket={1} AND field='owner'
                                                     ORDER BY time""".format(ticket.trac, ticket.id)).fetchall()
+
+                customer_time = 0
+                rt_time = 0
                 if not history:
-                    writer.writerow(encode_row(
-                        [ticket.customer, ticket.project, ticket.cr_id, crs.get(ticket.cr_id), ticket.id, created, created_year, ticket.summary, ticket.type, url(ticket), owner, is_rt_user(owner), elapsed_time_in_minutes(ticket.time, ticket.changetime), ticket.excluded]))
+                    customer_time, rt_time = elapsed_time_in_hours(ticket.time, ticket.changetime, owner, customer_time, rt_time)
+
                 else:
                     first_history = history.pop(0)
                     owner = first_history.oldvalue or reporter
                     last_change = first_history.time
-                    writer.writerow(encode_row(
-                        [ticket.customer, ticket.project, ticket.cr_id, crs.get(ticket.cr_id), ticket.id, created, created_year, ticket.summary, ticket.type, url(ticket), owner, is_rt_user(owner), elapsed_time_in_minutes(ticket.time, last_change), ticket.excluded]))
+                    customer_time, rt_time = elapsed_time_in_hours(ticket.time, last_change, owner, customer_time, rt_time)
 
                     for h in history:
                         owner = h.oldvalue or reporter
-                        writer.writerow(encode_row(
-                                [ticket.customer, ticket.project, ticket.cr_id, crs.get(ticket.cr_id), ticket.id, created, created_year, ticket.summary, ticket.type, url(ticket), owner, is_rt_user(owner), elapsed_time_in_minutes(last_change, h.time), ticket.excluded]))
+                        customer_time, rt_time = elapsed_time_in_hours(last_change, h.time, owner, customer_time, rt_time)
                         last_change = h.time
+
+                writer.writerow(encode_row(
+                        [ ticket.customer, ticket.project, ticket.cr_id, crs.get(ticket.cr_id),
+                          ticket.id, created, created_year, ticket.summary, ticket.type,
+                          url(ticket), owner, trac_bool(ticket.open_by_customer),
+                          round_to(rt_time, 0.5), round_to(customer_time, 0.5), trac_bool(ticket.excluded)]))
 
 
 class QualityOurCustomerTime(Quality):
     def __call__(self, parser, namespace, values, option_string):
         super(QualityOurCustomerTime, self).__call__(parser, namespace, values, option_string)
         session = DBSession()
-
-        def is_rt_user(email):
-            return email and 'redturtle' in email or False
-
-        def round_to(n, precission):
-            correction = 0.5 if n >= 0 else -0.5
-            return int(n/precission+correction)*precission
-
-        def elapsed_time_in_minutes(start, end):
-            td = from_utimestamp(end) - from_utimestamp(start)
-            total_seconds = (td.microseconds + (td.seconds + td.days * 24 * 3600) * 10**6) / 10**6
-            return round_to((total_seconds / 3600.0), 0.5)
 
         def url(ticket):
             return "https://penelope.redturtle.it/trac/{0.trac}/ticket/{0.id}".format(ticket)
@@ -440,8 +459,10 @@ class QualityOurCustomerTime(Quality):
                           summary,
                           type,
                           customerrequest.value AS cr_id,
+                          open_by_customer.value AS open_by_customer,
                           exclude_stats.value AS excluded
                     FROM "trac_{0}".ticket AS ticket
+                    LEFT OUTER JOIN "trac_{0}".ticket_custom AS open_by_customer ON ticket.id=open_by_customer.ticket AND open_by_customer.name='esogeno'
                     LEFT OUTER JOIN "trac_{0}".ticket_custom AS customerrequest ON ticket.id=customerrequest.ticket AND customerrequest.name='customerrequest'
                     LEFT OUTER JOIN "trac_{0}".ticket_custom AS exclude_stats ON ticket.id=exclude_stats.ticket AND exclude_stats.name='stats_exclude'
                         WHERE status='closed'
@@ -457,7 +478,10 @@ class QualityOurCustomerTime(Quality):
         with open(namespace.filename, 'wb') as ofile:
             writer = csv.writer(ofile, dialect='excel')
 
-            writer.writerow(['Customer', 'Project', 'CR ID', 'CR name', 'Ticket #', 'Ticket summary', 'Ticket type', 'Ticket URL', 'Owner', 'Is RedTurtle user', 'Elapsed time (in normal hours)', 'Excluded from stats', 'Closure date', 'Closure year'])
+            writer.writerow(['Customer', 'Project', 'CR ID', 'CR name', 'Ticket #',
+                'Ticket summary', 'Ticket type', 'Ticket URL', 'Owner',
+                'Open by customer', 'Elapsed RT time (in normal hours)',
+                'Elapsed non RT time (in normal hours)', 'Excluded from stats', 'Closure date', 'Closure year'])
 
             for ticket in session.execute(sql).fetchall():
                 reporter = ticket.reporter
@@ -470,21 +494,29 @@ class QualityOurCustomerTime(Quality):
                                                             WHERE ticket={1} AND field='status' and newvalue='closed'
                                                             ORDER BY time DESC LIMIT 1""".format(ticket.trac, ticket.id)).fetchone()
                 close_date = datetime.fromtimestamp(close_date.time/1000000)
+                customer_time = 0
+                rt_time = 0
+
                 if not history:
-                    writer.writerow(encode_row(
-                            [ticket.customer, ticket.project, ticket.cr_id, crs.get(ticket.cr_id), ticket.id, ticket.summary, ticket.type, url(ticket), owner, is_rt_user(owner), elapsed_time_in_minutes(ticket.time, ticket.changetime), ticket.excluded, close_date.strftime('%Y-%m-%d'), close_date.strftime('%Y')]))
+                    customer_time, rt_time = elapsed_time_in_hours(ticket.time, ticket.changetime, owner, customer_time, rt_time)
                 else:
                     first_history = history.pop(0)
                     owner = first_history.oldvalue or reporter
                     last_change = first_history.time
-                    writer.writerow(encode_row(
-                            [ticket.customer, ticket.project, ticket.cr_id, crs.get(ticket.cr_id), ticket.id, ticket.summary, ticket.type, url(ticket), owner, is_rt_user(owner), elapsed_time_in_minutes(ticket.time, last_change), ticket.excluded, close_date.strftime('%Y-%m-%d'), close_date.strftime('%Y')]))
+                    customer_time, rt_time = elapsed_time_in_hours(ticket.time, last_change, owner, customer_time, rt_time)
 
                     for h in history:
                         owner = h.oldvalue or reporter
-                        writer.writerow(encode_row(
-                                [ticket.customer, ticket.project, ticket.cr_id, crs.get(ticket.cr_id), ticket.id, ticket.summary, ticket.type, url(ticket), owner, is_rt_user(owner), elapsed_time_in_minutes(last_change, h.time), ticket.excluded, close_date.strftime('%Y-%m-%d'), close_date.strftime('%Y')]))
+                        customer_time, rt_time = elapsed_time_in_hours(last_change, h.time, owner, customer_time, rt_time)
                         last_change = h.time
+
+                    writer.writerow(encode_row(
+                            [ ticket.customer, ticket.project, ticket.cr_id,
+                              crs.get(ticket.cr_id), ticket.id, ticket.summary,
+                              ticket.type, url(ticket), owner, trac_bool(ticket.open_by_customer),
+                              round_to(rt_time, 0.5), round_to(customer_time, 0.5),
+                              trac_bool(ticket.excluded), close_date.strftime('%Y-%m-%d'),
+                              close_date.strftime('%Y')]))
 
 
 class QualityOperator(Quality):
