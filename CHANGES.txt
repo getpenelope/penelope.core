@@ -1,7 +1,7 @@
 2.1.40 (unreleased)
 -------------------
 
-- Nothing changed yet.
+- increase idnormalizer limit to allow longer project names [amleczko]
 
 
 2.1.39 (2015-02-11)

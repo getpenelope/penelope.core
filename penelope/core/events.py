@@ -136,7 +136,7 @@ def before_project_validated(context, event):
     """called before validation"""
     def my_validator(fs):
         if not fs.id.value:
-            project_id = idnormalizer.normalize(fs.name.value)
+            project_id = idnormalizer.normalize(fs.name.value, max_length=100)
         else:
             project_id = fs.id.value
 
@@ -317,7 +317,7 @@ def before_contract_editrender(context, event):
 def before_contract_validated(context, event):
     """called before validation"""
     def my_validator(fs):
-        contract_id = idnormalizer.normalize('%s_%s' % (fs.project_id.value, fs.name.value))
+        contract_id = idnormalizer.normalize('%s_%s' % (fs.project_id.value, fs.name.value), max_length=100)
 
         if contract_id.lower() in PROJECT_ID_BLACKLIST:
             msg = _('${fs_name_value} is a restricted name! Please choose '

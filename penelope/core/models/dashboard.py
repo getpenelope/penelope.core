@@ -110,7 +110,7 @@ class Role(Base):
 
 
 def new_role_created(mapper, connection, target):
-    target.id = idnormalizer.normalize(target.name)
+    target.id = idnormalizer.normalize(target.name, max_length=100)
 
 event.listen(Role, "before_insert", new_role_created)
 
@@ -319,7 +319,7 @@ class Customer(dublincore.DublinCore, Base):
 
 
 def new_customer_created(mapper, connection, target):
-    target.id = idnormalizer.normalize(target.name)
+    target.id = idnormalizer.normalize(target.name, max_length=100)
 
 event.listen(Customer, "before_insert", new_customer_created)
 event.listen(Customer, "before_insert", dublincore.dublincore_insert)
@@ -461,7 +461,7 @@ class Project(dublincore.DublinCore, Base):
 
 def new_project_created(mapper, connection, target):
     project_id_candidate = target.id or target.name
-    target.id = idnormalizer.normalize(project_id_candidate)
+    target.id = idnormalizer.normalize(project_id_candidate, max_length=100)
     target.inception_date = datetime.datetime.now()
 
 event.listen(Project, "before_insert", new_project_created)
@@ -747,7 +747,7 @@ class Contract(dublincore.DublinCore, workflow.Workflow, Base):
 
 def new_contract_created(mapper, connection, target):
     contract_id_candidate = '%s_%s' % (target.project_id, target.name)
-    target.id = idnormalizer.normalize(contract_id_candidate)
+    target.id = idnormalizer.normalize(contract_id_candidate, max_length=100)
 
 event.listen(Contract, "before_insert", new_contract_created)
 event.listen(Contract, "before_insert", dublincore.dublincore_insert)
@@ -849,7 +849,7 @@ class CustomerRequest(dublincore.DublinCore, workflow.Workflow, Base):
 def after_customer_request_flushed(session, flush_context, instances):
     """ generate unique id per project_id """
     def last_cr4project(obj):
-        project_id = idnormalizer.normalize(obj.project_id or obj.project.name)
+        project_id = idnormalizer.normalize(obj.project_id or obj.project.name, max_length=100)
         last = session.query(CustomerRequest.uid)\
                     .filter_by(project_id=project_id)\
                     .order_by(CustomerRequest.uid.desc()).first()

@@ -61,7 +61,7 @@ progetto nel suo assieme. """),
 class Definition(colander.Schema):
 
     def check_project_id(value):
-        project_id = idnormalizer.normalize(value)
+        project_id = idnormalizer.normalize(value, max_length=100)
         project = DBSession().query(Project).get(project_id)
         if value.lower() in PROJECT_ID_BLACKLIST or project:
             return _('${project_id} is a restricted name or already exists! '
