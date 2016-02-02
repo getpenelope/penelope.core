@@ -74,7 +74,7 @@ class ContractModelView(ModelView):
         result = super(ContractModelView, self).datatable(**kwargs)
         fs = result['fs']
         fs.configure(pk=True, readonly=True)
-        columns = ['name', 'project', 'amount', 'contract_number', 'days', 'start_date',
+        columns = ['name', 'project', 'amount', 'creation_date', 'contract_number', 'days', 'start_date',
                    'end_date', 'workflow_state', 'id']
         self.pick_columns(fs, columns)
 

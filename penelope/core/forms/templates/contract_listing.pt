@@ -59,6 +59,9 @@
                   'aTargets': [${index('end_date')}]
                 },
                 {
+                  'aTargets': [${index('creation_date')}]
+                },
+                {
                   'aTargets': [${index('amount')}]
                 },
                 {
