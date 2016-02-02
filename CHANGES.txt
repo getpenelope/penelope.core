@@ -1,4 +1,4 @@
-2.1.41 (unreleased)
+2.1.41 (2016-02-02)
 -------------------
 
 - Add contract listing [amleczko]
