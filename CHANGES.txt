@@ -1,4 +1,4 @@
-2.1.42 (unreleased)
+2.1.42 (2016-02-02)
 -------------------
 
 - Update contract listing view [amleczko]
