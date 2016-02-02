@@ -53,7 +53,7 @@ requires = [
     'pyramid_zcml',
     'python-cjson',
     'python-dateutil==1.5',
-    'python-openid>=2.0',
+    'python-openid',
     'raven',
     'redis',
     'repoze.tm2>=1.0b1', # default_commit_veto

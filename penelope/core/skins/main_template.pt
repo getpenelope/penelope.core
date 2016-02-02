@@ -86,6 +86,11 @@
                   </a>
                 </li>
                 <li>
+                  <a href="${request.application_url}/admin/Contract">
+                    <tal:translate i18n:translate="label_contracts">contracts</tal:translate>
+                  </a>
+                </li>
+                <li>
                   <a href="${request.application_url}/admin/Customer">
                     <tal:translate i18n:translate="label_customers">customers</tal:translate>
                   </a>

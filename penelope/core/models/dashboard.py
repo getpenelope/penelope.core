@@ -606,7 +606,7 @@ def update_trac_svn_uri(target, value, oldvalue, initiator):
 def update_app_position(mapper, connection, target):
     for n, app in enumerate(target.project.applications):
         if app.id == target.id:
-            if target.position == -1: #  keep last 
+            if target.position == -1: #  keep last
                 app = target.project.applications.pop(n)
                 DBSession().query(Project).get(app.project_id).applications.append(app)
             elif n != target.position:
@@ -820,7 +820,7 @@ class CustomerRequest(dublincore.DublinCore, workflow.Workflow, Base):
                 desc = html2text.html2text(self.description).encode('utf8')
             else:
                 desc = ''
-            params = urllib.urlencode({'summary':str(self), 
+            params = urllib.urlencode({'summary':str(self),
                                        'type': 'task',
                                        'customerrequest': self.id,
                                        'description': desc})
@@ -862,7 +862,7 @@ def after_customer_request_flushed(session, flush_context, instances):
         if isinstance(obj, CustomerRequest):
             project_id, new_uid = last_cr4project(obj)
             if not project_id in last.keys():
-                last[project_id] = new_uid 
+                last[project_id] = new_uid
             else:
                 last[project_id] = last[project_id] + 1
             obj.uid = last[project_id]

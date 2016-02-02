@@ -30,6 +30,14 @@ def configurate(config):
                                   renderer='fa.bootstrap:templates/admin/edit.pt',
                                   model='penelope.core.models.dashboard.Contract',
                                   view=ContractModelView)
+    config.formalchemy_model_view('admin',
+                                  renderer='penelope.core.forms:templates/contract_listing.pt',
+                                  attr='datatable',
+                                  context='pyramid_formalchemy.resources.ModelListing',
+                                  request_method='GET',
+                                  permission='listing',
+                                  model='penelope.core.models.dashboard.Contract',
+                                  view=ContractModelView)
 
 
 
@@ -61,3 +69,14 @@ class ContractModelView(ModelView):
         else:
             return self.force_delete()
 
+    @actions.action('listing')
+    def datatable(self, **kwargs):
+        result = super(ContractModelView, self).datatable(**kwargs)
+        fs = result['fs']
+        fs.configure(pk=True, readonly=True)
+        columns = ['name', 'project', 'amount', 'contract_number', 'days', 'start_date',
+                   'end_date', 'workflow_state', 'id']
+        self.pick_columns(fs, columns)
+
+        return dict(result,
+                    columns=columns)
