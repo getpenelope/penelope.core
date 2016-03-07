@@ -111,7 +111,9 @@ class CustomerReport(object):
 
         qry = qry.filter(te_filter_by_contracts(contracts))
 
-        qry = qry.order_by(sa.desc(TimeEntry.date), sa.desc(TimeEntry.start), sa.desc(TimeEntry.creation_date))
+        qry = qry.order_by(sa.desc(TimeEntry.project_id),
+                           sa.desc(TimeEntry.ticket),
+                           sa.desc(TimeEntry.date))
 
         time_entries = self.request.filter_viewables(qry)
 
@@ -120,14 +122,6 @@ class CustomerReport(object):
             if te.ticket is None:
                 continue
             proj_tickets[te.project_id].add(te.ticket)
-
-        # projectsmap = {
-        #    'project_id': {
-        #         'ticket_id': 'customer_request_id',
-        #         ...
-        #    },
-        #    ...
-        # }
 
         projectsmap = {}
         for project_id, ticket_ids in proj_tickets.items():
@@ -166,23 +160,27 @@ class CustomerReport(object):
                                                         ticket_id=te.ticket))
 
             description = HTML.A(te.description,
-                                    href=timeentry_url(request=self.request,
+                                 href=timeentry_url(request=self.request,
                                                     time_entry=te))
 
-
             entry = {
-                        'customer': te.project.customer.name.strip(),
-                        'project': te.project.name.strip(),
-                        'request': rendered_request,
-                        'ticket_summary': ticket_summary,
-                        'user': te.author.fullname.strip(),
-                        'date': te.date.strftime('%Y-%m-%d'),
-                        'description': description,
-                        'location': te.location,
-                        'ticket_type': ticket_type,
-                        'sensitive': ['no', 'yes'][tkt['sensitive']],
-                        'hours': te.hours,
-                    }
+                'customer': te.project.customer.name.strip(),
+                'project': te.project.name.strip(),
+                'request': rendered_request,
+                'ticket_summary': ticket_summary,
+                'user': te.author.fullname.strip(),
+                'date': te.date.strftime('%Y-%m-%d'),
+                'description': description,
+                'location': te.location,
+                'ticket_type': ticket_type,
+                'sensitive': ['no', 'yes'][tkt['sensitive']],
+                'ticket_number': te.ticket,
+                'ticket_url': ticket_url(request=self.request,
+                                         project=te.project,
+                                         ticket_id=te.ticket),
+                'ticket_status': tkt['status'],
+                'hours': te.hours,
+            }
 
             event = AfterEntryCreatedEvent(entry, te)
             self.request.registry.notify(event)
@@ -190,35 +188,35 @@ class CustomerReport(object):
             rows.append(entry)
 
         columns = [
-                    ('customer', u'Cliente'),
-                    ('project', u'Progetto'),
-                    ('request', u'Request'),
-                    ('ticket_summary', u'Ticket'),
-                    ('ticket_type', u'Tipologia'),
-                    ('sensitive', u'Sensitive'),
-                    ('user', u'Persona'),
-                    ('date', u'Data'),
-                    ('description', u'Descrizione attività'),
-                    ('location', u'Sede'),
-                    ('hours', u'Ore'),
-                ]
+            ('customer', u'Cliente'),
+            ('project', u'Progetto'),
+            ('request', u'Request'),
+            ('ticket_summary', u'Ticket'),
+            ('ticket_type', u'Tipologia'),
+            ('sensitive', u'Sensitive'),
+            ('user', u'Persona'),
+            ('date', u'Data'),
+            ('description', u'Descrizione attività'),
+            ('location', u'Sede'),
+            ('hours', u'Ore'),
+        ]
 
         group_by = {
-                    'project': ['customer', 'project', 'user'],
-                    'request': ['customer', 'project', 'request', 'user'],
-                    'ticket': ['customer', 'project', 'request', 'ticket_summary', 'ticket_type', 'sensitive', 'user'],
-                    'timeentry': None,
-                    'date': ['user', 'date', 'location'],
-                }[detail_level]
+            'project': ['customer', 'project', 'user'],
+            'request': ['customer', 'project', 'request', 'user'],
+            'ticket': ['customer', 'project', 'request', 'ticket_summary',
+                       'ticket_type', 'sensitive', 'user'],
+            'timeentry': None,
+            'date': ['user', 'date', 'location'],
+        }[detail_level]
 
         if group_by:
             rows, columns = self.group(rows, columns, group_by)
 
         return {
-                'rows': rows,
-                'columns': columns,
-                }
-
+            'rows': rows,
+            'columns': columns,
+        }
 
     def group(self, rows, columns, group_by):
         missing = set(group_by) - set(c[0] for c in columns)
@@ -273,21 +271,22 @@ class CustomerReport(object):
         appstruct = form.validate(controls)
 
         detail = self.search(render_links=False, **appstruct)
-
         columns = detail['columns']
 
         rows = [
-                [
-                    self.format_xls(row[col_key])
-                    for col_key, col_title in columns
-                    ] + [timedelta_as_human_str(row['hours'])]
-                for row in detail['rows']
-                ]
+            [
+                self.format_xls(row[col_key])
+                for col_key, col_title in columns
+            ] + [timedelta_as_human_str(row['hours']),
+                 row['ticket_number'], row['ticket_url'], row['ticket_status']]
+            for row in detail['rows']
+        ]
 
         return {
-                'header': [col_title for col_key, col_title in columns] + ['Ore'],
-                'rows': rows,
-                }
+            'header': [col_title for col_key, col_title in columns] +
+                      ['Ore', 'Ticket #', 'Ticket URL', 'Ticket status'],
+            'rows': rows,
+        }
 
 
     @view_config(name='report_custom', route_name='reports', renderer='skin', permission='reports_custom')

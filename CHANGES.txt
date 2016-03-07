@@ -1,7 +1,7 @@
 2.1.43 (unreleased)
 -------------------
 
-- Nothing changed yet.
+- Add more details to customer report [amleczko]
 
 
 2.1.42 (2016-02-02)
