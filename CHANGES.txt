@@ -1,4 +1,4 @@
-2.1.44 (unreleased)
+2.1.44 (2016-03-16)
 -------------------
 
 - Update quality CR in project wizard [amleczko]
