@@ -296,7 +296,7 @@ class Wizard(object):
 
         form['milestones'].widget = SequenceWidget(min_len=1)
         form['contracts'].title = ''
-        form['contracts']['customer_requests'].widget = SequenceWidget(min_len=3)
+        form['contracts']['customer_requests'].widget = SequenceWidget(min_len=1)
 
         controls = self.request.POST.items()
         if controls != []:
@@ -311,10 +311,6 @@ class Wizard(object):
         appstruct['contracts'] ={'customer_requests': []}
         appstruct['contracts']['customer_requests'].append({'ticket': True,
                                                             'title': u'Project management'})
-        appstruct['contracts']['customer_requests'].append({'ticket': True,
-                                                            'title': u'Analisi'})
-        appstruct['contracts']['customer_requests'].append({'ticket': True,
-                                                            'title': u'Supporto'})
         result['form'] = form.render(appstruct=appstruct)
         return result
 
