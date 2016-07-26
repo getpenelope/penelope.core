@@ -44,6 +44,7 @@ font_awesome = Resource(por_library, 'font_awesome/css/font-awesome.css', minifi
 js_md5 = Resource(por_library, 'md5/md5.js', minified='md5/md5.min.js',)
 jquery_pivot_css = Resource(por_library, 'jquery.pivot/jquery_pivot.css')
 jquery_pivot_costs = Resource(por_library, 'jquery.pivot/jquery_pivot_costs.js', depends=[jquery, jquery_pivot_css])
+jquery_pivot_tekken = Resource(por_library, 'jquery.pivot/jquery_pivot_tekken.js', depends=[jquery, jquery_pivot_css])
 jquery_pivot = Resource(por_library, 'jquery.pivot/jquery_pivot.js', depends=[jquery, jquery_pivot_css])
 jquery_pnotify_default_css = Resource(por_library, 'jquery.pnotify/jquery.pnotify.default.css')
 jquery_pnotify_icons_css = Resource(por_library, 'jquery.pnotify/jquery.pnotify.default.icons.css')
@@ -96,6 +97,11 @@ report_all_entries = Group([
 
 report_costs = Group([
     jquery_pivot_costs,
+    all_entries
+    ])
+
+report_tekken = Group([
+    jquery_pivot_tekken,
     all_entries
     ])
 

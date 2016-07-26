@@ -124,6 +124,7 @@ $.fn.tpReport = function tpReport(oConf) {
     $('#report_pivoted').pivot({
                                 source: sourcetable,
                                 formatFunc: function(v) { return (v/60.0/60.0).toFixed(2); },
+                                formatNormalFunc: function(v) { return v.toFixed(2); },
                                 formatEurFunc: function(v) { return v.toFixed(2) + ' €'; },
                                 onResultCellClicked: onResultCellClicked
                             });
