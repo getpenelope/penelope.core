@@ -90,7 +90,7 @@ tests_require = [
 
 
 setup(name='penelope.core',
-      version='2.1.46',
+      version='2.1.47.dev0',
       description='Penelope main package',
       long_description=README + '\n\n' +  CHANGES,
       classifiers=[
