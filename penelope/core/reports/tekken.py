@@ -19,6 +19,7 @@ from penelope.core.models import (
 )
 from penelope.core import fanstatic_resources
 from penelope.core.lib.widgets import SearchButton, PorInlineForm
+from penelope.core.reports.validators import validate_period
 from penelope.core.reports.queries import (
     qry_active_projects,
 )
@@ -73,8 +74,10 @@ class TekkenReport(object):
     class TekkenSchema(colander.MappingSchema):
         customer_id = fields.customer_id.clone()
         project_id = fields.project_id.clone()
+        date_from = fields.date_from.clone()
+        date_to = fields.date_to.clone()
 
-    def search(self, customer_id, project_id):
+    def search(self, customer_id, project_id, date_from, date_to):
         qry = DBSession.query(CustomerRequest)\
                        .join(Contract)\
                        .join(Project)\
@@ -88,6 +91,12 @@ class TekkenReport(object):
 
         if project_id is not colander.null:
             qry = qry.filter(Project.id == project_id)
+
+        if date_from is not colander.null:
+            qry = qry.filter(Contract.end_date >= date_from)
+
+        if date_to is not colander.null:
+            qry = qry.filter(Contract.start_date <= date_to)
 
         rows = []
         id_tree = IDTree()
@@ -116,7 +125,7 @@ class TekkenReport(object):
                  renderer='skin', permission='report_tekken')
     def __call__(self):
         fanstatic_resources.report_tekken.need()
-        schema = self.TekkenSchema().clone()
+        schema = self.TekkenSchema(validator=validate_period).clone()
 
         projects = qry_active_projects()
         project_ids = [p.id for p in projects]
@@ -143,8 +152,9 @@ class TekkenReport(object):
 
         controls = self.request.GET.items()
         base_link = self.request.path_url.rsplit('/', 1)[0]
-        xls_link = '{}/costs_xls?{}'.format(base_link,
-                                            self.request.query_string)
+        xls_link = ''.join(
+            [base_link, '/', 'tekken_xls', '?', self.request.query_string]
+        )
 
         if not controls:
             # the form is empty
@@ -214,11 +224,40 @@ class TekkenReport(object):
         return {
                 'form': form.render(appstruct=appstruct),
                 'qs': self.request.query_string,
-                'xls_link': None,
+                'xls_link': xls_link,
                 'has_results': len(sourcetable['rows']) > 0,
                 'tpReport_oConf': json.dumps({
                                     'sourcetable': sourcetable,
                                     'id_tree': entries_detail['id_tree'],
                                     'groupby': entries_detail['groupby'],
                                 }),
+                }
+
+    @view_config(name='tekken_xls', route_name='reports',
+                 renderer='xls_report', permission='report_tekken')
+    def tekken_xls(self):
+        schema = self.TekkenSchema(validator=validate_period).clone()
+        form = PorInlineForm(schema)
+        controls = self.request.GET.items()
+        appstruct = form.validate(controls)
+
+        detail = self.search(**appstruct)
+        columns = [('project', 'Project'),
+                   ('customer', 'Customer'),
+                   ('contract', 'Contract'),
+                   ('request', 'CR'),
+                   ('estimated_days', 'Estimated days'),
+                   ('worked_days', 'Worked days')]
+
+        rows = [
+                [
+                    self.format_xls(row[col_key])
+                    for col_key, col_title in columns
+                    ]
+                for row in detail['rows']
+                ]
+
+        return {
+                'header': [col_title for col_key, col_title in columns],
+                'rows': rows,
                 }
