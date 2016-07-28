@@ -1,4 +1,4 @@
-2.1.46 (unreleased)
+2.1.46 (2016-07-28)
 -------------------
 
 - Add second tekken report and xls export [amleczko]
